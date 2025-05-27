@@ -17,6 +17,29 @@ class CategoryBasedVoCAnalyzer:
         """
         self.json_file_path = json_file_path
         self.df = None
+        
+        # 유저 여정별 카테고리 매핑
+        self.user_journey_mapping = {
+            '계정·입점': [
+                '입점관리', '스토어관리', '플랜관리', '신규회원가입',
+                '사업자정보/양도양수', '탈퇴/재가입', '브랜드권한신청'
+            ],
+            '상품·콘텐츠': [
+                '상품등록', '상품등록 실패', '상품 조회 및 수정', '채널상품연동',
+                '브리치 기획전신청', '채널딜 진행관리', '상품문의(브리치)', '상품문의(채널)'
+            ],
+            '주문·배송': [
+                '발주/발송관리', '배송현황관리', '배송지연 관리 (결품취소)',
+                '송장등록 실패/ 송장번호 수정', '주문조회', '긴급문의', '배송정책 관리'
+            ],
+            '반품·취소': [
+                '취소관리', '교환관리/교환철회', '반품관리/환불보류'
+            ],
+            '정산': [
+                '구매확정관리', '정산통합', '특약매입정산', '판매대행정산'
+            ]
+        }
+        
         self.load_and_preprocess_data()
         
     def load_and_preprocess_data(self):
@@ -154,6 +177,82 @@ class CategoryBasedVoCAnalyzer:
         
         return category_analysis
 
+    def analyze_by_user_journey(self) -> Dict:
+        """user_journey 기준 분석"""
+        print("🎯 유저 여정별 실제 문의 내용 분석 중...")
+        
+        if 'sub_category' not in self.df.columns or 'question_content' not in self.df.columns:
+            return {"error": "필요한 컬럼이 없습니다."}
+        
+        # 유저 여정별로 sub_category 매핑
+        self.df['user_journey'] = self.df['sub_category'].apply(self._map_to_user_journey)
+        
+        journey_analysis = {}
+        
+        for journey in self.user_journey_mapping.keys():
+            journey_data = self.df[self.df['user_journey'] == journey]
+            
+            if len(journey_data) < 3:  # 최소 3개 이상
+                continue
+            
+            # 기본 정보
+            basic_info = {
+                'total_inquiries': len(journey_data),
+                'urgent_count': journey_data['is_urgent'].sum() if 'is_urgent' in journey_data.columns else 0,
+                'answered_count': len(journey_data[journey_data['answer_status'] == '답변완료']) if 'answer_status' in journey_data.columns else 0,
+                'avg_content_length': round(journey_data['content_length'].mean(), 1) if 'content_length' in journey_data.columns else 0
+            }
+            
+            # 대표 문의 사례들 (다양한 길이로 2개만)
+            samples = []
+            if 'content_length' in journey_data.columns:
+                sorted_data = journey_data.sort_values('content_length')
+                
+                for quantile in [0.3, 0.7]:  # 2개만
+                    idx = int(len(sorted_data) * quantile)
+                    if idx < len(sorted_data):
+                        sample = sorted_data.iloc[idx]
+                        samples.append({
+                            'inquiry_id': sample.get('inquiry_id', 'N/A'),
+                            'content': sample['question_content'],
+                            'length': sample['content_length'],
+                            'sub_category': sample.get('sub_category', 'N/A'),
+                            'assigned_team': sample.get('assigned_team', 'N/A'),
+                            'is_urgent': sample.get('is_urgent', False)
+                        })
+            
+            # 세부 카테고리 분포
+            sub_categories = {}
+            if 'sub_category' in journey_data.columns:
+                sub_cat_counts = journey_data['sub_category'].value_counts().head(5)  # 상위 5개만
+                sub_categories = sub_cat_counts.to_dict()
+            
+            # 담당팀 분포
+            team_distribution = {}
+            if 'assigned_team' in journey_data.columns:
+                team_counts = journey_data['assigned_team'].value_counts()
+                team_distribution = team_counts.to_dict()
+            
+            journey_analysis[journey] = {
+                'basic_info': basic_info,
+                'sample_inquiries': samples,
+                'sub_categories': sub_categories,
+                'team_distribution': team_distribution
+            }
+        
+        return journey_analysis
+    
+    def _map_to_user_journey(self, sub_category):
+        """세부 카테고리를 유저 여정으로 매핑"""
+        if pd.isna(sub_category):
+            return '기타'
+        
+        for journey, categories in self.user_journey_mapping.items():
+            if sub_category in categories:
+                return journey
+        
+        return '기타'  # 매핑되지 않은 카테고리
+
     def analyze_weekly_trends(self) -> Dict:
         """주간별 문의 트렌드"""
         print("📅 주간별 문의 트렌드 분석 중...")
@@ -252,9 +351,14 @@ class CategoryBasedVoCAnalyzer:
             print("2️⃣ 세부 카테고리별 분석...")
         results["category_analysis"] = self.analyze_by_sub_category()
         
-        # 3. 주간별 트렌드
+        # 3. 유저 여정별 분석
         if verbose:
-            print("3️⃣ 주간별 트렌드...")
+            print("3️⃣ 유저 여정별 분석...")
+        results["journey_analysis"] = self.analyze_by_user_journey()
+        
+        # 4. 주간별 트렌드
+        if verbose:
+            print("4️⃣ 주간별 트렌드...")
         results["weekly_trends"] = self.analyze_weekly_trends()
         
         # 결과 저장
@@ -295,6 +399,7 @@ class CategoryBasedVoCAnalyzer:
         ║ 🎯 분석 내용                                                  ║
         ║   • 팀별 실제 문의 내용 및 키워드                              ║
         ║   • 세부 카테고리별 문의 특성                                  ║
+        ║   • 유저 여정별 문의 분포                                      ║
         ║   • 주간별 문의 트렌드                                        ║
         ║   • 대표 문의 사례                                            ║
         ╚══════════════════════════════════════════════════════════════╝
@@ -355,6 +460,10 @@ def main():
         if 'category_analysis' in results:
             cat_count = len(results['category_analysis'])
             print(f"📂 분석된 세부카테고리: {cat_count}개")
+        
+        if 'journey_analysis' in results:
+            journey_count = len(results['journey_analysis'])
+            print(f"🎯 분석된 유저여정: {journey_count}개")
         
         if 'weekly_trends' in results:
             week_count = len(results['weekly_trends'])
