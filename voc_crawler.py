@@ -9,6 +9,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from bs4 import BeautifulSoup
 
+# output 폴더 관리를 위한 임포트
+from output_manager import setup_output_dirs, get_crawl_filename
+
 class QnACrawler:
     def __init__(self, headless=True):
         """
@@ -227,7 +230,7 @@ class QnACrawler:
 
     def navigate_with_next_button(self, target_page):
         """Next 버튼으로 목표 페이지까지 이동"""
-        max_next_clicks = None
+        max_next_clicks = 20  # 최대 클릭 횟수 제한
         next_click_count = 0
         
         while next_click_count < max_next_clicks:
@@ -734,14 +737,17 @@ class QnACrawler:
         finally:
             self.driver.quit()
     
-    def save_to_json(self, filename="qna_data.json"):
-        """수집된 데이터를 JSON 파일로 저장"""
+    def save_to_json(self, filename=None):
+        """수집된 데이터를 JSON 파일로 저장 - output 폴더에!"""
         try:
+            if filename is None:
+                filename = get_crawl_filename()
+            
             with open(filename, 'w', encoding='utf-8') as f:
                 json.dump(self.qna_data, f, ensure_ascii=False, indent=2)
-            print(f"데이터가 {filename}에 저장되었습니다.")
+            print(f"✅ 데이터 저장: {filename}")
         except Exception as e:
-            print(f"파일 저장 중 오류: {e}")
+            print(f"❌ 파일 저장 중 오류: {e}")
     
     def get_data(self):
         """수집된 데이터 반환"""
@@ -752,6 +758,9 @@ if __name__ == "__main__":
     
     print("🚀 Q&A 크롤러 시작")
     print("=" * 50)
+    
+    # output 폴더 설정
+    setup_output_dirs()
     
     # 수동 로그인으로 크롤링
     print("📌 수동 로그인으로 크롤링을 시작합니다.")
@@ -766,8 +775,8 @@ if __name__ == "__main__":
         # 일반 모드로 실행
         crawler.crawl_all_qna(max_pages=None)
         
-        # JSON 파일로 저장
-        crawler.save_to_json("qna_crawl_result.json")
+        # JSON 파일로 저장 - output 폴더에!
+        crawler.save_to_json()
         
         # 수집된 데이터 출력 (샘플)
         data = crawler.get_data()
@@ -809,7 +818,7 @@ if __name__ == "__main__":
             print(f"\n📄 샘플 데이터:")
             print(json.dumps(data[0], ensure_ascii=False, indent=2)[:500] + "...")
             
-            print(f"\n✅ 크롤링 완료! 데이터가 'qna_crawl_result.json'에 저장되었습니다.")
+            print(f"\n✅ 크롤링 완료! 데이터가 output/crawl_data/ 폴더에 저장되었습니다.")
             
         else:
             print("❌ 수집된 데이터가 없습니다.")

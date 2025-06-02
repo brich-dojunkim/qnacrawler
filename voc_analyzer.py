@@ -7,6 +7,8 @@ from typing import Dict, List, Tuple
 import warnings
 warnings.filterwarnings('ignore')
 
+from output_manager import setup_output_dirs, get_analysis_filename
+
 class CategoryBasedVoCAnalyzer:
     def __init__(self, json_file_path: str):
         """
@@ -88,7 +90,6 @@ class CategoryBasedVoCAnalyzer:
         for team in self.df['assigned_team'].dropna().unique():
             team_data = self.df[self.df['assigned_team'] == team]
             
-            # 문의 1개 이상인 팀만 분석 (기존 3개 → 1개로 완화)
             if len(team_data) < 1:
                 continue
             
@@ -100,12 +101,12 @@ class CategoryBasedVoCAnalyzer:
                 'avg_content_length': round(team_data['content_length'].mean(), 1) if 'content_length' in team_data.columns else 0
             }
             
-            # 대표 문의 사례들 (다양한 길이로 2개만)
+            # 대표 문의 사례들
             samples = []
             if 'content_length' in team_data.columns:
                 sorted_data = team_data.sort_values('content_length')
                 
-                for quantile in [0.3, 0.7]:  # 2개만
+                for quantile in [0.3, 0.7]:
                     idx = int(len(sorted_data) * quantile)
                     if idx < len(sorted_data):
                         sample = sorted_data.iloc[idx]
@@ -120,7 +121,7 @@ class CategoryBasedVoCAnalyzer:
             # 세부 카테고리 분포
             sub_categories = {}
             if 'sub_category' in team_data.columns:
-                sub_cat_counts = team_data['sub_category'].value_counts().head(5)  # 상위 5개만
+                sub_cat_counts = team_data['sub_category'].value_counts().head(5)
                 sub_categories = sub_cat_counts.to_dict()
             
             team_analysis[team] = {
@@ -132,7 +133,7 @@ class CategoryBasedVoCAnalyzer:
         return team_analysis
 
     def analyze_by_sub_category(self) -> Dict:
-        """sub_category 기준 분석 - 모든 카테고리 포함"""
+        """sub_category 기준 분석"""
         print("📂 세부 카테고리별 실제 문의 내용 분석 중...")
         
         if 'sub_category' not in self.df.columns or 'question_content' not in self.df.columns:
@@ -142,10 +143,6 @@ class CategoryBasedVoCAnalyzer:
         
         for category in self.df['sub_category'].dropna().unique():
             cat_data = self.df[self.df['sub_category'] == category]
-            
-            # 모든 카테고리 포함 (기존 3개 미만 제외 조건 제거)
-            # if len(cat_data) < 3:
-            #     continue
             
             # 기본 정보
             basic_info = {
@@ -160,7 +157,7 @@ class CategoryBasedVoCAnalyzer:
                 team_counts = cat_data['assigned_team'].value_counts()
                 team_distribution = team_counts.to_dict()
             
-            # 대표 문의 사례들 (최소 1개, 최대 2개)
+            # 대표 문의 사례들
             samples = []
             sample_count = min(2, len(cat_data))
             for i in range(sample_count):
@@ -169,7 +166,8 @@ class CategoryBasedVoCAnalyzer:
                     'inquiry_id': sample.get('inquiry_id', 'N/A'),
                     'content': sample['question_content'][:150] + '...' if len(sample['question_content']) > 150 else sample['question_content'],
                     'assigned_team': sample.get('assigned_team', 'N/A'),
-                    'length': sample.get('content_length', 0)
+                    'length': sample.get('content_length', 0),
+                    'is_urgent': sample.get('is_urgent', False)
                 })
             
             category_analysis[category] = {
@@ -195,7 +193,6 @@ class CategoryBasedVoCAnalyzer:
         for journey in self.user_journey_mapping.keys():
             journey_data = self.df[self.df['user_journey'] == journey]
             
-            # 문의 1개 이상인 여정만 분석 (기존 3개 → 1개로 완화)
             if len(journey_data) < 1:
                 continue
             
@@ -207,12 +204,12 @@ class CategoryBasedVoCAnalyzer:
                 'avg_content_length': round(journey_data['content_length'].mean(), 1) if 'content_length' in journey_data.columns else 0
             }
             
-            # 대표 문의 사례들 (다양한 길이로 2개만)
+            # 대표 문의 사례들
             samples = []
             if 'content_length' in journey_data.columns:
                 sorted_data = journey_data.sort_values('content_length')
                 
-                for quantile in [0.3, 0.7]:  # 2개만
+                for quantile in [0.3, 0.7]:
                     idx = int(len(sorted_data) * quantile)
                     if idx < len(sorted_data):
                         sample = sorted_data.iloc[idx]
@@ -228,7 +225,7 @@ class CategoryBasedVoCAnalyzer:
             # 세부 카테고리 분포
             sub_categories = {}
             if 'sub_category' in journey_data.columns:
-                sub_cat_counts = journey_data['sub_category'].value_counts().head(5)  # 상위 5개만
+                sub_cat_counts = journey_data['sub_category'].value_counts().head(5)
                 sub_categories = sub_cat_counts.to_dict()
             
             # 담당팀 분포
@@ -255,7 +252,7 @@ class CategoryBasedVoCAnalyzer:
             if sub_category in categories:
                 return journey
         
-        return '기타'  # 매핑되지 않은 카테고리
+        return '기타'
 
     def analyze_weekly_trends(self) -> Dict:
         """주간별 문의 트렌드"""
@@ -264,7 +261,7 @@ class CategoryBasedVoCAnalyzer:
         if 'registration_date' not in self.df.columns:
             return {"error": "registration_date 컬럼이 없습니다."}
         
-        # 주간별 집계 (월요일 시작)
+        # 주간별 집계
         self.df['year_week'] = self.df['registration_date'].dt.to_period('W-MON')
         weekly_stats = {}
         
@@ -345,78 +342,53 @@ class CategoryBasedVoCAnalyzer:
             "overall_summary": self.get_overall_summary()
         }
         
-        # 1. 팀별 분석
+        # 분석 실행
         if verbose:
             print("1️⃣ 팀별 분석...")
         results["team_analysis"] = self.analyze_by_assigned_team()
         
-        # 2. 세부 카테고리별 분석
         if verbose:
             print("2️⃣ 세부 카테고리별 분석...")
         results["category_analysis"] = self.analyze_by_sub_category()
         
-        # 3. 유저 여정별 분석
         if verbose:
             print("3️⃣ 유저 여정별 분석...")
         results["journey_analysis"] = self.analyze_by_user_journey()
         
-        # 4. 주간별 트렌드
         if verbose:
             print("4️⃣ 주간별 트렌드...")
         results["weekly_trends"] = self.analyze_weekly_trends()
         
-        # 결과 저장
+        # 결과 저장 - output 폴더에!
         if verbose:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file = f"category_voc_analysis_{timestamp}.json"
+            output_file = get_analysis_filename()
             
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(results, f, ensure_ascii=False, indent=2, default=str)
             
-            print(f"✅ 카테고리 VoC 분석 결과 저장: {output_file}")
+            print(f"✅ 분석 결과 저장: {output_file}")
         
         return results
-
-    def create_summary_dashboard(self) -> str:
-        """간단한 요약 대시보드"""
-        summary = self.get_overall_summary()
-        
-        dashboard = f"""
-        ╔══════════════════════════════════════════════════════════════╗
-        ║                📊 카테고리 기반 VoC 분석                        ║
-        ╠══════════════════════════════════════════════════════════════╣
-        ║ 📈 데이터 개요                                                ║
-        ║   • 총 문의: {summary['total_inquiries']:,}건                      ║
-        ║   • 분석 기간: {summary['date_range']['start']} ~ {summary['date_range']['end']} ║
-        ║   • 담당팀: {summary.get('teams', {}).get('count', 0)}개                ║
-        ║   • 세부카테고리: {summary.get('categories', {}).get('count', 0)}개          ║
-        """
-        
-        if 'urgent_count' in summary:
-            dashboard += f"║   • 긴급 문의: {summary['urgent_count']}건                        ║\n"
-        
-        if 'content_length_stats' in summary:
-            avg_length = summary['content_length_stats']['mean']
-            dashboard += f"║   • 평균 문의 길이: {avg_length}자                          ║\n"
-        
-        dashboard += """║                                                              ║
-        ║ 🎯 분석 내용                                                  ║
-        ║   • 팀별 실제 문의 내용 및 키워드                              ║
-        ║   • 세부 카테고리별 문의 특성                                  ║
-        ║   • 유저 여정별 문의 분포                                      ║
-        ║   • 주간별 문의 트렌드                                        ║
-        ║   • 대표 문의 사례                                            ║
-        ╚══════════════════════════════════════════════════════════════╝
-        """
-        
-        return dashboard
 
 # 메인 실행 함수
 def main():
     import os
     
-    # JSON 파일 찾기
-    json_files = [f for f in os.listdir('.') if f.endswith('.json') and 'qna' in f.lower()]
+    # output 폴더 설정
+    setup_output_dirs()
+    
+    # JSON 파일 찾기 - 현재 폴더와 output/crawl_data/ 둘 다 확인
+    json_files = []
+    
+    # 현재 폴더에서 찾기 (기존 파일들)
+    current_files = [f for f in os.listdir('.') if f.endswith('.json') and 'qna' in f.lower()]
+    json_files.extend(current_files)
+    
+    # output/crawl_data/ 폴더에서 찾기 (새로 생성된 파일들)
+    crawl_dir = "output/crawl_data"
+    if os.path.exists(crawl_dir):
+        crawl_files = [os.path.join(crawl_dir, f) for f in os.listdir(crawl_dir) if f.endswith('.json')]
+        json_files.extend(crawl_files)
     
     if not json_files:
         print("❌ Q&A JSON 파일을 찾을 수 없습니다.")
@@ -427,13 +399,10 @@ def main():
     print(f"📁 분석할 파일: {json_file}")
     
     try:
-        # 카테고리 기반 VoC 분석기 초기화
+        # 분석기 초기화
         analyzer = CategoryBasedVoCAnalyzer(json_file)
         
-        # 대시보드 출력
-        print(analyzer.create_summary_dashboard())
-        
-        # 카테고리 기반 VoC 분석 실행
+        # 분석 실행
         results = analyzer.generate_category_voc_analysis(verbose=True)
         
         # HTML 보고서 생성
@@ -443,40 +412,15 @@ def main():
             html_reporter = CategoryVoCHTMLReporter(analyzer.df)
             html_filename = html_reporter.save_and_open_html_report(results)
             
-            print(f"\n🎉 카테고리 기반 VoC 분석 완료!")
-            print(f"📄 HTML 보고서: {html_filename}")
+            print(f"\n🎉 분석 완료!")
+            print(f"📊 분석 결과: output/analysis/")
+            print(f"📄 HTML 보고서: output/reports/")
             
         except ImportError:
-            print("HTML 리포터를 찾을 수 없습니다. voc_html_reporter.py 파일을 확인해주세요.")
-        
-        print("\n💡 분석 결과 요약:")
-        
-        if 'team_analysis' in results:
-            team_count = len(results['team_analysis'])
-            print(f"📊 분석된 팀: {team_count}개")
-            
-            if results['team_analysis']:
-                # 가장 문의가 많은 팀
-                max_team = max(results['team_analysis'].items(), 
-                             key=lambda x: x[1]['basic_info']['total_inquiries'])
-                print(f"📈 최다 문의 팀: {max_team[0]} ({max_team[1]['basic_info']['total_inquiries']}건)")
-        
-        if 'category_analysis' in results:
-            cat_count = len(results['category_analysis'])
-            print(f"📂 분석된 세부카테고리: {cat_count}개")
-        
-        if 'journey_analysis' in results:
-            journey_count = len(results['journey_analysis'])
-            print(f"🎯 분석된 유저여정: {journey_count}개")
-        
-        if 'weekly_trends' in results:
-            week_count = len(results['weekly_trends'])
-            print(f"📅 분석된 주간: {week_count}주")
+            print("HTML 리포터를 찾을 수 없습니다.")
         
     except Exception as e:
         print(f"❌ 분석 중 오류: {e}")
-        import traceback
-        traceback.print_exc()
 
 if __name__ == "__main__":
     main()

@@ -1,6 +1,6 @@
-# voc_html_reporter.py (새로운 메인 파일 - 깔끔해진 버전)
+# voc_html_reporter.py (output 폴더 버전)
 """
-카테고리 기반 VoC HTML 보고서 생성기 (모듈화 버전)
+카테고리 기반 VoC HTML 보고서 생성기
 """
 
 import pandas as pd
@@ -19,15 +19,17 @@ from html_reporter import (
     process_overview_data, process_team_data, process_journey_data, process_category_data
 )
 
+from output_manager import get_report_filename
+
 class CategoryVoCHTMLReporter:
-    """카테고리 기반 VoC HTML 보고서 생성기 (모듈화 버전)"""
+    """카테고리 기반 VoC HTML 보고서 생성기"""
     
     def __init__(self, df: pd.DataFrame):
         self.df = df
 
     def generate_html_report(self, results: dict) -> str:
         """HTML 보고서 생성 - 탭 기반 레이아웃"""
-        print("🌐 카테고리 기반 HTML 보고서 생성 중...")
+        print("🌐 HTML 보고서 생성 중...")
         
         # 데이터 처리
         overview_data = process_overview_data(results)
@@ -45,7 +47,7 @@ class CategoryVoCHTMLReporter:
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
     <style>{get_main_styles()}</style>
     <style>
-        /* 탭 스타일 추가 */
+        /* 탭 스타일 */
         .tab-navigation {{
             background: white;
             border-bottom: 1px solid #e2e8f0;
@@ -125,7 +127,7 @@ class CategoryVoCHTMLReporter:
             <!-- 팀별 분석 탭 -->
             <div id="teams" class="tab-content">"""
         
-        # 팀별 섹션 내용
+        # 팀별 섹션
         team_cards_html = ""
         for team in team_cards:
             team_cards_html += get_team_card_template().format(**team)
@@ -137,7 +139,7 @@ class CategoryVoCHTMLReporter:
             <!-- 유저 여정 탭 -->
             <div id="journey" class="tab-content">"""
         
-        # 유저 여정별 섹션 내용  
+        # 유저 여정별 섹션
         journey_cards_html = ""
         for journey in journey_cards:
             journey_cards_html += get_journey_card_template().format(**journey)
@@ -149,7 +151,7 @@ class CategoryVoCHTMLReporter:
             <!-- 세부 카테고리 탭 -->
             <div id="categories" class="tab-content">"""
         
-        # 카테고리별 섹션 내용
+        # 카테고리별 섹션
         category_cards_html = ""
         modals_html = ""
         for category in category_cards:
@@ -196,11 +198,11 @@ class CategoryVoCHTMLReporter:
         return html_content
 
     def save_and_open_html_report(self, results: dict) -> str:
-        """HTML 보고서 저장 및 브라우저에서 열기"""
+        """HTML 보고서 저장 및 브라우저에서 열기 - output 폴더에!"""
         html_content = self.generate_html_report(results)
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"category_voc_report_{timestamp}.html"
+        # output/reports/ 폴더에 저장
+        filename = get_report_filename()
         
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
@@ -217,12 +219,11 @@ class CategoryVoCHTMLReporter:
         return filename
 
     def save_html_only(self, results: dict, filename: str = None) -> str:
-        """HTML 보고서만 저장 (브라우저 열기 없음)"""
+        """HTML 보고서만 저장"""
         html_content = self.generate_html_report(results)
         
         if filename is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"category_voc_report_{timestamp}.html"
+            filename = get_report_filename()
         
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
