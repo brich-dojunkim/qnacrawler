@@ -52,7 +52,9 @@ def get_overview_template():
                 </div>
             </div>
         </div>
-        {rank_tables}
+        <div class="grid grid-2">
+            {rank_tables}
+        </div>
     </div>
 </div>"""
 
@@ -103,7 +105,7 @@ def get_category_section_template():
 def get_category_card_template():
     return """<div class="entity-card" data-team="{main_team}" data-journey="{main_journey}" data-count="{total_inquiries}">
     <div class="entity-card-header">
-        <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{name}</h3>  <!-- category_name을 name으로 변경 -->
+        <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{name}</h3>
         <span class="entity-card-badge">{total_inquiries}건</span>
     </div>
     <ul class="metrics-list">
@@ -137,6 +139,33 @@ def get_modal_template():
             {content}
         </div>
     </div>
+</div>"""
+
+def get_journey_section_template():
+    return """<div class="major-section">
+    <div class="major-section-header">
+        <h2>유저 여정별 문의 내용 분석</h2>
+    </div>
+    <div class="major-section-content">
+        <div class="grid grid-5">
+            {journey_cards}
+        </div>
+    </div>
+</div>"""
+
+def get_journey_card_template():
+    return """<div class="entity-card">
+    <div class="entity-card-header">
+        <h3 class="entity-card-title">{name}</h3>
+        <span class="entity-card-badge">{total_inquiries}건</span>
+    </div>
+    <ul class="metrics-list">
+        <li><span class="metric-name">총 문의</span><span class="metric-number">{total_inquiries}</span></li>
+        <li><span class="metric-name">긴급</span><span class="metric-number">{urgent_count}</span></li>
+        <li><span class="metric-name">답변완료</span><span class="metric-number">{answered_count}</span></li>
+        <li><span class="metric-name">평균길이</span><span class="metric-number">{avg_content_length}</span></li>
+    </ul>
+    {sub_categories}
 </div>"""
 
 def get_footer_template():

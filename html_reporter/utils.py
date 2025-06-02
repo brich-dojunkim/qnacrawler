@@ -11,11 +11,69 @@ def format_number(num):
 def process_overview_data(results):
     """개요 데이터 처리"""
     overall_summary = results.get('overall_summary', {})
-    return {
+    
+    # 기본 데이터
+    overview_data = {
         'total_inquiries': overall_summary.get('total_inquiries', 0),
         'urgent_count': overall_summary.get('urgent_count', 0),
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
+    
+    # 순위표 생성
+    rank_tables = ""
+    
+    # 팀별 분포 순위표
+    if 'team_analysis' in results:
+        team_data = results['team_analysis']
+        if team_data:
+            sorted_teams = sorted(team_data.items(), 
+                                key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                                reverse=True)
+            
+            total_inquiries = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
+            
+            team_table_html = '<h4 class="rank-table-title">팀별 문의 분포</h4>'
+            
+            for idx, (team_name, team_info) in enumerate(sorted_teams, 1):
+                count = team_info['basic_info']['total_inquiries']
+                percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                
+                team_table_html += f'''
+                <div class="rank-row">
+                    <div class="rank-number">{idx}</div>
+                    <div class="rank-name">{team_name}</div>
+                    <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                </div>'''
+            
+            rank_tables += f'<div class="entity-card" style="margin-bottom: 1rem;">{team_table_html}</div>'
+    
+    # 유저 여정별 분포 순위표
+    if 'journey_analysis' in results:
+        journey_data = results['journey_analysis']
+        if journey_data:
+            sorted_journeys = sorted(journey_data.items(), 
+                                   key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                                   reverse=True)
+            
+            total_inquiries = sum(data['basic_info']['total_inquiries'] for _, data in sorted_journeys)
+            
+            journey_table_html = '<h4 class="rank-table-title">유저 여정별 문의 분포</h4>'
+            
+            for idx, (journey_name, journey_info) in enumerate(sorted_journeys, 1):
+                count = journey_info['basic_info']['total_inquiries']
+                percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                
+                journey_table_html += f'''
+                <div class="rank-row">
+                    <div class="rank-number">{idx}</div>
+                    <div class="rank-name">{journey_name}</div>
+                    <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                </div>'''
+            
+            rank_tables += f'<div class="entity-card">{journey_table_html}</div>'
+    
+    overview_data['rank_tables'] = rank_tables
+    return overview_data
 
 def process_team_data(results):
     """팀별 데이터 처리"""
@@ -97,6 +155,34 @@ def process_category_data(results):
         })
     
     return category_cards
+
+def process_journey_data(results):
+    """유저 여정별 데이터 처리"""
+    if 'journey_analysis' not in results:
+        return []
+    
+    journey_cards = []
+    for journey_name, journey_info in results['journey_analysis'].items():
+        basic_info = journey_info['basic_info']
+        
+        # 세부 카테고리 처리
+        sub_categories_html = ""
+        if journey_info.get('sub_categories'):
+            sub_categories_html = '<div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>'
+            for idx, (category, count) in enumerate(sorted(journey_info['sub_categories'].items(), key=lambda x: x[1], reverse=True)[:5], 1):
+                sub_categories_html += f'<div class="simple-item"><span class="simple-rank">{idx}</span><span class="simple-name">{category}</span><span class="simple-value">{count}건</span></div>'
+            sub_categories_html += '</div>'
+        
+        journey_cards.append({
+            'name': journey_name,
+            'total_inquiries': basic_info['total_inquiries'],
+            'urgent_count': basic_info['urgent_count'],
+            'answered_count': basic_info['answered_count'],
+            'avg_content_length': round(basic_info['avg_content_length']),
+            'sub_categories': sub_categories_html
+        })
+    
+    return journey_cards
 
 def get_journey_for_category(category_name):
     """세부 카테고리를 유저 여정으로 매핑"""

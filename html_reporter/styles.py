@@ -158,6 +158,10 @@ body {
     grid-template-columns: repeat(3, 1fr);
 }
 
+.grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
 .grid-4 {
     grid-template-columns: repeat(4, 1fr);
 }
@@ -270,6 +274,223 @@ body {
     background: #1d4ed8;
 }
 
+/* 필터 버튼 스타일 */
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: #2563eb;
+    color: #2563eb;
+}
+
+.filter-btn.active {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: white;
+}
+
+/* 배지 스타일들 */
+.journey-badge {
+    background: #10b981;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.team-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+}
+
+.team-badge {
+    background: #f59e0b;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.small-subsection-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    margin-top: 1rem;
+    color: #374151;
+}
+
+/* 순위표 스타일 (컴팩트) */
+.rank-table-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #374151;
+}
+
+.rank-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding: 0.3rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.rank-row:hover {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.rank-number {
+    min-width: 40px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2563eb;
+    text-align: center;
+}
+
+.rank-name {
+    flex: 1;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #374151;
+    margin-left: 0.75rem;
+}
+
+.rank-value {
+    min-width: 80px;
+    text-align: right;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.rank-summary {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.7rem;
+    color: #6b7280;
+    justify-content: center;
+}
+
+/* 단순한 목록 스타일 */
+.simple-list {
+    margin: 1rem 0;
+}
+
+.simple-list-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.simple-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    padding: 0.2rem 0;
+    font-size: 0.75rem;
+}
+
+.simple-rank {
+    min-width: 20px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.simple-name {
+    flex: 1;
+    margin-left: 0.5rem;
+    color: #374151;
+}
+
+.simple-value {
+    min-width: 50px;
+    text-align: right;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+/* 문의 카드 개선 */
+.inquiry-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.inquiry-card:hover {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.inquiry-card:last-child {
+    margin-bottom: 0;
+}
+
+.inquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.inquiry-content {
+    color: #374151;
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.urgency-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.urgency-urgent {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.urgency-normal {
+    background: #f0f9ff;
+    color: #0369a1;
+}
+
+/* 그리드 확장 */
+.grid-5 {
+    grid-template-columns: repeat(5, 1fr);
+}
+
 .footer {
     text-align: center;
     padding: 2rem;
@@ -281,14 +502,52 @@ body {
 
 @media (max-width: 1200px) {
     .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .grid-5 { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 768px) {
     .main-content { padding: 1rem; }
-    .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
     .data-stats {
         flex-direction: column;
         gap: 1rem;
+    }
+    .filter-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .rank-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.25rem;
+    }
+    .rank-number {
+        min-width: auto;
+        text-align: left;
+    }
+    .rank-name {
+        margin-left: 0;
+    }
+    .rank-value {
+        text-align: left;
+        min-width: auto;
+    }
+    .rank-summary {
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+    }
+    .simple-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.1rem;
+    }
+    .simple-rank, .simple-name, .simple-value {
+        min-width: auto;
+        text-align: left;
+    }
+    .team-badges {
+        justify-content: flex-start;
     }
 }
 """
