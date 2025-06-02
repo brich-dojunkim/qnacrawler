@@ -1,15 +1,8 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import base64
-from io import BytesIO
 import webbrowser
 import os
 from datetime import datetime
 from typing import Dict
-
-# 한글 폰트 설정
-plt.rcParams['font.family'] = ['DejaVu Sans', 'Arial Unicode MS', 'AppleGothic']
-plt.rcParams['axes.unicode_minus'] = False
 
 class CategoryVoCHTMLReporter:
     def __init__(self, df: pd.DataFrame):
@@ -21,214 +14,174 @@ class CategoryVoCHTMLReporter:
         """
         self.df = df
 
-    def create_chart_base64(self, fig) -> str:
-        """matplotlib 차트를 base64 인코딩된 이미지로 변환"""
-        buffer = BytesIO()
-        fig.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
-        buffer.seek(0)
-        image_base64 = base64.b64encode(buffer.getvalue()).decode()
-        buffer.close()
-        plt.close(fig)
-        return f"data:image/png;base64,{image_base64}"
-
-    def generate_charts(self, results: Dict) -> Dict:
-        """분석 결과를 위한 차트들 생성"""
-        charts = {}
+    def generate_text_tables(self, results: Dict) -> Dict:
+        """분석 결과를 위한 텍스트 표들 생성"""
+        text_tables = {}
         
-        # 1. 팀별 문의 건수 차트 (세로 바차트)
+        # 1. 팀별 문의 분포 텍스트 표 (카드 컴포넌트 없이)
         if 'team_analysis' in results:
             team_data = results['team_analysis']
             
             if team_data:
-                fig, ax = plt.subplots(figsize=(8, 5))
+                # 데이터 정렬 (문의 건수 기준 내림차순)
+                sorted_teams = sorted(team_data.items(), 
+                                    key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                                    reverse=True)
                 
-                teams = list(team_data.keys())
-                counts = [team_data[team]['basic_info']['total_inquiries'] for team in teams]
+                total_inquiries = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
                 
-                bars = ax.bar(range(len(teams)), counts, color='steelblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+                team_table_html = '<h4 class="rank-table-title">팀별 문의 분포</h4>'
                 
-                # 막대 위에 값 표시
-                for i, bar in enumerate(bars):
-                    height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height,
-                           f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+                for idx, (team_name, team_info) in enumerate(sorted_teams, 1):
+                    count = team_info['basic_info']['total_inquiries']
+                    percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                    
+                    team_table_html += f'''
+                    <div class="rank-row">
+                        <div class="rank-number">{idx}</div>
+                        <div class="rank-name">{team_name}</div>
+                        <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                    </div>'''
                 
-                ax.set_title('팀별 문의 분포', fontsize=12, fontweight='bold', pad=15)
-                ax.set_ylabel('건수', fontsize=11)
-                ax.set_xlabel('팀', fontsize=11)
-                
-                # x축 라벨 설정
-                ax.set_xticks(range(len(teams)))
-                ax.set_xticklabels(teams, rotation=45, ha='right', fontsize=10)
-                ax.grid(True, alpha=0.3, axis='y')
-                
-                # y축 시작을 0으로 설정
-                ax.set_ylim(bottom=0)
-                
-                plt.tight_layout()
-                charts['team_overview'] = self.create_chart_base64(fig)
+                text_tables['team_overview'] = team_table_html
 
-        # 1-2. 유저 여정별 문의 건수 차트 (세로 바차트)
+        # 2. 유저 여정별 문의 분포 텍스트 표 (카드 컴포넌트 없이)
         if 'journey_analysis' in results:
             journey_data = results['journey_analysis']
             
             if journey_data:
-                fig, ax = plt.subplots(figsize=(8, 5))
+                # 문의 건수로 정렬 (순위표이므로)
+                sorted_journeys = sorted(journey_data.items(), 
+                                       key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                                       reverse=True)
                 
-                journeys = list(journey_data.keys())
-                counts = [journey_data[journey]['basic_info']['total_inquiries'] for journey in journeys]
+                total_inquiries = sum(data['basic_info']['total_inquiries'] for _, data in sorted_journeys)
                 
-                bars = ax.bar(range(len(journeys)), counts, color='#10b981', alpha=0.8, edgecolor='#059669', linewidth=0.5)
+                journey_table_html = '<h4 class="rank-table-title">유저 여정별 문의 분포</h4>'
                 
-                # 막대 위에 값 표시
-                for i, bar in enumerate(bars):
-                    height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height,
-                           f'{int(height)}', ha='center', va='bottom', fontsize=10, fontweight='bold')
+                for idx, (journey_name, journey_info) in enumerate(sorted_journeys, 1):
+                    count = journey_info['basic_info']['total_inquiries']
+                    percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                    
+                    journey_table_html += f'''
+                    <div class="rank-row">
+                        <div class="rank-number">{idx}</div>
+                        <div class="rank-name">{journey_name}</div>
+                        <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                    </div>'''
                 
-                ax.set_title('유저 여정별 문의 분포', fontsize=12, fontweight='bold', pad=15)
-                ax.set_ylabel('건수', fontsize=11)
-                ax.set_xlabel('유저 여정', fontsize=11)
-                
-                # x축 라벨 설정
-                ax.set_xticks(range(len(journeys)))
-                ax.set_xticklabels(journeys, rotation=45, ha='right', fontsize=10)
-                ax.grid(True, alpha=0.3, axis='y')
-                
-                # y축 시작을 0으로 설정
-                ax.set_ylim(bottom=0)
-                
-                plt.tight_layout()
-                charts['journey_overview'] = self.create_chart_base64(fig)
+                text_tables['journey_overview'] = journey_table_html
 
-        # 2. 주간별 문의 트렌드 (세로 바 차트로 변경)
+        # 3. 주간별 문의 트렌드 텍스트 표 (카드 컴포넌트 없이)
         if 'weekly_trends' in results:
             weekly_data = results['weekly_trends']
             
             if weekly_data:
-                fig, ax = plt.subplots(figsize=(10, 5))
+                # 주간 데이터 정렬 (최신순)
+                sorted_weeks = sorted(weekly_data.items())
                 
-                weeks = list(weekly_data.keys())
-                counts = [weekly_data[week]['total_inquiries'] for week in weeks]
+                avg_weekly = sum(weekly_data[week]['total_inquiries'] for week in weekly_data.keys()) / len(weekly_data) if weekly_data else 0
                 
-                # 실제 날짜 라벨 생성
-                date_labels = []
-                for week_str in weeks:
+                weekly_table_html = '<h4 class="rank-table-title">주간별 문의 트렌드 (최근 8주)</h4>'
+                
+                # 최근 8주만 표시
+                recent_weeks = sorted_weeks[-8:]
+                
+                for week_str, week_info in recent_weeks:
+                    count = week_info['total_inquiries']
+                    
+                    # 주간 라벨 생성
                     try:
-                        # Period 문자열을 파싱하여 실제 날짜로 변환
                         week_period = pd.Period(week_str, freq='W-MON')
                         start_date = week_period.start_time
                         end_date = week_period.end_time
-                        date_labels.append(f"{start_date.strftime('%m/%d')}-{end_date.strftime('%m/%d')}")
+                        week_label = f"{start_date.strftime('%m/%d')}-{end_date.strftime('%m/%d')}"
                     except:
-                        # 파싱 실패시 기존 방식
-                        date_labels.append(f'W{len(date_labels)+1}')
+                        week_label = week_str
+                    
+                    # 트렌드 텍스트
+                    if count > avg_weekly * 1.1:
+                        trend_text = "상승"
+                    elif count < avg_weekly * 0.9:
+                        trend_text = "하락"
+                    else:
+                        trend_text = "평균"
+                    
+                    weekly_table_html += f'''
+                    <div class="rank-row">
+                        <div class="rank-number">{trend_text}</div>
+                        <div class="rank-name">{week_label}</div>
+                        <div class="rank-value">{count}건</div>
+                    </div>'''
                 
-                # 세로 바 차트 생성
-                bars = ax.bar(range(len(weeks)), counts, color='steelblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+                # 요약 정보 추가
+                max_weekly = max(weekly_data[week]['total_inquiries'] for week in weekly_data.keys())
+                min_weekly = min(weekly_data[week]['total_inquiries'] for week in weekly_data.keys())
                 
-                # 막대 위에 값 표시
-                for i, bar in enumerate(bars):
-                    height = bar.get_height()
-                    ax.text(bar.get_x() + bar.get_width()/2., height,
-                           f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
+                weekly_table_html += f'''
+                <div class="rank-summary">
+                    <span>평균: {avg_weekly:.0f}건</span>
+                    <span>최고: {max_weekly}건</span>
+                    <span>최저: {min_weekly}건</span>
+                </div>'''
                 
-                ax.set_title('주간별 문의 건수 추이', fontsize=12, fontweight='bold', pad=15)
-                ax.set_ylabel('건수', fontsize=11)
-                ax.set_xlabel('주간', fontsize=11)
-                
-                # x축 라벨을 실제 날짜로 설정
-                ax.set_xticks(range(len(weeks)))
-                ax.set_xticklabels(date_labels, rotation=45, ha='right', fontsize=9)
-                ax.grid(True, alpha=0.3, axis='y')
-                
-                # y축 시작을 0으로 설정
-                ax.set_ylim(bottom=0)
-                
-                plt.tight_layout()
-                charts['weekly_trend'] = self.create_chart_base64(fig)
+                text_tables['weekly_trend'] = weekly_table_html
 
-        # 3. 팀별 세부 카테고리 분포 시각화 (세로 바차트로 변경)
+        # 4. 팀별 세부 카테고리 분포 - 단순한 목록
         if 'team_analysis' in results:
             team_data = results['team_analysis']
-            
-            # 각 팀별로 세부 카테고리 분포 차트 생성
-            team_category_charts = {}
+            team_category_tables = {}
             
             for team_name, team_info in team_data.items():
                 if team_info['sub_categories']:
-                    fig, ax = plt.subplots(figsize=(8, 5))
+                    # 카테고리를 건수 기준으로 정렬
+                    categories = sorted(team_info['sub_categories'].items(), 
+                                      key=lambda x: x[1], reverse=True)[:5]  # 상위 5개
                     
-                    categories = list(team_info['sub_categories'].keys())[:5]  # 상위 5개
-                    values = list(team_info['sub_categories'].values())[:5]
+                    table_html = '<div class="simple-list">'
+                    table_html += f'<h5 class="simple-list-title">세부 카테고리 분포</h5>'
                     
-                    # 세로 바 차트 생성
-                    bars = ax.bar(range(len(categories)), values, color='steelblue', alpha=0.8, edgecolor='navy', linewidth=0.5)
+                    for idx, (category, count) in enumerate(categories, 1):
+                        table_html += f'''
+                        <div class="simple-item">
+                            <span class="simple-rank">{idx}</span>
+                            <span class="simple-name">{category}</span>
+                            <span class="simple-value">{count}건</span>
+                        </div>'''
                     
-                    # 막대 위에 값 표시
-                    for i, bar in enumerate(bars):
-                        height = bar.get_height()
-                        ax.text(bar.get_x() + bar.get_width()/2., height,
-                               f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
-                    
-                    ax.set_title(f'세부 카테고리 분포', fontsize=11, fontweight='bold', pad=15)
-                    ax.set_ylabel('건수', fontsize=10)
-                    ax.set_xlabel('카테고리', fontsize=10)
-                    
-                    # x축 라벨 설정
-                    ax.set_xticks(range(len(categories)))
-                    ax.set_xticklabels(categories, rotation=45, ha='right', fontsize=9)
-                    ax.grid(True, alpha=0.3, axis='y')
-                    
-                    # y축 시작을 0으로 설정
-                    ax.set_ylim(bottom=0)
-                    
-                    plt.tight_layout()
-                    team_category_charts[team_name] = self.create_chart_base64(fig)
+                    table_html += '</div>'
+                    team_category_tables[team_name] = table_html
             
-            charts['team_categories'] = team_category_charts
+            text_tables['team_categories'] = team_category_tables
 
-        # 4. 유저 여정별 세부 카테고리 분포 시각화 (세로 바차트)
+        # 5. 유저 여정별 세부 카테고리 분포 - 단순한 목록
         if 'journey_analysis' in results:
             journey_data = results['journey_analysis']
-            
-            # 각 여정별로 세부 카테고리 분포 차트 생성
-            journey_category_charts = {}
+            journey_category_tables = {}
             
             for journey_name, journey_info in journey_data.items():
                 if journey_info['sub_categories']:
-                    fig, ax = plt.subplots(figsize=(8, 5))
+                    # 카테고리를 건수 기준으로 정렬
+                    categories = sorted(journey_info['sub_categories'].items(), 
+                                      key=lambda x: x[1], reverse=True)[:5]  # 상위 5개
                     
-                    categories = list(journey_info['sub_categories'].keys())[:5]  # 상위 5개
-                    values = list(journey_info['sub_categories'].values())[:5]
+                    table_html = '<div class="simple-list">'
+                    table_html += f'<h5 class="simple-list-title">세부 카테고리 분포</h5>'
                     
-                    # 세로 바 차트 생성
-                    bars = ax.bar(range(len(categories)), values, color='#10b981', alpha=0.8, edgecolor='#059669', linewidth=0.5)
+                    for idx, (category, count) in enumerate(categories, 1):
+                        table_html += f'''
+                        <div class="simple-item">
+                            <span class="simple-rank">{idx}</span>
+                            <span class="simple-name">{category}</span>
+                            <span class="simple-value">{count}건</span>
+                        </div>'''
                     
-                    # 막대 위에 값 표시
-                    for i, bar in enumerate(bars):
-                        height = bar.get_height()
-                        ax.text(bar.get_x() + bar.get_width()/2., height,
-                               f'{int(height)}', ha='center', va='bottom', fontsize=9, fontweight='bold')
-                    
-                    ax.set_title(f'세부 카테고리 분포', fontsize=11, fontweight='bold', pad=15)
-                    ax.set_ylabel('건수', fontsize=10)
-                    ax.set_xlabel('카테고리', fontsize=10)
-                    
-                    # x축 라벨 설정
-                    ax.set_xticks(range(len(categories)))
-                    ax.set_xticklabels(categories, rotation=45, ha='right', fontsize=9)
-                    ax.grid(True, alpha=0.3, axis='y')
-                    
-                    # y축 시작을 0으로 설정
-                    ax.set_ylim(bottom=0)
-                    
-                    plt.tight_layout()
-                    journey_category_charts[journey_name] = self.create_chart_base64(fig)
+                    table_html += '</div>'
+                    journey_category_tables[journey_name] = table_html
             
-            charts['journey_categories'] = journey_category_charts
+            text_tables['journey_categories'] = journey_category_tables
 
-        return charts
+        return text_tables
 
     def _get_journey_for_category(self, category_name):
         """세부 카테고리를 유저 여정으로 매핑하는 간단한 함수"""
@@ -263,19 +216,17 @@ class CategoryVoCHTMLReporter:
         """HTML 보고서 생성"""
         print("🌐 카테고리 기반 HTML 보고서 생성 중...")
         
-        # 차트 생성
-        charts = self.generate_charts(results)
+        # 텍스트 표 생성
+        text_tables = self.generate_text_tables(results)
         
         # 기본 정보
         overall_summary = results.get('overall_summary', {})
         total_inquiries = overall_summary.get('total_inquiries', 0)
+        urgent_count = overall_summary.get('urgent_count', 0)
         analysis_date = results.get('analysis_timestamp', datetime.now().isoformat())
         
-        # HTML 시작
-        html_parts = []
-        
-        # HTML 헤더
-        html_parts.append("""<!DOCTYPE html>
+        # HTML 생성
+        html_content = f"""<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -283,149 +234,196 @@ class CategoryVoCHTMLReporter:
     <title>카테고리 기반 VoC 분석 보고서</title>
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
     <style>
-        body {
+        body {{
             font-family: 'Pretendard', -apple-system, sans-serif;
             margin: 0;
             padding: 1rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-        }
-        .container {
+        }}
+        .container {{
             max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 16px;
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
             overflow: hidden;
-        }
-        .header {
+        }}
+        .header {{
             background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
             color: white;
             padding: 2rem;
             text-align: center;
-        }
-        .header h1 {
+        }}
+        .header h1 {{
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-        }
-        .main-content {
+        }}
+        .main-content {{
             padding: 2rem;
-        }
-        .major-section {
+        }}
+        .major-section {{
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             margin-bottom: 2rem;
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-        }
-        .major-section-header {
+        }}
+        .major-section-header {{
             background: #f8fafc;
             padding: 1.5rem;
             border-bottom: 1px solid #e2e8f0;
-        }
-        .major-section-header h2 {
+        }}
+        .major-section-header h2 {{
             font-size: 1.5rem;
             font-weight: 600;
             margin: 0;
-        }
-        .major-section-content {
+        }}
+        .major-section-content {{
             padding: 1.5rem;
-        }
-        .entity-card {
+        }}
+        .entity-card {{
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             padding: 1.5rem;
             transition: all 0.2s ease;
-        }
-        .entity-card:hover {
+        }}
+        .entity-card:hover {{
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             transform: translateY(-2px);
-        }
-        .entity-card-header {
+        }}
+        .entity-card-header {{
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
             border-bottom: 1px solid #e2e8f0;
-        }
-        .entity-card-title {
+        }}
+        .entity-card-title {{
             font-size: 1.125rem;
             font-weight: 600;
             margin: 0;
-        }
-        .entity-card-badge {
+        }}
+        .entity-card-badge {{
             background: #2563eb;
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             font-weight: 500;
-        }
-        .grid {
+        }}
+        
+        /* 데이터 현황 가로 배치 */
+        .data-overview {{
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }}
+        .data-overview:hover {{
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }}
+        .data-overview-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }}
+        .data-stats {{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4rem;
+            margin: 0;
+            padding: 1rem 0;
+        }}
+        .data-stat {{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }}
+        .data-stat-name {{
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 0.25rem;
+        }}
+        .data-stat-number {{
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+        }}
+        
+        .grid {{
             display: grid;
             gap: 1.5rem;
-        }
-        .grid-3 {
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-        .grid-4 {
+        }}
+        .grid-3 {{
+            grid-template-columns: repeat(3, 1fr);
+        }}
+        .grid-4 {{
             grid-template-columns: repeat(4, 1fr);
-        }
-        .grid-5 {
+        }}
+        .grid-5 {{
             grid-template-columns: repeat(5, 1fr);
-        }
-        .stats-list {
+        }}
+        .stats-list {{
             list-style: none;
             padding: 0;
             margin: 0;
-        }
-        .stats-list li {
+        }}
+        .stats-list li {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.75rem 0;
             border-bottom: 1px solid #e2e8f0;
-        }
-        .stats-list li:last-child {
+        }}
+        .stats-list li:last-child {{
             border-bottom: none;
-        }
-        .stat-name {
+        }}
+        .stat-name {{
             font-size: 0.875rem;
             color: #475569;
-        }
-        .stat-number {
+        }}
+        .stat-number {{
             font-size: 1.25rem;
             font-weight: 700;
             color: #2563eb;
-        }
-        .metrics-list {
+        }}
+        .metrics-list {{
             list-style: none;
             padding: 0;
             margin: 1rem 0;
-        }
-        .metrics-list li {
+        }}
+        .metrics-list li {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0.5rem 0;
             border-bottom: 1px solid #f1f5f9;
-        }
-        .metrics-list li:last-child {
+        }}
+        .metrics-list li:last-child {{
             border-bottom: none;
-        }
-        .metric-name {
+        }}
+        .metric-name {{
             font-size: 0.8rem;
             color: #64748b;
-        }
-        .metric-number {
+        }}
+        .metric-number {{
             font-size: 1rem;
             font-weight: 600;
             color: #2563eb;
-        }
-        .modal-trigger {
+        }}
+        .modal-trigger {{
             width: 100%;
             background: #2563eb;
             color: white;
@@ -437,11 +435,11 @@ class CategoryVoCHTMLReporter:
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease;
-        }
-        .modal-trigger:hover {
+        }}
+        .modal-trigger:hover {{
             background: #1d4ed8;
-        }
-        .modal-overlay {
+        }}
+        .modal-overlay {{
             display: none;
             position: fixed;
             top: 0;
@@ -452,11 +450,11 @@ class CategoryVoCHTMLReporter:
             z-index: 1000;
             justify-content: center;
             align-items: center;
-        }
-        .modal-overlay.active {
+        }}
+        .modal-overlay.active {{
             display: flex;
-        }
-        .modal-content {
+        }}
+        .modal-content {{
             background: white;
             border-radius: 12px;
             width: 90%;
@@ -464,80 +462,80 @@ class CategoryVoCHTMLReporter:
             max-height: 80vh;
             overflow: hidden;
             box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-        }
-        .modal-header {
+        }}
+        .modal-header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem;
             border-bottom: 1px solid #e2e8f0;
             background: #f8fafc;
-        }
-        .modal-title {
+        }}
+        .modal-title {{
             font-size: 1.25rem;
             font-weight: 600;
             color: #374151;
-        }
-        .modal-close {
+        }}
+        .modal-close {{
             background: none;
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
             color: #6b7280;
             padding: 0.25rem;
-        }
-        .modal-close:hover {
+        }}
+        .modal-close:hover {{
             color: #374151;
-        }
-        .modal-body {
+        }}
+        .modal-body {{
             padding: 1.5rem;
             max-height: 60vh;
             overflow-y: auto;
-        }
-        .inquiry-card {
+        }}
+        .inquiry-card {{
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 1rem;
             margin-bottom: 1rem;
             background: #f8fafc;
-        }
-        .inquiry-card:last-child {
+        }}
+        .inquiry-card:last-child {{
             margin-bottom: 0;
-        }
-        .inquiry-header {
+        }}
+        .inquiry-header {{
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 0.75rem;
             font-size: 0.875rem;
             color: #6b7280;
-        }
-        .inquiry-content {
+        }}
+        .inquiry-content {{
             color: #374151;
             line-height: 1.5;
             font-size: 0.95rem;
-        }
-        .urgency-badge {
+        }}
+        .urgency-badge {{
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             font-size: 0.75rem;
             font-weight: 500;
-        }
-        .urgency-urgent {
+        }}
+        .urgency-urgent {{
             background: #fee2e2;
             color: #dc2626;
-        }
-        .urgency-normal {
+        }}
+        .urgency-normal {{
             background: #f0f9ff;
             color: #0369a1;
-        }
-        .filter-buttons {
+        }}
+        .filter-buttons {{
             display: flex;
             gap: 0.5rem;
             margin-bottom: 1.5rem;
             justify-content: center;
-        }
-        .filter-btn {
+        }}
+        .filter-btn {{
             padding: 0.5rem 1rem;
             border: 2px solid #e2e8f0;
             background: white;
@@ -547,277 +545,318 @@ class CategoryVoCHTMLReporter:
             font-weight: 500;
             color: #475569;
             transition: all 0.2s ease;
-        }
-        .filter-btn:hover {
+        }}
+        .filter-btn:hover {{
             border-color: #2563eb;
             color: #2563eb;
-        }
-        .filter-btn.active {
+        }}
+        .filter-btn.active {{
             background: #2563eb;
             border-color: #2563eb;
             color: white;
-        }
-        .journey-badge {
+        }}
+        .journey-badge {{
             background: #10b981;
             color: white;
             padding: 0.25rem 0.5rem;
             border-radius: 9999px;
             font-size: 0.75rem;
-        }
-        .chart-container {
-            text-align: center;
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            border: 1px solid #e2e8f0;
-        }
-        .chart-container img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-        }
-        .sub-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .subsection-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        .small-subsection-title {
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-        .team-badges {
+        }}
+        .team-badges {{
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
             margin: 0.75rem 0;
-        }
-        .team-badge {
+        }}
+        .team-badge {{
             background: #f59e0b;
             color: white;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.75rem;
-        }
-        .inquiry-sample {
-            background: #f8fafc;
-            border-left: 4px solid #2563eb;
-            padding: 1rem;
-            margin: 0.75rem 0;
-            border-radius: 0 12px 12px 0;
-            font-style: italic;
-        }
-        .inquiry-meta {
+        }}
+        .small-subsection-title {{
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }}
+        
+        /* 순위표 스타일 (컴팩트) */
+        .rank-table-title {{
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #374151;
+        }}
+        .rank-row {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }}
+        .rank-row:hover {{
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }}
+        .rank-number {{
+            min-width: 40px;
             font-size: 0.8rem;
-            color: #475569;
-            margin-top: 0.5rem;
-            font-style: normal;
-        }
-        .footer {
+            font-weight: 600;
+            color: #2563eb;
+            text-align: center;
+        }}
+        .rank-name {{
+            flex: 1;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #374151;
+            margin-left: 0.75rem;
+        }}
+        .rank-value {{
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2563eb;
+        }}
+        .rank-summary {{
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.7rem;
+            color: #6b7280;
+            justify-content: center;
+        }}
+        
+        /* 단순한 목록 스타일 */
+        .simple-list {{
+            margin: 1rem 0;
+        }}
+        .simple-list-title {{
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }}
+        .simple-item {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+            padding: 0.2rem 0;
+            font-size: 0.75rem;
+        }}
+        .simple-rank {{
+            min-width: 20px;
+            font-weight: 600;
+            color: #6b7280;
+        }}
+        .simple-name {{
+            flex: 1;
+            margin-left: 0.5rem;
+            color: #374151;
+        }}
+        .simple-value {{
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #2563eb;
+        }}
+        
+        .footer {{
             text-align: center;
             padding: 2rem;
             background: #f8fafc;
             border-top: 1px solid #e2e8f0;
             color: #475569;
             font-size: 0.875rem;
-        }
-        @media (max-width: 1200px) {
-            .grid-4 { grid-template-columns: repeat(2, 1fr); }
-            .grid-5 { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 768px) {
-            .main-content { padding: 1rem; }
-            .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
-        }
+        }}
+        
+        @media (max-width: 1200px) {{
+            .grid-4 {{ grid-template-columns: repeat(2, 1fr); }}
+            .grid-5 {{ grid-template-columns: repeat(3, 1fr); }}
+        }}
+        @media (max-width: 768px) {{
+            .main-content {{ padding: 1rem; }}
+            .grid-3, .grid-4, .grid-5 {{ grid-template-columns: 1fr; }}
+            .data-stats {{
+                flex-direction: column;
+                gap: 1rem;
+            }}
+            .rank-row {{
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.25rem;
+            }}
+            .rank-number {{
+                min-width: auto;
+                text-align: left;
+            }}
+            .rank-name {{
+                margin-left: 0;
+            }}
+            .rank-value {{
+                text-align: left;
+                min-width: auto;
+            }}
+            .rank-summary {{
+                flex-direction: column;
+                gap: 0.25rem;
+                text-align: center;
+            }}
+            .simple-item {{
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.1rem;
+            }}
+            .simple-rank, .simple-name, .simple-value {{
+                min-width: auto;
+                text-align: left;
+            }}
+        }}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1>카테고리 기반 VoC 분석</h1>
-            <p>고객 문의 데이터의 카테고리별 분석 결과</p>""")
-        
-        # 날짜 추가
-        formatted_date = analysis_date[:19].replace('T', ' ')
-        html_parts.append(f'            <p>{formatted_date}</p>')
-        
-        html_parts.append("""        </div>
+            <p>고객 문의 데이터의 카테고리별 분석 결과</p>
+            <p>{analysis_date[:19].replace('T', ' ')}</p>
+        </div>
         <div class="main-content">
             <div class="major-section">
                 <div class="major-section-header">
                     <h2>분석 개요</h2>
                 </div>
                 <div class="major-section-content">
-                    <div class="grid grid-4">
-                        <div class="entity-card">
-                            <div class="entity-card-header">
-                                <h3 class="entity-card-title">데이터 현황</h3>""")
-        
-        # 총 문의 수 배지
-        html_parts.append(f'                                <span class="entity-card-badge">{total_inquiries:,}건</span>')
-        
-        html_parts.append("""                            </div>
-                            <ul class="stats-list">""")
-        
-        # 기본 통계
-        html_parts.append(f"""                                <li>
-                                    <span class="stat-name">총 문의</span>
-                                    <span class="stat-number">{total_inquiries:,}</span>
-                                </li>""")
-        
-        if 'teams' in overall_summary:
-            team_count = overall_summary['teams']['count']
-            html_parts.append(f"""                                <li>
-                                    <span class="stat-name">담당팀</span>
-                                    <span class="stat-number">{team_count}</span>
-                                </li>""")
-        
-        if 'categories' in overall_summary:
-            cat_count = overall_summary['categories']['count']
-            html_parts.append(f"""                                <li>
-                                    <span class="stat-name">카테고리</span>
-                                    <span class="stat-number">{cat_count}</span>
-                                </li>""")
-        
-        if 'urgent_count' in overall_summary:
-            urgent_count = overall_summary['urgent_count']
-            html_parts.append(f"""                                <li>
-                                    <span class="stat-name">긴급 문의</span>
-                                    <span class="stat-number">{urgent_count}</span>
-                                </li>""")
-        
-        html_parts.append("""                            </ul>
+                    <!-- 데이터 현황을 가로로 길게 배치 -->
+                    <div class="data-overview">
+                        <div class="data-overview-header">
+                            <h3 class="entity-card-title">데이터 현황</h3>
+                            <span class="entity-card-badge">{total_inquiries:,}건</span>
                         </div>
-                        <div class="entity-card">
-                            <div class="entity-card-header">
-                                <h3 class="entity-card-title">주간별 트렌드</h3>
-                                <span class="entity-card-badge">최근 12주</span>
+                        <div class="data-stats">
+                            <div class="data-stat">
+                                <div class="data-stat-name">총문의</div>
+                                <div class="data-stat-number">{total_inquiries:,}</div>
                             </div>
-                            <ul class="stats-list" style="margin-bottom: 1rem;">""")
+                            <div class="data-stat">
+                                <div class="data-stat-name">긴급문의</div>
+                                <div class="data-stat-number">{urgent_count}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 나머지 3개 카드를 3등분으로 배치 -->
+                    <div class="grid grid-3">"""
         
-        # 주간별 트렌드 통계
+        # 주간별 트렌드 카드
         if 'weekly_trends' in results:
             weekly_data = results['weekly_trends']
             week_counts = [weekly_data[week]['total_inquiries'] for week in weekly_data.keys()]
             if week_counts:
                 avg_weekly = sum(week_counts) / len(week_counts)
                 max_weekly = max(week_counts)
-                html_parts.append(f"""                                <li>
+                
+                html_content += f"""
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">주간별 트렌드</h3>
+                                <span class="entity-card-badge">최근 12주</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
                                     <span class="stat-name">주간 평균</span>
                                     <span class="stat-number">{avg_weekly:.0f}</span>
                                 </li>
                                 <li>
                                     <span class="stat-name">최대 주간</span>
                                     <span class="stat-number">{max_weekly}</span>
-                                </li>""")
+                                </li>
+                            </ul>
+                            {text_tables.get('weekly_trend', '')}
+                        </div>"""
         
-        html_parts.append("""                            </ul>
-                            <div class="chart-container">""")
-        
-        # 주간별 트렌드 차트
-        if 'weekly_trend' in charts:
-            html_parts.append(f'                                <img src="{charts["weekly_trend"]}" alt="주간별 트렌드">')
-        
-        html_parts.append("""                            </div>
-                        </div>
-                        <div class="entity-card">
-                            <div class="entity-card-header">
-                                <h3 class="entity-card-title">팀별 분포</h3>""")
-        
-        # 팀 개수 배지
-        if 'teams' in overall_summary:
-            team_count = overall_summary['teams']['count']
-            html_parts.append(f'                                <span class="entity-card-badge">{team_count}개 팀</span>')
-        
-        html_parts.append("""                            </div>
-                            <ul class="stats-list" style="margin-bottom: 1rem;">""")
-        
-        # 팀별 분포 통계
+        # 팀별 분포 카드
         if 'team_analysis' in results:
             team_data = results['team_analysis']
             if team_data:
                 team_counts = [team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys()]
                 avg_team = sum(team_counts) / len(team_counts)
                 max_team = max(team_counts)
-                html_parts.append(f"""                                <li>
+                team_count = len(team_data)
+                
+                html_content += f"""
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">팀별 분포</h3>
+                                <span class="entity-card-badge">{team_count}개 팀</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
                                     <span class="stat-name">팀 평균</span>
                                     <span class="stat-number">{avg_team:.0f}</span>
                                 </li>
                                 <li>
                                     <span class="stat-name">최대 팀</span>
                                     <span class="stat-number">{max_team}</span>
-                                </li>""")
+                                </li>
+                            </ul>
+                            {text_tables.get('team_overview', '')}
+                        </div>"""
         
-        html_parts.append("""                            </ul>
-                            <div class="chart-container">""")
-        
-        # 팀별 분포 차트
-        if 'team_overview' in charts:
-            html_parts.append(f'                                <img src="{charts["team_overview"]}" alt="팀별 분포">')
-
-        html_parts.append("""                            </div>
-                        </div>
-                        <div class="entity-card">
-                            <div class="entity-card-header">
-                                <h3 class="entity-card-title">유저 여정별 분포</h3>""")
-        
-        # 유저 여정 개수 배지
-        if 'journey_analysis' in results:
-            journey_count = len(results['journey_analysis'])
-            html_parts.append(f'                                <span class="entity-card-badge">{journey_count}개 여정</span>')
-        
-        html_parts.append("""                            </div>
-                            <ul class="stats-list" style="margin-bottom: 1rem;">""")
-        
-        # 유저 여정별 분포 통계
+        # 유저 여정별 분포 카드
         if 'journey_analysis' in results:
             journey_data = results['journey_analysis']
             if journey_data:
                 journey_counts = [journey_data[journey]['basic_info']['total_inquiries'] for journey in journey_data.keys()]
                 avg_journey = sum(journey_counts) / len(journey_counts)
                 max_journey = max(journey_counts)
-                html_parts.append(f"""                                <li>
+                journey_count = len(journey_data)
+                
+                html_content += f"""
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">유저 여정별 분포</h3>
+                                <span class="entity-card-badge">{journey_count}개 여정</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
                                     <span class="stat-name">여정 평균</span>
                                     <span class="stat-number">{avg_journey:.0f}</span>
                                 </li>
                                 <li>
                                     <span class="stat-name">최대 여정</span>
                                     <span class="stat-number">{max_journey}</span>
-                                </li>""")
+                                </li>
+                            </ul>
+                            {text_tables.get('journey_overview', '')}
+                        </div>"""
         
-        html_parts.append("""                            </ul>
-                            <div class="chart-container">""")
-        
-        # 유저 여정별 분포 차트
-        if 'journey_overview' in charts:
-            html_parts.append(f'                                <img src="{charts["journey_overview"]}" alt="유저 여정별 분포">')
-        
-        html_parts.append("""                            </div>
-                        </div>
+        html_content += """
                     </div>
                 </div>
-            </div>""")
+            </div>"""
         
-        # 팀별 분석 섹션
+        # 팀별 분석 섹션 (grid-4 유지)
         if 'team_analysis' in results and results['team_analysis']:
-            html_parts.append("""            <div class="major-section">
+            html_content += """
+            <div class="major-section">
                 <div class="major-section-header">
                     <h2>팀별 문의 내용 분석</h2>
                 </div>
                 <div class="major-section-content">
-                    <div class="grid grid-4">""")
+                    <div class="grid grid-4">"""
             
             for team_name, team_info in results['team_analysis'].items():
                 basic_info = team_info['basic_info']
                 
-                html_parts.append(f"""                        <div class="entity-card">
+                html_content += f"""
+                        <div class="entity-card">
                             <div class="entity-card-header">
                                 <h3 class="entity-card-title">{team_name}</h3>
                                 <span class="entity-card-badge">{basic_info['total_inquiries']}건</span>
@@ -839,73 +878,35 @@ class CategoryVoCHTMLReporter:
                                     <span class="metric-name">평균길이</span>
                                     <span class="metric-number">{basic_info['avg_content_length']:.0f}</span>
                                 </li>
-                            </ul>""")
+                            </ul>"""
                 
-                # 세부 카테고리 분포 차트 (별도 카드 없이)
-                if 'team_categories' in charts and team_name in charts['team_categories']:
-                    html_parts.append(f"""                            <div style="margin-top: 1rem;">
-                                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem;">세부 카테고리 분포</h4>
-                                <div class="chart-container" style="margin: 0; padding: 0.5rem;">
-                                    <img src="{charts['team_categories'][team_name]}" alt="{team_name} 카테고리 분포">
-                                </div>
-                            </div>""")
+                # 세부 카테고리 분포 텍스트 표 (별도 카드 없이)
+                if 'team_categories' in text_tables and team_name in text_tables['team_categories']:
+                    html_content += text_tables['team_categories'][team_name]
                 
-                html_parts.append("""                        </div>""")
+                html_content += """
+                        </div>"""
             
-            html_parts.append("""                    </div>
-                </div>
-            </div>""")
-            
-            # 유저 여정별 모달들 추가
-            for journey_name, journey_info in results['journey_analysis'].items():
-                basic_info = journey_info['basic_info']
-                modal_id = f"journey-modal-{journey_name.replace(' ', '-').replace('·', '-')}"
-                
-                html_parts.append(f"""            <div class="modal-overlay" id="{modal_id}" onclick="closeModal('{modal_id}')">
-                <div class="modal-content" onclick="event.stopPropagation()">
-                    <div class="modal-header">
-                        <h3 class="modal-title">{journey_name} - 전체 {basic_info['total_inquiries']}건</h3>
-                        <button class="modal-close" onclick="closeModal('{modal_id}')">&times;</button>
+            html_content += """
                     </div>
-                    <div class="modal-body">""")
-                
-                # 전체 문의 내용 표시 (샘플 데이터 사용)
-                for i, sample in enumerate(journey_info['sample_inquiries']):
-                    urgency_class = "urgency-urgent" if sample.get('is_urgent', False) else "urgency-normal"
-                    urgency_text = "긴급" if sample.get('is_urgent', False) else "일반"
-                    
-                    html_parts.append(f"""                        <div class="inquiry-card">
-                            <div class="inquiry-header">
-                                <span>{sample['assigned_team']} | {sample['sub_category']}</span>
-                                <span class="urgency-badge {urgency_class}">{urgency_text}</span>
-                            </div>
-                            <div class="inquiry-content">{sample['content']}</div>
-                        </div>""")
-                
-                # 더 많은 데이터가 있는 경우 표시
-                if basic_info['total_inquiries'] > len(journey_info['sample_inquiries']):
-                    remaining = basic_info['total_inquiries'] - len(journey_info['sample_inquiries'])
-                    html_parts.append(f"""                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
-                            ... 및 {remaining}건의 추가 문의가 있습니다
-                        </div>""")
-                
-                html_parts.append("""                    </div>
                 </div>
-            </div>""")
+            </div>"""
         
-        # 유저 여정별 분석 섹션
+        # 유저 여정별 분석 섹션 (grid-5로 변경)
         if 'journey_analysis' in results and results['journey_analysis']:
-            html_parts.append("""            <div class="major-section">
+            html_content += """
+            <div class="major-section">
                 <div class="major-section-header">
                     <h2>유저 여정별 문의 내용 분석</h2>
                 </div>
                 <div class="major-section-content">
-                    <div class="grid grid-3">""")
+                    <div class="grid grid-5">"""
             
             for journey_name, journey_info in results['journey_analysis'].items():
                 basic_info = journey_info['basic_info']
                 
-                html_parts.append(f"""                        <div class="entity-card">
+                html_content += f"""
+                        <div class="entity-card">
                             <div class="entity-card-header">
                                 <h3 class="entity-card-title">{journey_name}</h3>
                                 <span class="entity-card-badge">{basic_info['total_inquiries']}건</span>
@@ -927,45 +928,53 @@ class CategoryVoCHTMLReporter:
                                     <span class="metric-name">평균길이</span>
                                     <span class="metric-number">{basic_info['avg_content_length']:.0f}</span>
                                 </li>
-                            </ul>""")
+                            </ul>"""
                 
-                # 세부 카테고리 분포 차트 (별도 카드 없이)
-                if 'journey_categories' in charts and journey_name in charts['journey_categories']:
-                    html_parts.append(f"""                            <div style="margin-top: 1rem;">
-                                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem;">세부 카테고리 분포</h4>
-                                <div class="chart-container" style="margin: 0; padding: 0.5rem;">
-                                    <img src="{charts['journey_categories'][journey_name]}" alt="{journey_name} 카테고리 분포">
-                                </div>
-                            </div>""")
+                # 세부 카테고리 분포 텍스트 표 (별도 카드 없이)
+                if 'journey_categories' in text_tables and journey_name in text_tables['journey_categories']:
+                    html_content += text_tables['journey_categories'][journey_name]
                 
-                # 모달 버튼 추가
-                journey_modal_id = f"journey-modal-{journey_name.replace(' ', '-').replace('·', '-')}"
-                html_parts.append(f"""                            <button class="modal-trigger" onclick="openModal('{journey_modal_id}')">
-                                문의 내용 보기 ({basic_info['total_inquiries']}건)
-                            </button>
-                        </div>""")
+                html_content += """
+                        </div>"""
             
-            html_parts.append("""                    </div>
+            html_content += """
+                    </div>
                 </div>
-            </div>""")
+            </div>"""
         
-        # 세부 카테고리별 분석 섹션
+        # 세부 카테고리별 분석 섹션 (필터 기능 추가)
         if 'category_analysis' in results and results['category_analysis']:
             sorted_categories = sorted(results['category_analysis'].items(), 
                                      key=lambda x: x[1]['basic_info']['total_inquiries'], 
-                                     reverse=True)[:12]
+                                     reverse=True)
             
-            html_parts.append("""            <div class="major-section">
+            html_content += """
+            <div class="major-section">
                 <div class="major-section-header">
                     <h2>세부 카테고리별 문의 내용</h2>
                 </div>
                 <div class="major-section-content">
-                    <div class="grid grid-3">""")
+                    <!-- 필터 버튼 추가 -->
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterCategories('all')">전체</button>
+                        <button class="filter-btn" onclick="filterCategories('team')">팀별</button>
+                        <button class="filter-btn" onclick="filterCategories('journey')">유저여정별</button>
+                    </div>
+                    <div class="grid grid-3" id="categories-container">"""
             
             for category_name, category_info in sorted_categories:
                 basic_info = category_info['basic_info']
                 
-                html_parts.append(f"""                        <div class="entity-card">
+                # 가장 많은 담당팀과 유저 여정 추출
+                main_team = list(category_info['team_distribution'].keys())[0] if category_info['team_distribution'] else '기타'
+                main_journey = self._get_journey_for_category(category_name)
+                
+                # data 속성 추가
+                html_content += f"""
+                        <div class="entity-card" 
+                             data-team="{main_team}" 
+                             data-journey="{main_journey}" 
+                             data-count="{basic_info['total_inquiries']}">
                             <div class="entity-card-header">
                                 <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{category_name}</h3>
                                 <span class="entity-card-badge">{basic_info['total_inquiries']}건</span>
@@ -986,74 +995,89 @@ class CategoryVoCHTMLReporter:
                             </ul>
                             <div style="margin: 1rem 0;">
                                 <h4 class="small-subsection-title">담당팀</h4>
-                                <div class="team-badges">""")
+                                <div class="team-badges">"""
                 
+                # 담당팀 배지 (건수 제거)
                 for team, count in list(category_info['team_distribution'].items())[:3]:
-                    html_parts.append(f'                                    <span class="team-badge">{team}: {count}건</span>')
+                    html_content += f'                                    <span class="team-badge">{team}</span>'
+                
+                html_content += """                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">"""
+                
+                # 유저 여정 배지 추가
+                html_content += f'                                    <span class="journey-badge">{main_journey}</span>'
                 
                 # 모달 버튼 추가
-                modal_id = f"modal-{category_name.replace(' ', '-').replace('/', '-')}"
-                html_parts.append(f"""                                </div>
+                modal_id = f"modal-{category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '')}"
+                html_content += f"""                                </div>
                             </div>
                             <button class="modal-trigger" onclick="openModal('{modal_id}')">
                                 문의 내용 보기 ({basic_info['total_inquiries']}건)
                             </button>
-                        </div>""")
+                        </div>"""
             
-            html_parts.append("""                    </div>
+            html_content += """
+                    </div>
                 </div>
-            </div>""")
+            </div>"""
             
             # 모달들 추가
             for category_name, category_info in sorted_categories:
                 basic_info = category_info['basic_info']
-                modal_id = f"modal-{category_name.replace(' ', '-').replace('/', '-')}"
+                modal_id = f"modal-{category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '')}"
                 
-                html_parts.append(f"""            <div class="modal-overlay" id="{modal_id}" onclick="closeModal('{modal_id}')">
+                html_content += f"""
+            <div class="modal-overlay" id="{modal_id}" onclick="closeModal('{modal_id}')">
                 <div class="modal-content" onclick="event.stopPropagation()">
                     <div class="modal-header">
                         <h3 class="modal-title">{category_name} - 전체 {basic_info['total_inquiries']}건</h3>
                         <button class="modal-close" onclick="closeModal('{modal_id}')">&times;</button>
                     </div>
-                    <div class="modal-body">""")
+                    <div class="modal-body">"""
                 
-                # 전체 문의 내용 표시 (샘플 데이터 사용, 실제로는 모든 문의를 표시)
+                # 전체 문의 내용 표시 (샘플 데이터 사용)
                 for i, sample in enumerate(category_info['sample_inquiries']):
                     urgency_class = "urgency-urgent" if sample.get('is_urgent', False) else "urgency-normal"
                     urgency_text = "긴급" if sample.get('is_urgent', False) else "일반"
                     
-                    html_parts.append(f"""                        <div class="inquiry-card">
+                    html_content += f"""
+                        <div class="inquiry-card">
                             <div class="inquiry-header">
                                 <span>{sample['assigned_team']}</span>
                                 <span class="urgency-badge {urgency_class}">{urgency_text}</span>
                             </div>
                             <div class="inquiry-content">{sample['content']}</div>
-                        </div>""")
+                        </div>"""
                 
                 # 더 많은 데이터가 있는 경우 표시
                 if basic_info['total_inquiries'] > len(category_info['sample_inquiries']):
                     remaining = basic_info['total_inquiries'] - len(category_info['sample_inquiries'])
-                    html_parts.append(f"""                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                    html_content += f"""
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
                             ... 및 {remaining}건의 추가 문의가 있습니다
-                        </div>""")
+                        </div>"""
                 
-                html_parts.append("""                    </div>
+                html_content += """
+                    </div>
                 </div>
-            </div>""")
-            
-        # JavaScript 추가
-        html_parts.append("""        <script>
-            function openModal(modalId) {
+            </div>"""
+        
+        # JavaScript 추가 (필터 기능 구현)
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        html_content += f"""
+        <script>
+            function openModal(modalId) {{
                 document.getElementById(modalId).classList.add('active');
                 document.body.style.overflow = 'hidden';
-            }
+            }}
             
-            function closeModal(modalId) {
+            function closeModal(modalId) {{
                 document.getElementById(modalId).classList.remove('active');
                 document.body.style.overflow = 'auto';
-            }
+            }}
             
-            function filterCategories(type) {
+            function filterCategories(type) {{
                 // 활성 버튼 업데이트
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 event.target.classList.add('active');
@@ -1063,58 +1087,64 @@ class CategoryVoCHTMLReporter:
                 
                 // 정렬 함수
                 let sortFunction;
-                switch(type) {
+                switch(type) {{
                     case 'team':
-                        sortFunction = (a, b) => {
+                        sortFunction = (a, b) => {{
                             const teamA = a.getAttribute('data-team');
                             const teamB = b.getAttribute('data-team');
                             return teamA.localeCompare(teamB);
-                        };
+                        }};
                         break;
                     case 'journey':
-                        sortFunction = (a, b) => {
+                        // 유저 여정 순서 정의
+                        const journeyOrder = ['계정·입점', '상품·콘텐츠', '주문·배송', '반품·취소', '정산', '기타'];
+                        sortFunction = (a, b) => {{
                             const journeyA = a.getAttribute('data-journey');
                             const journeyB = b.getAttribute('data-journey');
-                            return journeyA.localeCompare(journeyB);
-                        };
+                            const indexA = journeyOrder.indexOf(journeyA);
+                            const indexB = journeyOrder.indexOf(journeyB);
+                            
+                            // 정의된 순서가 없으면 기타로 처리
+                            const finalIndexA = indexA === -1 ? journeyOrder.length : indexA;
+                            const finalIndexB = indexB === -1 ? journeyOrder.length : indexB;
+                            
+                            return finalIndexA - finalIndexB;
+                        }};
                         break;
                     default: // 'all'
-                        sortFunction = (a, b) => {
+                        sortFunction = (a, b) => {{
                             const countA = parseInt(a.getAttribute('data-count'));
                             const countB = parseInt(b.getAttribute('data-count'));
                             return countB - countA; // 내림차순
-                        };
-                }
+                        }};
+                }}
                 
                 // 정렬 및 재배치
                 cards.sort(sortFunction);
                 cards.forEach(card => container.appendChild(card));
-            }
+            }}
             
             // ESC 키로 모달 닫기
-            document.addEventListener('keydown', function(event) {
-                if (event.key === 'Escape') {
+            document.addEventListener('keydown', function(event) {{
+                if (event.key === 'Escape') {{
                     const activeModal = document.querySelector('.modal-overlay.active');
-                    if (activeModal) {
+                    if (activeModal) {{
                         activeModal.classList.remove('active');
                         document.body.style.overflow = 'auto';
-                    }
-                }
-            });
-        </script>""")
-        
-        # 푸터
-        current_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        html_parts.append(f"""        </div>
+                    }}
+                }}
+            }});
+        </script>
+        </div>
         <div class="footer">
             <p>카테고리 기반 VoC 분석 보고서</p>
             <p>생성일시: {current_time} | Pretendard 폰트 적용</p>
         </div>
     </div>
 </body>
-</html>""")
+</html>"""
         
-        return ''.join(html_parts)
+        return html_content
 
     def save_and_open_html_report(self, results: Dict) -> str:
         """HTML 보고서 저장 및 브라우저에서 열기"""

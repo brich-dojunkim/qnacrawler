@@ -88,7 +88,8 @@ class CategoryBasedVoCAnalyzer:
         for team in self.df['assigned_team'].dropna().unique():
             team_data = self.df[self.df['assigned_team'] == team]
             
-            if len(team_data) < 3:  # 최소 3개 이상
+            # 문의 1개 이상인 팀만 분석 (기존 3개 → 1개로 완화)
+            if len(team_data) < 1:
                 continue
             
             # 기본 정보
@@ -131,7 +132,7 @@ class CategoryBasedVoCAnalyzer:
         return team_analysis
 
     def analyze_by_sub_category(self) -> Dict:
-        """sub_category 기준 분석"""
+        """sub_category 기준 분석 - 모든 카테고리 포함"""
         print("📂 세부 카테고리별 실제 문의 내용 분석 중...")
         
         if 'sub_category' not in self.df.columns or 'question_content' not in self.df.columns:
@@ -142,8 +143,9 @@ class CategoryBasedVoCAnalyzer:
         for category in self.df['sub_category'].dropna().unique():
             cat_data = self.df[self.df['sub_category'] == category]
             
-            if len(cat_data) < 3:
-                continue
+            # 모든 카테고리 포함 (기존 3개 미만 제외 조건 제거)
+            # if len(cat_data) < 3:
+            #     continue
             
             # 기본 정보
             basic_info = {
@@ -158,9 +160,10 @@ class CategoryBasedVoCAnalyzer:
                 team_counts = cat_data['assigned_team'].value_counts()
                 team_distribution = team_counts.to_dict()
             
-            # 대표 문의 사례들 (2개만)
+            # 대표 문의 사례들 (최소 1개, 최대 2개)
             samples = []
-            for i in range(min(2, len(cat_data))):
+            sample_count = min(2, len(cat_data))
+            for i in range(sample_count):
                 sample = cat_data.iloc[i]
                 samples.append({
                     'inquiry_id': sample.get('inquiry_id', 'N/A'),
@@ -192,7 +195,8 @@ class CategoryBasedVoCAnalyzer:
         for journey in self.user_journey_mapping.keys():
             journey_data = self.df[self.df['user_journey'] == journey]
             
-            if len(journey_data) < 3:  # 최소 3개 이상
+            # 문의 1개 이상인 여정만 분석 (기존 3개 → 1개로 완화)
+            if len(journey_data) < 1:
                 continue
             
             # 기본 정보

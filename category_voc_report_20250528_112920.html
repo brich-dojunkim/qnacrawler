@@ -1,0 +1,3070 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카테고리 기반 VoC 분석 보고서</title>
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            margin: 0;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .main-content {
+            padding: 2rem;
+        }
+        .major-section {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+        }
+        .major-section-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .major-section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        .major-section-content {
+            padding: 1.5rem;
+        }
+        .entity-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .entity-card:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .entity-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .entity-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        .entity-card-badge {
+            background: #2563eb;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        /* 데이터 현황 가로 배치 */
+        .data-overview {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .data-overview:hover {
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            transform: translateY(-2px);
+        }
+        .data-overview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .data-stats {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4rem;
+            margin: 0;
+            padding: 1rem 0;
+        }
+        .data-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .data-stat-name {
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 0.25rem;
+        }
+        .data-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        .grid-5 {
+            grid-template-columns: repeat(5, 1fr);
+        }
+        .stats-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .stats-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .stats-list li:last-child {
+            border-bottom: none;
+        }
+        .stat-name {
+            font-size: 0.875rem;
+            color: #475569;
+        }
+        .stat-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .metrics-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0;
+        }
+        .metrics-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .metrics-list li:last-child {
+            border-bottom: none;
+        }
+        .metric-name {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .metric-number {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .modal-trigger {
+            width: 100%;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .modal-trigger:hover {
+            background: #1d4ed8;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            padding: 0.25rem;
+        }
+        .modal-close:hover {
+            color: #374151;
+        }
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .inquiry-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #f8fafc;
+        }
+        .inquiry-card:last-child {
+            margin-bottom: 0;
+        }
+        .inquiry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .inquiry-content {
+            color: #374151;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        .urgency-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .urgency-urgent {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .urgency-normal {
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            justify-content: center;
+        }
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #475569;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+        .filter-btn.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: white;
+        }
+        .journey-badge {
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+        .team-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.75rem 0;
+        }
+        .team-badge {
+            background: #f59e0b;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+        }
+        .small-subsection-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* 순위표 스타일 (컴팩트) */
+        .rank-table-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #374151;
+        }
+        .rank-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            padding: 0.3rem;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .rank-row:hover {
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .rank-number {
+            min-width: 40px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2563eb;
+            text-align: center;
+        }
+        .rank-name {
+            flex: 1;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #374151;
+            margin-left: 0.75rem;
+        }
+        .rank-value {
+            min-width: 80px;
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        .rank-summary {
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.7rem;
+            color: #6b7280;
+            justify-content: center;
+        }
+        
+        /* 단순한 목록 스타일 */
+        .simple-list {
+            margin: 1rem 0;
+        }
+        .simple-list-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        .simple-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.25rem;
+            padding: 0.2rem 0;
+            font-size: 0.75rem;
+        }
+        .simple-rank {
+            min-width: 20px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+        .simple-name {
+            flex: 1;
+            margin-left: 0.5rem;
+            color: #374151;
+        }
+        .simple-value {
+            min-width: 50px;
+            text-align: right;
+            font-weight: 600;
+            color: #2563eb;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            color: #475569;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .grid-5 { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .main-content { padding: 1rem; }
+            .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
+            .data-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            .rank-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.25rem;
+            }
+            .rank-number {
+                min-width: auto;
+                text-align: left;
+            }
+            .rank-name {
+                margin-left: 0;
+            }
+            .rank-value {
+                text-align: left;
+                min-width: auto;
+            }
+            .rank-summary {
+                flex-direction: column;
+                gap: 0.25rem;
+                text-align: center;
+            }
+            .simple-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.1rem;
+            }
+            .simple-rank, .simple-name, .simple-value {
+                min-width: auto;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>카테고리 기반 VoC 분석</h1>
+            <p>고객 문의 데이터의 카테고리별 분석 결과</p>
+            <p>2025-05-28 11:29:20</p>
+        </div>
+        <div class="main-content">
+            <div class="major-section">
+                <div class="major-section-header">
+                    <h2>분석 개요</h2>
+                </div>
+                <div class="major-section-content">
+                    <!-- 데이터 현황을 가로로 길게 배치 -->
+                    <div class="data-overview">
+                        <div class="data-overview-header">
+                            <h3 class="entity-card-title">데이터 현황</h3>
+                            <span class="entity-card-badge">885건</span>
+                        </div>
+                        <div class="data-stats">
+                            <div class="data-stat">
+                                <div class="data-stat-name">총문의</div>
+                                <div class="data-stat-number">885</div>
+                            </div>
+                            <div class="data-stat">
+                                <div class="data-stat-name">긴급문의</div>
+                                <div class="data-stat-number">106</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 나머지 3개 카드를 3등분으로 배치 -->
+                    <div class="grid grid-3">
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">주간별 트렌드</h3>
+                                <span class="entity-card-badge">최근 12주</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
+                                    <span class="stat-name">주간 평균</span>
+                                    <span class="stat-number">177</span>
+                                </li>
+                                <li>
+                                    <span class="stat-name">최대 주간</span>
+                                    <span class="stat-number">248</span>
+                                </li>
+                            </ul>
+                            <h4 class="rank-table-title">주간별 문의 트렌드 (최근 8주)</h4>
+                    <div class="rank-row">
+                        <div class="rank-number">하락</div>
+                        <div class="rank-name">04/22-04/28</div>
+                        <div class="rank-value">54건</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">하락</div>
+                        <div class="rank-name">04/29-05/05</div>
+                        <div class="rank-value">122건</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">상승</div>
+                        <div class="rank-name">05/06-05/12</div>
+                        <div class="rank-value">223건</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">상승</div>
+                        <div class="rank-name">05/13-05/19</div>
+                        <div class="rank-value">238건</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">상승</div>
+                        <div class="rank-name">05/20-05/26</div>
+                        <div class="rank-value">248건</div>
+                    </div>
+                <div class="rank-summary">
+                    <span>평균: 177건</span>
+                    <span>최고: 248건</span>
+                    <span>최저: 54건</span>
+                </div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">팀별 분포</h3>
+                                <span class="entity-card-badge">7개 팀</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
+                                    <span class="stat-name">팀 평균</span>
+                                    <span class="stat-number">109</span>
+                                </li>
+                                <li>
+                                    <span class="stat-name">최대 팀</span>
+                                    <span class="stat-number">585</span>
+                                </li>
+                            </ul>
+                            <h4 class="rank-table-title">팀별 문의 분포</h4>
+                    <div class="rank-row">
+                        <div class="rank-number">1</div>
+                        <div class="rank-name">CS</div>
+                        <div class="rank-value">585건 (76.5%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">2</div>
+                        <div class="rank-name">MD(사업부)</div>
+                        <div class="rank-value">111건 (14.5%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">3</div>
+                        <div class="rank-name">재무</div>
+                        <div class="rank-value">42건 (5.5%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">4</div>
+                        <div class="rank-name">영업</div>
+                        <div class="rank-value">24건 (3.1%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">5</div>
+                        <div class="rank-name">마케팅</div>
+                        <div class="rank-value">1건 (0.1%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">6</div>
+                        <div class="rank-name">정책</div>
+                        <div class="rank-value">1건 (0.1%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">7</div>
+                        <div class="rank-name">개발</div>
+                        <div class="rank-value">1건 (0.1%)</div>
+                    </div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">유저 여정별 분포</h3>
+                                <span class="entity-card-badge">5개 여정</span>
+                            </div>
+                            <ul class="stats-list" style="margin-bottom: 1rem;">
+                                <li>
+                                    <span class="stat-name">여정 평균</span>
+                                    <span class="stat-number">153</span>
+                                </li>
+                                <li>
+                                    <span class="stat-name">최대 여정</span>
+                                    <span class="stat-number">407</span>
+                                </li>
+                            </ul>
+                            <h4 class="rank-table-title">유저 여정별 문의 분포</h4>
+                    <div class="rank-row">
+                        <div class="rank-number">1</div>
+                        <div class="rank-name">반품·취소</div>
+                        <div class="rank-value">407건 (53.2%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">2</div>
+                        <div class="rank-name">주문·배송</div>
+                        <div class="rank-value">179건 (23.4%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">3</div>
+                        <div class="rank-name">상품·콘텐츠</div>
+                        <div class="rank-value">97건 (12.7%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">4</div>
+                        <div class="rank-name">계정·입점</div>
+                        <div class="rank-value">43건 (5.6%)</div>
+                    </div>
+                    <div class="rank-row">
+                        <div class="rank-number">5</div>
+                        <div class="rank-name">정산</div>
+                        <div class="rank-value">39건 (5.1%)</div>
+                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="major-section">
+                <div class="major-section-header">
+                    <h2>팀별 문의 내용 분석</h2>
+                </div>
+                <div class="major-section-content">
+                    <div class="grid grid-4">
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">CS</h3>
+                                <span class="entity-card-badge">585건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">585</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">102</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">570</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">115</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">반품관리/환불보류</span>
+                            <span class="simple-value">216건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">교환관리/교환철회</span>
+                            <span class="simple-value">147건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">긴급문의</span>
+                            <span class="simple-value">81건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">배송지연 관리 (결품취소)</span>
+                            <span class="simple-value">50건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">취소관리</span>
+                            <span class="simple-value">44건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">영업</h3>
+                                <span class="entity-card-badge">24건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">24</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">23</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">64</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">플랜관리</span>
+                            <span class="simple-value">15건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">탈퇴/재가입</span>
+                            <span class="simple-value">6건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">신규회원가입</span>
+                            <span class="simple-value">2건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">입점관리</span>
+                            <span class="simple-value">1건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">MD(사업부)</h3>
+                                <span class="entity-card-badge">111건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">111</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">2</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">108</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">92</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">상품 조회 및 수정</span>
+                            <span class="simple-value">41건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">채널상품연동</span>
+                            <span class="simple-value">25건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">상품등록</span>
+                            <span class="simple-value">23건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">스토어관리</span>
+                            <span class="simple-value">15건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">상품문의(브리치)</span>
+                            <span class="simple-value">4건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">재무</h3>
+                                <span class="entity-card-badge">42건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">42</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">42</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">113</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">특약매입정산</span>
+                            <span class="simple-value">23건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">정산통합</span>
+                            <span class="simple-value">8건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">구매확정관리</span>
+                            <span class="simple-value">4건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">판매대행정산</span>
+                            <span class="simple-value">4건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">사업자정보/양도양수</span>
+                            <span class="simple-value">3건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">마케팅</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">18</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">브리치 기획전신청</span>
+                            <span class="simple-value">1건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">정책</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">64</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">배송정책 관리</span>
+                            <span class="simple-value">1건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">개발</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">67</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">상품등록 실패</span>
+                            <span class="simple-value">1건</span>
+                        </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="major-section">
+                <div class="major-section-header">
+                    <h2>유저 여정별 문의 내용 분석</h2>
+                </div>
+                <div class="major-section-content">
+                    <div class="grid grid-5">
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">계정·입점</h3>
+                                <span class="entity-card-badge">43건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">43</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">42</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">89</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">플랜관리</span>
+                            <span class="simple-value">15건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">스토어관리</span>
+                            <span class="simple-value">15건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">탈퇴/재가입</span>
+                            <span class="simple-value">6건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">사업자정보/양도양수</span>
+                            <span class="simple-value">3건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">신규회원가입</span>
+                            <span class="simple-value">2건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">상품·콘텐츠</h3>
+                                <span class="entity-card-badge">97건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">97</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">94</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">84</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">상품 조회 및 수정</span>
+                            <span class="simple-value">41건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">채널상품연동</span>
+                            <span class="simple-value">25건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">상품등록</span>
+                            <span class="simple-value">23건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">상품문의(브리치)</span>
+                            <span class="simple-value">4건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">브리치 기획전신청</span>
+                            <span class="simple-value">1건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">주문·배송</h3>
+                                <span class="entity-card-badge">179건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">179</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">11</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">174</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">107</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">긴급문의</span>
+                            <span class="simple-value">81건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">배송지연 관리 (결품취소)</span>
+                            <span class="simple-value">50건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">발주/발송관리</span>
+                            <span class="simple-value">28건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">배송현황관리</span>
+                            <span class="simple-value">8건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">5</span>
+                            <span class="simple-name">송장등록 실패/ 송장번호 수정</span>
+                            <span class="simple-value">7건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">반품·취소</h3>
+                                <span class="entity-card-badge">407건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">407</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">91</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">397</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">119</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">반품관리/환불보류</span>
+                            <span class="simple-value">216건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">교환관리/교환철회</span>
+                            <span class="simple-value">147건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">취소관리</span>
+                            <span class="simple-value">44건</span>
+                        </div></div>
+                        </div>
+                        <div class="entity-card">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title">정산</h3>
+                                <span class="entity-card-badge">39건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">39</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">답변완료</span>
+                                    <span class="metric-number">39</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">120</span>
+                                </li>
+                            </ul><div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>
+                        <div class="simple-item">
+                            <span class="simple-rank">1</span>
+                            <span class="simple-name">특약매입정산</span>
+                            <span class="simple-value">23건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">2</span>
+                            <span class="simple-name">정산통합</span>
+                            <span class="simple-value">8건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">3</span>
+                            <span class="simple-name">구매확정관리</span>
+                            <span class="simple-value">4건</span>
+                        </div>
+                        <div class="simple-item">
+                            <span class="simple-rank">4</span>
+                            <span class="simple-name">판매대행정산</span>
+                            <span class="simple-value">4건</span>
+                        </div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="major-section">
+                <div class="major-section-header">
+                    <h2>세부 카테고리별 문의 내용</h2>
+                </div>
+                <div class="major-section-content">
+                    <!-- 필터 버튼 추가 -->
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" onclick="filterCategories('all')">전체</button>
+                        <button class="filter-btn" onclick="filterCategories('team')">팀별</button>
+                        <button class="filter-btn" onclick="filterCategories('journey')">유저여정별</button>
+                    </div>
+                    <div class="grid grid-3" id="categories-container">
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="반품·취소" 
+                             data-count="216">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">반품관리/환불보류</h3>
+                                <span class="entity-card-badge">216건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">216</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">47</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">126</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">반품·취소</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-반품관리-환불보류')">
+                                문의 내용 보기 (216건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="반품·취소" 
+                             data-count="147">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">교환관리/교환철회</h3>
+                                <span class="entity-card-badge">147건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">147</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">41</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">115</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">반품·취소</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-교환관리-교환철회')">
+                                문의 내용 보기 (147건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="기타" 
+                             data-journey="기타" 
+                             data-count="120">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">기타</h3>
+                                <span class="entity-card-badge">120건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">120</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">2</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">144</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">기타</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-기타')">
+                                문의 내용 보기 (120건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="81">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">긴급문의</h3>
+                                <span class="entity-card-badge">81건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">81</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">132</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-긴급문의')">
+                                문의 내용 보기 (81건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="50">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">배송지연 관리 (결품취소)</h3>
+                                <span class="entity-card-badge">50건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">50</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">4</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">76</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-배송지연-관리-결품취소')">
+                                문의 내용 보기 (50건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="반품·취소" 
+                             data-count="44">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">취소관리</h3>
+                                <span class="entity-card-badge">44건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">44</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">3</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">92</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">반품·취소</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-취소관리')">
+                                문의 내용 보기 (44건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="41">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">상품 조회 및 수정</h3>
+                                <span class="entity-card-badge">41건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">41</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">49</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-상품-조회-및-수정')">
+                                문의 내용 보기 (41건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="28">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">발주/발송관리</h3>
+                                <span class="entity-card-badge">28건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">28</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">6</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">95</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-발주-발송관리')">
+                                문의 내용 보기 (28건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="25">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">채널상품연동</h3>
+                                <span class="entity-card-badge">25건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">25</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">132</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-채널상품연동')">
+                                문의 내용 보기 (25건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="23">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">상품등록</h3>
+                                <span class="entity-card-badge">23건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">23</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">79</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-상품등록')">
+                                문의 내용 보기 (23건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="재무" 
+                             data-journey="정산" 
+                             data-count="23">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">특약매입정산</h3>
+                                <span class="entity-card-badge">23건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">23</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">110</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">재무</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">정산</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-특약매입정산')">
+                                문의 내용 보기 (23건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="영업" 
+                             data-journey="계정·입점" 
+                             data-count="15">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">플랜관리</h3>
+                                <span class="entity-card-badge">15건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">15</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">82</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">영업</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-플랜관리')">
+                                문의 내용 보기 (15건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="계정·입점" 
+                             data-count="15">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">스토어관리</h3>
+                                <span class="entity-card-badge">15건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">15</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">147</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-스토어관리')">
+                                문의 내용 보기 (15건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="8">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">배송현황관리</h3>
+                                <span class="entity-card-badge">8건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">8</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">128</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-배송현황관리')">
+                                문의 내용 보기 (8건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="재무" 
+                             data-journey="정산" 
+                             data-count="8">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">정산통합</h3>
+                                <span class="entity-card-badge">8건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">8</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">142</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">재무</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">정산</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-정산통합')">
+                                문의 내용 보기 (8건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="7">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">송장등록 실패/ 송장번호 수정</h3>
+                                <span class="entity-card-badge">7건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">7</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">46</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-송장등록-실패--송장번호-수정')">
+                                문의 내용 보기 (7건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="영업" 
+                             data-journey="계정·입점" 
+                             data-count="6">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">탈퇴/재가입</h3>
+                                <span class="entity-card-badge">6건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">6</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">29</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">영업</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-탈퇴-재가입')">
+                                문의 내용 보기 (6건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="재무" 
+                             data-journey="정산" 
+                             data-count="4">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">구매확정관리</h3>
+                                <span class="entity-card-badge">4건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">4</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">122</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">재무</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">정산</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-구매확정관리')">
+                                문의 내용 보기 (4건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="CS" 
+                             data-journey="주문·배송" 
+                             data-count="4">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">주문조회</h3>
+                                <span class="entity-card-badge">4건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">4</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">131</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">CS</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-주문조회')">
+                                문의 내용 보기 (4건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="4">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">상품문의(브리치)</h3>
+                                <span class="entity-card-badge">4건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">4</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">167</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-상품문의브리치')">
+                                문의 내용 보기 (4건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="재무" 
+                             data-journey="정산" 
+                             data-count="4">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">판매대행정산</h3>
+                                <span class="entity-card-badge">4건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">4</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">136</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">재무</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">정산</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-판매대행정산')">
+                                문의 내용 보기 (4건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="재무" 
+                             data-journey="계정·입점" 
+                             data-count="3">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">사업자정보/양도양수</h3>
+                                <span class="entity-card-badge">3건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">3</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">26</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">재무</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-사업자정보-양도양수')">
+                                문의 내용 보기 (3건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="영업" 
+                             data-journey="계정·입점" 
+                             data-count="2">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">신규회원가입</h3>
+                                <span class="entity-card-badge">2건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">2</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">46</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">영업</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-신규회원가입')">
+                                문의 내용 보기 (2건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="영업" 
+                             data-journey="계정·입점" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">입점관리</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">44</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">영업</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-입점관리')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="마케팅" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">브리치 기획전신청</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">18</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">마케팅</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-브리치-기획전신청')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="계정·입점" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">브랜드권한신청</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">계정·입점</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-브랜드권한신청')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="정책" 
+                             data-journey="주문·배송" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">배송정책 관리</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">64</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">정책</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">주문·배송</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-배송정책-관리')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">채널딜 진행관리</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">140</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-채널딜-진행관리')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="개발" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">상품등록 실패</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">67</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">개발</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-상품등록-실패')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                        <div class="entity-card" 
+                             data-team="MD(사업부)" 
+                             data-journey="상품·콘텐츠" 
+                             data-count="1">
+                            <div class="entity-card-header">
+                                <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">상품문의(채널)</h3>
+                                <span class="entity-card-badge">1건</span>
+                            </div>
+                            <ul class="metrics-list">
+                                <li>
+                                    <span class="metric-name">총 문의</span>
+                                    <span class="metric-number">1</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">긴급</span>
+                                    <span class="metric-number">0</span>
+                                </li>
+                                <li>
+                                    <span class="metric-name">평균길이</span>
+                                    <span class="metric-number">55</span>
+                                </li>
+                            </ul>
+                            <div style="margin: 1rem 0;">
+                                <h4 class="small-subsection-title">담당팀</h4>
+                                <div class="team-badges">                                    <span class="team-badge">MD(사업부)</span>                                </div>
+                                <h4 class="small-subsection-title">유저 여정</h4>
+                                <div style="margin: 0.5rem 0;">                                    <span class="journey-badge">상품·콘텐츠</span>                                </div>
+                            </div>
+                            <button class="modal-trigger" onclick="openModal('modal-상품문의채널')">
+                                문의 내용 보기 (1건)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-반품관리-환불보류" onclick="closeModal('modal-반품관리-환불보류')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">반품관리/환불보류 - 전체 216건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-반품관리-환불보류')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당 고객님 부분반품으로 당사에서 반품비 3,000원 입금받았습니다.
+상품회수 확인 후 1:1문의 후 반품비 차감 없이 환불요청드린 후 답변 받았습니다.
+고객님 반품비 6,000원 차감 후 환불되어 긴급문의 확인됩니다.
+해당건 확인 후 고객님께 안내부탁드립니다.
+고객님...</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">장영미님 반품건 배송비 6,000원 입금 받았습니다 
+환불처리부탁드립니다 감사합니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 214건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-교환관리-교환철회" onclick="closeModal('modal-교환관리-교환철회')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">교환관리/교환철회 - 전체 147건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-교환관리-교환철회')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051417471976270 해당 고객 배송비 선결제 완료되어있다고 합니다.
+확인 후 브리치측에 연동하고 *회신* 부탁드리겠습니다.
+감사합니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당 주문번호 추가 답글이 안되어 글 남깁니다 
+510273142096  대한통운 운송장으로 오늘 발송됩니다 
+기존 xl은 오늘 회수 신청 하겠습니다 
+해당 내용 고객 답변으로 전달 부탁드립니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 145건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-기타" onclick="closeModal('modal-기타')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">기타 - 전체 120건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-기타')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>None</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051417472000331  아래 주문이 오배송으로 재배송 처리를 이미 해드렸습니다 상품이 수거되지 않아 아직 재배송 입력을 못하고 있었는데 지금 갈려고 보니 기간초과로 입력이 불가능 하다고 나오네요  상품은 고객님이 직접 보내주셨어서 받은 수거송장번호를 
+확...</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>None</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051917475829001  최희*
+2025051917475825580  이미*
+2025051917475834571 유*
+2025051917475834810 김미*
+
+배송지연처리 부탁드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 118건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-긴급문의" onclick="closeModal('modal-긴급문의')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">긴급문의 - 전체 81건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-긴급문의')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">86408894 긴급문의 번호
+
+확인 부탁드리겠습니다 !</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051017468610290 // 박*류 고객님 // 교환재배송처리 부탁드립니다. 
+- 안녕하세요. 교환출고송장 CJ 510252751041 로 출고되어 교환재배송처리 부탁드립니다. 감사합니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 79건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-배송지연-관리-결품취소" onclick="closeModal('modal-배송지연-관리-결품취소')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">배송지연 관리 (결품취소) - 전체 50건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-배송지연-관리-결품취소')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051717474856270
+해당건 cj 몰 주문건으로 출고 일 연장 요청 드립니다.
+감사합니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025051617473920280
+해당건 cj 몰 주문건으로 출고 일 연장 요청 드립니다.
+감사합니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 48건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-취소관리" onclick="closeModal('modal-취소관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">취소관리 - 전체 44건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-취소관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">신상품 외에 전에 판매 상품들 모두 판매 중지처리 해놨었는데 왜 판매중이 되어 있는지 모르겠네요
+패널티 안되게 처리해주세요</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">신상품 외에 전에 판매 상품들 모두 판매 중지처리 해놨었는데 왜 판매중이 되어 있는지 모르겠네요
+패널티 안되게 처리해주세요</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 42건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-상품-조회-및-수정" onclick="closeModal('modal-상품-조회-및-수정')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">상품 조회 및 수정 - 전체 41건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-상품-조회-및-수정')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당 상품 옵션 중 블랙 롱 L 품절되어 재고 수정 부탁드립니다. 
+감사합니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당 상품 옵션 중 블랙, 화이트 컬러 품절되어 재고 수정 부탁드립니다. 
+감사합니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 39건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-발주-발송관리" onclick="closeModal('modal-발주-발송관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">발주/발송관리 - 전체 28건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-발주-발송관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당건 교환 재배송 기간 초과 입니다 확인 후 
+대한통운 : 520379858846 으로  처리부탁드립니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">해당건 교환 재배송 기간 초과 입니다 확인 후 
+대한통운 : 510268539670 으로  처리부탁드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 26건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-채널상품연동" onclick="closeModal('modal-채널상품연동')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">채널상품연동 - 전체 25건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-채널상품연동')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요 담당자님.
+항상 수고해주셔서 감사합니다.
+
+667452981
+541000437
+
+고객님께서 주문해주신 제품이 이미 [2023-11-08 23:25:02] 판매 중지 처리 되었으나, 5월 19일 고객님께서 제품을 주문해주신 것으로 확인되십니다.
+
+해당 제품은 ...</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">1630599637
+900415096
+2026071211
+1266395870
+529781505
+1644829108 승인요청 해제 부탁드립니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 23건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-상품등록" onclick="closeModal('modal-상품등록')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">상품등록 - 전체 23건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-상품등록')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">같은 상품을 다른 옵션으로 두개 주문했을때 배송비가 5천원 설정되어 있으면, 5천원만 책정되나요 아니면 상품별로 두번(만원) 책정되나요?
+예를들면 주문번호 2025052517481063051 상황에서요.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">1680205058
+928787381
+2079609304
+1315739147
+310697150
+1698628321
+상품보류헤지요청입니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 21건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-특약매입정산" onclick="closeModal('modal-특약매입정산')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">특약매입정산 - 전체 23건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-특약매입정산')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">4월 계산서을 발행하지 않아 발행할려고 하는데 날짜 언제로 하고 발행할지 확인 부탁 드립나다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">저희 마곡지점이 양도양수가 늦어지면서 3월 4월 특약정산이 안되었는데 이번달에 특별히 해주실수 있으신지요?</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 21건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-플랜관리" onclick="closeModal('modal-플랜관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">플랜관리 - 전체 15건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-플랜관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">플랜 종류가 많던데 적용되는 쇼핑몰은 예를들어 알리랑 롯데아이몰이랑 이런걸 제가 선택해서 플랜 적용할 수 있는건가요?
+4개는 얼마 뭐 이런식으로 되어있던데</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">1개월 무료 혜택 적용해주신다고했는데, 5월 22일부터 1개월 적용해볼수있을까요? 
+또한 기준 이하의 매출 달성 시 플랜비용 0원이였던걸로 기억하는데, 매출 기준이 있나요?</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 13건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-스토어관리" onclick="closeModal('modal-스토어관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">스토어관리 - 전체 15건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-스토어관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">구독취소 요청 합니다.
+오늘까지로 알고있는데 빠른 처리 부탁 드려요</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요, 비플로우 담당자님.
+이번 달 플랜 결제 후 상품 등록을 진행하였으나, 담당자님께서 지식재산권 관련 이슈로 인해 전 상품에 대해 판매가 불가하다는 안내를 주셨고, 현재 전 상품이 판매중지 처리되어 실질적으로 어떤 판매 활동도 진행할 수 없는 상황입니다.
+이에...</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 13건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-배송현황관리" onclick="closeModal('modal-배송현황관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">배송현황관리 - 전체 8건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-배송현황관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요
+해당 주문서에 적힌 주소지로 배송이 나갔는데
+받으신 주소지에 사시는분께서 본인은 주문한적이 없다며 연락이 왔습니다
+고객님 주소 기재에 오류가 있었는지 확인 요청드립니다
+받으신 분께서 문앞에 물건을 내놓는다고 해서 분산위험이 있으니
+빠른 확인 부탁드립니다</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">166867143  권오남  2025-05-22 15:29:34 배송완료건인데  출고완료에만 잡혀있어서요, 확인부탁드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 6건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-정산통합" onclick="closeModal('modal-정산통합')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">정산통합 - 전체 8건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-정산통합')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025032917432448410 노현*님 가방주문 취소처리건 
+20250515021121-109 문의글 번호 
+상품 본인이 취소한것도 아니고 마음데로 보냈다고하며, 한번 사용했다고하며 비용 결제 못한다고하며 본인에게 지급하는줄 알고 있었다고함. 해당건 결제 필요함을...</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">정산보류라고 떠있꾸여 이거 구독하는거 상품다른걸로 변경할려구여</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 6건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-송장등록-실패--송장번호-수정" onclick="closeModal('modal-송장등록-실패--송장번호-수정')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">송장등록 실패/ 송장번호 수정 - 전체 7건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-송장등록-실패--송장번호-수정')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">주문번호 348985745
+459343047413 한진택배 송장 수정 부탁드립니다</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">한진택배 459343047413
+묶음배송 송장번호 수정 부탁드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 5건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-탈퇴-재가입" onclick="closeModal('modal-탈퇴-재가입')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">탈퇴/재가입 - 전체 6건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-탈퇴-재가입')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">매출 부진으로 사업자 페업신고 했습니다.폐점 탈퇴 요청합니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">탈퇴요청드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 4건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-구매확정관리" onclick="closeModal('modal-구매확정관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">구매확정관리 - 전체 4건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-구매확정관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요
+저희가 선정산을 이용중이라 구매확정이 되야 정산을 받을 수있는데
+이번달이 다른때에 비해 늦어져서요
+혹시 늦어지는 이유가  있을까요?
+아직 4월 배송완료건들도 구매확정이 안된게 좀 있습니다
+바쁘시겠지만 확인 부탁드리며
+빠른 구매확정 진행 요청드립니다</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요
+오늘 일부 구매확정처리 됬는데
+gs샵 5월 배송건도 구매확정이 된게 있더라구요
+근데4월달에 배송완료된건들이 구매확정이 많이 이뤄지지 않아서요
+4월 배송완료건들은 빠른 구매확정 처리 요청드립니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 2건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-주문조회" onclick="closeModal('modal-주문조회')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">주문조회 - 전체 4건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-주문조회')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">상품이 없습니다..취소처리부탁드립니다</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>CS</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">재고가 없어 판매중지해야하는 상품입니다.취소처리부탁드립니다</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 2건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-상품문의브리치" onclick="closeModal('modal-상품문의브리치')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">상품문의(브리치) - 전체 4건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-상품문의브리치')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">212314545 / 1:1문의글
+안녕하세요 해당 문의글 답변 받아보았습니다. 배송 확인은..당연히 저희가 판매자인데....저희도 할 줄 안답니다 저희가 이용한 택배사에 저희가 보낸 물건이니 정확히 보낸 물건인것이 맞는데 
+고객이 배송이 안되었다는데 배송완료가 어떻게 ...</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요 담당자님
+상품주문번호 595808408 (상품 미출고)
+고객님께서 반품 접수와 취소 접수 중복으로 주셔서 이미 취소는 승인되어 환불 처리되었습니다.
+이럴 경우 반품 접수 내역은 어떻게 처리해야 하는지 혹은 반품 접수 거부 또는 철회가 가능한지 문의 드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 2건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-판매대행정산" onclick="closeModal('modal-판매대행정산')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">판매대행정산 - 전체 4건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-판매대행정산')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">판매대행 정산일이 5일인데, 보통 정산이 7일 되는데, 가끔 8일 9일 되는경우도 있더라구요. 오늘 정산입금되나요 ?</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">금액이 확인도 안되고 국세청등록을 할수가 없습니다.방법알려주세요</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 2건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-사업자정보-양도양수" onclick="closeModal('modal-사업자정보-양도양수')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">사업자정보/양도양수 - 전체 3건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-사업자정보-양도양수')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">양도양수 부탁드립니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>재무</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">사업자 양도양수 신청 드립니다.</div>
+                        </div>
+                        <div style="text-align: center; padding: 1rem; color: #6b7280; font-style: italic;">
+                            ... 및 1건의 추가 문의가 있습니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-신규회원가입" onclick="closeModal('modal-신규회원가입')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">신규회원가입 - 전체 2건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-신규회원가입')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">네 카드 15자리에요 ㅠㅠ 전화는 010 7797 8018 번으로 부탁드립니다.</div>
+                        </div>
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">결제수단오류 캡쳐입니다. 
+추가로 채팅에 상담사 연결은 죽어도 안되던대 되는거 맞나요??</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-입점관리" onclick="closeModal('modal-입점관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">입점관리 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-입점관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>영업</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">저는 지금 gs샵에서만 거의 팔리는데, gs만 연동해도 vip를 결제해야되나요?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-브리치-기획전신청" onclick="closeModal('modal-브리치-기획전신청')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">브리치 기획전신청 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-브리치-기획전신청')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>마케팅</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">여기에 그냥 신청만 하면될까요??</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-브랜드권한신청" onclick="closeModal('modal-브랜드권한신청')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">브랜드권한신청 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-브랜드권한신청')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-배송정책-관리" onclick="closeModal('modal-배송정책-관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">배송정책 관리 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-배송정책-관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>정책</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">배송정책 처음에 등록할때 일괄적으로 같은 배송정책을 모든 마켓에 적용은 안되나요? 하나하나 마켓별로 입력해야될까요?</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-채널딜-진행관리" onclick="closeModal('modal-채널딜-진행관리')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">채널딜 진행관리 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-채널딜-진행관리')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">안녕하세요 혹시 빅스마일데이 라고 지마켓 할인되고 있는 
+15~20% 할인쿠폰들은 지마켓 부담일까요 ? 
+저희 판매자는 부담하는 쿠폰이 아닌게 맞을까요 ?  갑작스럽게 구매건들이 7~10개 이상씩 구매하는 분들이 많은데 
+전부 할인율이 엄청 크더라구요</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-상품등록-실패" onclick="closeModal('modal-상품등록-실패')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">상품등록 실패 - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-상품등록-실패')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>개발</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">이미지 사이즈가 안맞아서 승인 보류라고 계속 나오는데 
+이미지 사이즈가 600이 넘는데 왜 계속 보류로 나오는 걸까요??</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-overlay" id="modal-상품문의채널" onclick="closeModal('modal-상품문의채널')">
+                <div class="modal-content" onclick="event.stopPropagation()">
+                    <div class="modal-header">
+                        <h3 class="modal-title">상품문의(채널) - 전체 1건</h3>
+                        <button class="modal-close" onclick="closeModal('modal-상품문의채널')">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-card">
+                            <div class="inquiry-header">
+                                <span>MD(사업부)</span>
+                                <span class="urgency-badge urgency-normal">일반</span>
+                            </div>
+                            <div class="inquiry-content">2025041317445126380  주문번호
+문의 남기시고 사진 첨부하셨다는데 확인 부탁드립니다.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <script>
+            function openModal(modalId) {
+                document.getElementById(modalId).classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+            
+            function closeModal(modalId) {
+                document.getElementById(modalId).classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+            
+            function filterCategories(type) {
+                // 활성 버튼 업데이트
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                const container = document.getElementById('categories-container');
+                const cards = Array.from(container.children);
+                
+                // 정렬 함수
+                let sortFunction;
+                switch(type) {
+                    case 'team':
+                        sortFunction = (a, b) => {
+                            const teamA = a.getAttribute('data-team');
+                            const teamB = b.getAttribute('data-team');
+                            return teamA.localeCompare(teamB);
+                        };
+                        break;
+                    case 'journey':
+                        // 유저 여정 순서 정의
+                        const journeyOrder = ['계정·입점', '상품·콘텐츠', '주문·배송', '반품·취소', '정산', '기타'];
+                        sortFunction = (a, b) => {
+                            const journeyA = a.getAttribute('data-journey');
+                            const journeyB = b.getAttribute('data-journey');
+                            const indexA = journeyOrder.indexOf(journeyA);
+                            const indexB = journeyOrder.indexOf(journeyB);
+                            
+                            // 정의된 순서가 없으면 기타로 처리
+                            const finalIndexA = indexA === -1 ? journeyOrder.length : indexA;
+                            const finalIndexB = indexB === -1 ? journeyOrder.length : indexB;
+                            
+                            return finalIndexA - finalIndexB;
+                        };
+                        break;
+                    default: // 'all'
+                        sortFunction = (a, b) => {
+                            const countA = parseInt(a.getAttribute('data-count'));
+                            const countB = parseInt(b.getAttribute('data-count'));
+                            return countB - countA; // 내림차순
+                        };
+                }
+                
+                // 정렬 및 재배치
+                cards.sort(sortFunction);
+                cards.forEach(card => container.appendChild(card));
+            }
+            
+            // ESC 키로 모달 닫기
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    const activeModal = document.querySelector('.modal-overlay.active');
+                    if (activeModal) {
+                        activeModal.classList.remove('active');
+                        document.body.style.overflow = 'auto';
+                    }
+                }
+            });
+        </script>
+        </div>
+        <div class="footer">
+            <p>카테고리 기반 VoC 분석 보고서</p>
+            <p>생성일시: 2025-05-28 11:29:20 | Pretendard 폰트 적용</p>
+        </div>
+    </div>
+</body>
+</html>
