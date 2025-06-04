@@ -1,5 +1,5 @@
-# html_reporter/templates/base.py
-"""공통 베이스 템플릿들 - 단순화된 디자인"""
+# html_reporter/templates/base.py (업데이트된 버전)
+"""공통 베이스 템플릿들 - 분석 기준일 표시 개선"""
 
 def get_base_template():
     return """<!DOCTYPE html>
@@ -38,7 +38,7 @@ def get_header_template():
     return """<div class="header">
     <h1>카테고리 기반 VoC 분석</h1>
     <p>고객 문의 데이터의 카테고리별 분석 및 인사이트 도출</p>
-    <p>분석 기준일: {analysis_date}</p>
+    <div class="analysis-date">분석 기준일: {analysis_date}</div>
 </div>"""
 
 def get_footer_template():

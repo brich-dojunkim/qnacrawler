@@ -29,7 +29,7 @@ body {
     overflow: hidden;
 }
 
-/* Header Styles */
+/* 헤더 스타일 개선 - 분석 기준일 표시 */
 .header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -49,6 +49,17 @@ body {
     font-size: 1.1rem;
     margin-bottom: 10px;
     opacity: 0.95;
+}
+
+.header .analysis-date {
+    font-size: 1rem;
+    margin-top: 15px;
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    display: inline-block;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* Main Content */
@@ -92,6 +103,105 @@ body {
 
 .major-section-content {
     padding: 30px;
+}
+
+/* 개요 헤더 스타일 */
+.overview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.page-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.page-title-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.overview-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dashboard-date {
+    font-size: 0.9rem;
+    color: #64748b;
+    font-weight: 500;
+    background: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 섹션 타이틀 컨테이너 */
+.section-title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    margin-top: 40px;
+}
+
+.section-title-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 8px;
+    font-size: 1.2rem;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    flex-shrink: 0;
+}
+
+/* 대시보드 섹션 타이틀 */
+.dashboard-section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-title-line {
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, #e2e8f0 0%, transparent 100%);
+    margin-left: 16px;
+}
+
+/* 대시보드 통계 섹션 - 카드 밖으로 이동 */
+.main-stats-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
 }
 
 /* Card Styles */
@@ -288,69 +398,174 @@ body {
     min-width: 35px;
 }
 
-/* Insights Section */
-.insights-section {
-    margin-bottom: 30px;
+/* 분포 그리드 스타일 */
+.distribution-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
 }
 
-.insight-card {
-    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+.distribution-card {
+    background: white;
     border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 24px;
-    border-left: 4px solid #667eea;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
 }
 
-.insight-title {
-    font-size: 1.2rem;
+.distribution-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+.distribution-card-title {
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    color: #374151;
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.insight-title::before {
-    content: '💡';
-    font-size: 1.3rem;
+/* 나머지 팀들 한 줄 표시 스타일 */
+.remaining-teams-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 12px;
+    border: 1px solid #f59e0b;
+    transition: all 0.3s ease;
 }
 
-.insight-items {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 16px;
+.remaining-teams-item:hover {
+    background: linear-gradient(135deg, #fde68a, #fcd34d);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
 }
 
-.insight-item {
+.remaining-teams-number {
+    min-width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-}
-
-.insight-icon {
-    font-size: 1.2rem;
-    min-width: 24px;
-}
-
-.insight-text {
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-radius: 50%;
     font-size: 0.9rem;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.remaining-teams-content {
+    flex: 1;
+}
+
+.remaining-teams-title {
+    font-size: 1rem;
+    font-weight: 600;
     color: #374151;
+    margin-bottom: 6px;
+}
+
+.remaining-teams-list {
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.4;
+    font-weight: 500;
+}
+.simple-rank-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.simple-rank-item:hover {
+    background: linear-gradient(135deg, #e0f2fe, #e3f2fd);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.simple-rank-number {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    font-size: 1rem;
+    margin-right: 20px;
+}
+
+.simple-rank-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.simple-rank-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.simple-rank-details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.simple-rank-count {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+.simple-rank-percentage {
+    font-size: 0.85rem;
+    color: #64748b;
     font-weight: 500;
 }
 
-.insight-value {
-    color: #667eea;
-    font-weight: 700;
+/* 나머지 팀들 상세 정보 스타일 */
+.remaining-teams-detail {
+    font-size: 0.8rem;
+    color: #64748b;
+    line-height: 1.4;
+    font-weight: 500;
+    text-align: right;
+    margin-top: 4px;
 }
 
-/* Rankings Section */
-.rankings-section {
-    margin-top: 20px;
+.rank-summary {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 500;
 }
 
 /* Grid Layouts */
@@ -624,18 +839,6 @@ body {
     color: #667eea;
 }
 
-.rank-summary {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
-    display: flex;
-    gap: 24px;
-    font-size: 0.8rem;
-    color: #64748b;
-    justify-content: center;
-    font-weight: 500;
-}
-
 /* Simple List Styles */
 .simple-list {
     margin: 16px 0;
@@ -831,43 +1034,11 @@ body {
     .stat-number-large {
         font-size: 2.5rem;
     }
-}
-
-@media (max-width: 768px) {
-    .main-stats-grid {
+    
+    .distribution-grid {
         grid-template-columns: 1fr;
-        gap: 12px;
+        gap: 20px;
     }
-    
-    .stat-card-large {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px;
-    }
-    
-    .stat-icon {
-        font-size: 2.5rem;
-    }
-    
-    .stat-number-large {
-        font-size: 2rem;
-    }
-    
-    .stat-number-medium {
-        font-size: 1.5rem;
-    }
-    
-    .insight-items {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-    
-    .insight-item {
-        flex-direction: column;
-        text-align: center;
-        gap: 8px;
-    }
-}
 }
 
 @media (max-width: 768px) {
@@ -893,6 +1064,103 @@ body {
     
     .major-section-content {
         padding: 20px;
+    }
+    
+    .overview-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .page-title-section {
+        justify-content: center;
+    }
+    
+    .section-title-container {
+        justify-content: center;
+        margin-top: 30px;
+    }
+    
+    .section-title-line {
+        display: none;
+    }
+    
+    .dashboard-section-title {
+        font-size: 1.1rem;
+        margin-top: 30px;
+    }
+    
+    .dashboard-stats-section {
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .distribution-card {
+        padding: 20px;
+    }
+    
+    .main-stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .stat-card-large {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+    
+    .stat-number-large {
+        font-size: 2rem;
+    }
+    
+    .stat-number-medium {
+        font-size: 1.5rem;
+    }
+    
+    .simple-rank-item {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .simple-rank-number {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+    
+    .simple-rank-content {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+    
+    .remaining-teams-item {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .remaining-teams-number {
+        margin-right: 0;
+        margin-bottom: 8px;
+        align-self: center;
+    }
+    
+    .remaining-teams-content {
+        width: 100%;
+    }
+    
+    .remaining-teams-detail {
+        text-align: center;
+        margin-top: 8px;
     }
     
     .grid-2, .grid-3, .grid-4, .grid-5 { 

@@ -21,7 +21,7 @@ def calculate_urgent_rate(urgent, total):
     return round((urgent / total) * 100, 1)
 
 def process_overview_data(results):
-    """개요 데이터 처리 - 개선된 버전"""
+    """개요 데이터 처리 - 단순화된 버전"""
     overall_summary = results.get('overall_summary', {})
     
     # 기본 데이터
@@ -41,9 +41,6 @@ def process_overview_data(results):
     answer_rate = round((answered_count / total_inquiries * 100), 1) if total_inquiries > 0 else 0
     pending_rate = round((pending_count / total_inquiries * 100), 1) if total_inquiries > 0 else 0
     
-    # 인사이트 생성
-    insights_content = generate_insights(results, total_inquiries, urgent_count, answered_count)
-    
     overview_data = {
         'total_inquiries': total_inquiries,
         'urgent_count': urgent_count,
@@ -52,84 +49,17 @@ def process_overview_data(results):
         'urgent_rate': urgent_rate,
         'answer_rate': answer_rate,
         'pending_rate': pending_rate,
-        'insights_content': insights_content,
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
     
-    # 순위표 생성 (기존과 동일)
+    # 순위표 생성
     rank_tables = generate_rank_tables(results)
     overview_data['rank_tables'] = rank_tables
     
     return overview_data
 
-def generate_insights(results, total_inquiries, urgent_count, answered_count):
-    """주요 인사이트 생성"""
-    insights = []
-    
-    # 가장 바쁜 팀 찾기
-    if 'team_analysis' in results and results['team_analysis']:
-        busiest_team = max(results['team_analysis'].items(), 
-                          key=lambda x: x[1]['basic_info']['total_inquiries'])
-        team_name, team_data = busiest_team
-        team_count = team_data['basic_info']['total_inquiries']
-        
-        insights.append({
-            'icon': '🏢',
-            'text': f'가장 바쁜 팀',
-            'value': f'{team_name} ({team_count}건)'
-        })
-    
-    # 긴급 문의 비율
-    if total_inquiries > 0:
-        urgent_rate = round((urgent_count / total_inquiries * 100), 1)
-        urgent_status = "높음" if urgent_rate > 10 else "보통" if urgent_rate > 5 else "낮음"
-        
-        insights.append({
-            'icon': '🚨',
-            'text': f'긴급 문의 비율',
-            'value': f'{urgent_rate}% ({urgent_status})'
-        })
-    
-    # 답변률 상태
-    if total_inquiries > 0:
-        answer_rate = round((answered_count / total_inquiries * 100), 1)
-        answer_status = "우수" if answer_rate > 80 else "양호" if answer_rate > 60 else "개선필요"
-        
-        insights.append({
-            'icon': '✅',
-            'text': f'답변 완료율',
-            'value': f'{answer_rate}% ({answer_status})'
-        })
-    
-    # 주요 유저 여정 찾기
-    if 'journey_analysis' in results and results['journey_analysis']:
-        top_journey = max(results['journey_analysis'].items(), 
-                         key=lambda x: x[1]['basic_info']['total_inquiries'])
-        journey_name, journey_data = top_journey
-        journey_count = journey_data['basic_info']['total_inquiries']
-        
-        if journey_count > 0:
-            insights.append({
-                'icon': '🎯',
-                'text': f'주요 문의 여정',
-                'value': f'{journey_name} ({journey_count}건)'
-            })
-    
-    # HTML 생성
-    insights_html = ""
-    for insight in insights:
-        insights_html += f'''
-        <div class="insight-item">
-            <div class="insight-icon">{insight['icon']}</div>
-            <div class="insight-text">
-                {insight['text']}: <span class="insight-value">{insight['value']}</span>
-            </div>
-        </div>'''
-    
-    return insights_html
-
 def generate_rank_tables(results):
-    """순위표 생성 (기존 함수 분리)"""
+    """심플한 순위표 생성 - 나머지 팀들 한 줄에 표시"""
     rank_tables = ""
     
     # 팀별 분포 순위표
@@ -142,20 +72,60 @@ def generate_rank_tables(results):
             
             total_inquiries_check = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
             
-            team_table_html = '<h4 class="rank-table-title">팀별 문의 분포</h4>'
+            team_table_html = '''
+            <div class="distribution-card">
+                <h4 class="distribution-card-title">🏢 팀별 워크로드</h4>'''
             
-            for idx, (team_name, team_info) in enumerate(sorted_teams[:10], 1):  # 상위 10개만
+            # 상위 4개 팀은 개별 표시
+            for idx, (team_name, team_info) in enumerate(sorted_teams[:4], 1):
                 count = team_info['basic_info']['total_inquiries']
-                percentage = (count / total_inquiries_check * 100) if total_inquiries_check > 0 else 0
+                percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+                
+                # 최대값 대비 진행률 계산
+                max_count = sorted_teams[0][1]['basic_info']['total_inquiries'] if sorted_teams else 1
+                progress_width = (count / max_count * 100) if max_count > 0 else 0
                 
                 team_table_html += f'''
-                <div class="rank-row">
-                    <div class="rank-number">{idx}</div>
-                    <div class="rank-name">{team_name}</div>
-                    <div class="rank-value">{count:,}건 ({percentage:.1f}%)</div>
+                <div class="simple-rank-item" style="--progress-width: {progress_width}%;">
+                    <div class="simple-rank-number">{idx}</div>
+                    <div class="simple-rank-content">
+                        <div class="simple-rank-name">{team_name}</div>
+                        <div class="simple-rank-details">
+                            <span class="simple-rank-count">{count:,}건</span>
+                            <span class="simple-rank-percentage">({percentage}%)</span>
+                        </div>
+                    </div>
                 </div>'''
             
-            rank_tables += f'<div class="entity-card" style="margin-bottom: 1rem;">{team_table_html}</div>'
+            # 5위부터는 한 줄에 표시 (텍스트 배치 개선)
+            if len(sorted_teams) > 4:
+                remaining_teams = sorted_teams[4:]
+                remaining_teams_html = []
+                
+                for idx, (team_name, team_info) in enumerate(remaining_teams, 5):
+                    count = team_info['basic_info']['total_inquiries']
+                    percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+                    remaining_teams_html.append(f"{team_name} ({count}건, {percentage}%)")
+                
+                team_table_html += f'''
+                <div class="simple-rank-item">
+                    <div class="simple-rank-number">5+</div>
+                    <div class="simple-rank-content">
+                        <div class="simple-rank-name">기타 {len(remaining_teams)}개 팀</div>
+                        <div class="simple-rank-details">
+                            <div class="remaining-teams-detail">{' • '.join(remaining_teams_html)}</div>
+                        </div>
+                    </div>
+                </div>'''
+            
+            # 요약 정보 추가
+            team_table_html += f'''
+                <div class="rank-summary">
+                    전체 {len(team_data)}개 팀 | 총 {total_inquiries_check:,}건
+                </div>
+            </div>'''
+            
+            rank_tables += team_table_html
     
     # 유저 여정별 분포 순위표
     if 'journey_analysis' in results:
@@ -165,24 +135,44 @@ def generate_rank_tables(results):
                                    key=lambda x: x[1]['basic_info']['total_inquiries'], 
                                    reverse=True)
             
-            total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in sorted_journeys)
+            # 문의가 있는 여정만 필터링
+            filtered_journeys = [(name, data) for name, data in sorted_journeys 
+                               if data['basic_info']['total_inquiries'] > 0]
             
-            journey_table_html = '<h4 class="rank-table-title">유저 여정별 문의 분포</h4>'
+            total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in filtered_journeys)
             
-            for idx, (journey_name, journey_info) in enumerate(sorted_journeys, 1):
+            journey_table_html = '''
+            <div class="distribution-card">
+                <h4 class="distribution-card-title">🎯 고객 여정별 분포</h4>'''
+            
+            for idx, (journey_name, journey_info) in enumerate(filtered_journeys, 1):
                 count = journey_info['basic_info']['total_inquiries']
-                if count == 0:  # 빈 여정은 제외
-                    continue
-                percentage = (count / total_inquiries_check * 100) if total_inquiries_check > 0 else 0
+                percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+                
+                # 최대값 대비 진행률 계산
+                max_count = filtered_journeys[0][1]['basic_info']['total_inquiries'] if filtered_journeys else 1
+                progress_width = (count / max_count * 100) if max_count > 0 else 0
                 
                 journey_table_html += f'''
-                <div class="rank-row">
-                    <div class="rank-number">{idx}</div>
-                    <div class="rank-name">{journey_name}</div>
-                    <div class="rank-value">{count:,}건 ({percentage:.1f}%)</div>
+                <div class="simple-rank-item" style="--progress-width: {progress_width}%;">
+                    <div class="simple-rank-number">{idx}</div>
+                    <div class="simple-rank-content">
+                        <div class="simple-rank-name">{journey_name}</div>
+                        <div class="simple-rank-details">
+                            <span class="simple-rank-count">{count:,}건</span>
+                            <span class="simple-rank-percentage">({percentage}%)</span>
+                        </div>
+                    </div>
                 </div>'''
             
-            rank_tables += f'<div class="entity-card">{journey_table_html}</div>'
+            # 요약 정보 추가
+            journey_table_html += f'''
+                <div class="rank-summary">
+                    총 {len(filtered_journeys)}개 여정 단계 | 총 {total_inquiries_check:,}건
+                </div>
+            </div>'''
+            
+            rank_tables += journey_table_html
     
     return rank_tables
 
