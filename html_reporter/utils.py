@@ -1,5 +1,5 @@
 # html_reporter/utils.py
-"""데이터 처리 유틸리티"""
+"""데이터 처리 유틸리티 - 단순화된 버전"""
 
 import pandas as pd
 from datetime import datetime
@@ -8,14 +8,39 @@ def format_number(num):
     """숫자 천단위 콤마"""
     return f"{num:,}"
 
+def calculate_answer_rate(answered, total):
+    """답변률 계산"""
+    if total == 0:
+        return 0
+    return round((answered / total) * 100, 1)
+
+def calculate_urgent_rate(urgent, total):
+    """긴급률 계산"""
+    if total == 0:
+        return 0
+    return round((urgent / total) * 100, 1)
+
 def process_overview_data(results):
     """개요 데이터 처리"""
     overall_summary = results.get('overall_summary', {})
     
     # 기본 데이터
+    total_inquiries = overall_summary.get('total_inquiries', 0)
+    urgent_count = overall_summary.get('urgent_count', 0)
+    
+    # 답변 완료/대기 계산
+    answered_count = 0
+    if 'team_analysis' in results:
+        for team_data in results['team_analysis'].values():
+            answered_count += team_data['basic_info'].get('answered_count', 0)
+    
+    pending_count = total_inquiries - answered_count
+    
     overview_data = {
-        'total_inquiries': overall_summary.get('total_inquiries', 0),
-        'urgent_count': overall_summary.get('urgent_count', 0),
+        'total_inquiries': total_inquiries,
+        'urgent_count': urgent_count,
+        'answered_count': answered_count,
+        'pending_count': pending_count,
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
     
@@ -30,19 +55,19 @@ def process_overview_data(results):
                                 key=lambda x: x[1]['basic_info']['total_inquiries'], 
                                 reverse=True)
             
-            total_inquiries = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
+            total_inquiries_check = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
             
             team_table_html = '<h4 class="rank-table-title">팀별 문의 분포</h4>'
             
-            for idx, (team_name, team_info) in enumerate(sorted_teams, 1):
+            for idx, (team_name, team_info) in enumerate(sorted_teams[:10], 1):  # 상위 10개만
                 count = team_info['basic_info']['total_inquiries']
-                percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                percentage = (count / total_inquiries_check * 100) if total_inquiries_check > 0 else 0
                 
                 team_table_html += f'''
                 <div class="rank-row">
                     <div class="rank-number">{idx}</div>
                     <div class="rank-name">{team_name}</div>
-                    <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                    <div class="rank-value">{count:,}건 ({percentage:.1f}%)</div>
                 </div>'''
             
             rank_tables += f'<div class="entity-card" style="margin-bottom: 1rem;">{team_table_html}</div>'
@@ -55,19 +80,21 @@ def process_overview_data(results):
                                    key=lambda x: x[1]['basic_info']['total_inquiries'], 
                                    reverse=True)
             
-            total_inquiries = sum(data['basic_info']['total_inquiries'] for _, data in sorted_journeys)
+            total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in sorted_journeys)
             
             journey_table_html = '<h4 class="rank-table-title">유저 여정별 문의 분포</h4>'
             
             for idx, (journey_name, journey_info) in enumerate(sorted_journeys, 1):
                 count = journey_info['basic_info']['total_inquiries']
-                percentage = (count / total_inquiries * 100) if total_inquiries > 0 else 0
+                if count == 0:  # 빈 여정은 제외
+                    continue
+                percentage = (count / total_inquiries_check * 100) if total_inquiries_check > 0 else 0
                 
                 journey_table_html += f'''
                 <div class="rank-row">
                     <div class="rank-number">{idx}</div>
                     <div class="rank-name">{journey_name}</div>
-                    <div class="rank-value">{count}건 ({percentage:.1f}%)</div>
+                    <div class="rank-value">{count:,}건 ({percentage:.1f}%)</div>
                 </div>'''
             
             rank_tables += f'<div class="entity-card">{journey_table_html}</div>'
@@ -84,6 +111,9 @@ def process_team_data(results):
     for team_name, team_info in results['team_analysis'].items():
         basic_info = team_info['basic_info']
         
+        # 답변률 계산
+        answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        
         # 세부 카테고리 처리
         sub_categories_html = ""
         if team_info.get('sub_categories'):
@@ -97,10 +127,13 @@ def process_team_data(results):
             'total_inquiries': basic_info['total_inquiries'],
             'urgent_count': basic_info['urgent_count'],
             'answered_count': basic_info['answered_count'],
+            'answer_rate': answer_rate,
             'avg_content_length': round(basic_info['avg_content_length']),
             'sub_categories': sub_categories_html
         })
     
+    # 문의량 순으로 정렬
+    team_cards.sort(key=lambda x: x['total_inquiries'], reverse=True)
     return team_cards
 
 def process_category_data(results):
@@ -116,6 +149,9 @@ def process_category_data(results):
     for category_name, category_info in sorted_categories:
         basic_info = category_info['basic_info']
         
+        # 긴급률 계산
+        urgent_rate = calculate_urgent_rate(basic_info['urgent_count'], basic_info['total_inquiries'])
+        
         # 담당팀 배지 생성
         team_badges_html = ""
         if category_info.get('team_distribution'):
@@ -125,27 +161,39 @@ def process_category_data(results):
         main_team = list(category_info.get('team_distribution', {}).keys())[0] if category_info.get('team_distribution') else '기타'
         main_journey = get_journey_for_category(category_name)
         
-        # 모달 ID 생성
-        modal_id = f"modal-{category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '')}"
+        # 모달 ID 생성 (안전한 ID)
+        safe_id = category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '').replace('·', '-').replace('&', 'and')
+        modal_id = f"modal-{safe_id}"
         
         # 모달 콘텐츠 생성
         modal_content = ""
-        for sample in category_info.get('sample_inquiries', []):
-            urgency_class = "urgency-urgent" if sample.get('is_urgent', False) else "urgency-normal"
-            urgency_text = "긴급" if sample.get('is_urgent', False) else "일반"
-            modal_content += f'''
-            <div class="inquiry-card">
-                <div class="inquiry-header">
-                    <span>{sample.get('assigned_team', 'N/A')}</span>
-                    <span class="urgency-badge {urgency_class}">{urgency_text}</span>
-                </div>
-                <div class="inquiry-content">{sample.get('content', '')}</div>
-            </div>'''
+        if category_info.get('sample_inquiries'):
+            for sample in category_info['sample_inquiries']:
+                urgency_class = "urgency-urgent" if sample.get('is_urgent', False) else "urgency-normal"
+                urgency_text = "긴급" if sample.get('is_urgent', False) else "일반"
+                
+                # 문의 내용 안전하게 처리
+                content = sample.get('content', '') or sample.get('question_content', '') or sample.get('question_preview', '')
+                if len(content) > 300:
+                    content = content[:300] + '...'
+                
+                modal_content += f'''
+                <div class="inquiry-card">
+                    <div class="inquiry-header">
+                        <span>{sample.get('assigned_team', 'N/A')}</span>
+                        <span class="urgency-badge {urgency_class}">{urgency_text}</span>
+                    </div>
+                    <div class="inquiry-content">{content}</div>
+                </div>'''
+        
+        if not modal_content:
+            modal_content = '<div class="inquiry-card"><div class="inquiry-content">문의 내용 샘플이 없습니다.</div></div>'
         
         category_cards.append({
             'name': category_name,
             'total_inquiries': basic_info['total_inquiries'],
             'urgent_count': basic_info['urgent_count'],
+            'urgent_rate': urgent_rate,
             'avg_content_length': round(basic_info['avg_content_length']),
             'main_team': main_team,
             'main_journey': main_journey,
@@ -162,8 +210,25 @@ def process_journey_data(results):
         return []
     
     journey_cards = []
-    for journey_name, journey_info in results['journey_analysis'].items():
+    
+    # 유저 여정 순서 정의
+    journey_order = ['계정·입점', '상품·콘텐츠', '주문·배송', '반품·취소', '정산', '기타']
+    
+    # 순서대로 정렬
+    sorted_journeys = []
+    for journey in journey_order:
+        if journey in results['journey_analysis']:
+            sorted_journeys.append((journey, results['journey_analysis'][journey]))
+    
+    for journey_name, journey_info in sorted_journeys:
         basic_info = journey_info['basic_info']
+        
+        # 문의가 없는 여정은 제외
+        if basic_info['total_inquiries'] == 0:
+            continue
+        
+        # 답변률 계산
+        answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
         
         # 세부 카테고리 처리
         sub_categories_html = ""
@@ -178,6 +243,7 @@ def process_journey_data(results):
             'total_inquiries': basic_info['total_inquiries'],
             'urgent_count': basic_info['urgent_count'],
             'answered_count': basic_info['answered_count'],
+            'answer_rate': answer_rate,
             'avg_content_length': round(basic_info['avg_content_length']),
             'sub_categories': sub_categories_html
         })
