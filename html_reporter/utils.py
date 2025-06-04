@@ -21,7 +21,7 @@ def calculate_urgent_rate(urgent, total):
     return round((urgent / total) * 100, 1)
 
 def process_overview_data(results):
-    """개요 데이터 처리"""
+    """개요 데이터 처리 - 개선된 버전"""
     overall_summary = results.get('overall_summary', {})
     
     # 기본 데이터
@@ -36,15 +36,100 @@ def process_overview_data(results):
     
     pending_count = total_inquiries - answered_count
     
+    # 비율 계산
+    urgent_rate = round((urgent_count / total_inquiries * 100), 1) if total_inquiries > 0 else 0
+    answer_rate = round((answered_count / total_inquiries * 100), 1) if total_inquiries > 0 else 0
+    pending_rate = round((pending_count / total_inquiries * 100), 1) if total_inquiries > 0 else 0
+    
+    # 인사이트 생성
+    insights_content = generate_insights(results, total_inquiries, urgent_count, answered_count)
+    
     overview_data = {
         'total_inquiries': total_inquiries,
         'urgent_count': urgent_count,
         'answered_count': answered_count,
         'pending_count': pending_count,
+        'urgent_rate': urgent_rate,
+        'answer_rate': answer_rate,
+        'pending_rate': pending_rate,
+        'insights_content': insights_content,
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
     
-    # 순위표 생성
+    # 순위표 생성 (기존과 동일)
+    rank_tables = generate_rank_tables(results)
+    overview_data['rank_tables'] = rank_tables
+    
+    return overview_data
+
+def generate_insights(results, total_inquiries, urgent_count, answered_count):
+    """주요 인사이트 생성"""
+    insights = []
+    
+    # 가장 바쁜 팀 찾기
+    if 'team_analysis' in results and results['team_analysis']:
+        busiest_team = max(results['team_analysis'].items(), 
+                          key=lambda x: x[1]['basic_info']['total_inquiries'])
+        team_name, team_data = busiest_team
+        team_count = team_data['basic_info']['total_inquiries']
+        
+        insights.append({
+            'icon': '🏢',
+            'text': f'가장 바쁜 팀',
+            'value': f'{team_name} ({team_count}건)'
+        })
+    
+    # 긴급 문의 비율
+    if total_inquiries > 0:
+        urgent_rate = round((urgent_count / total_inquiries * 100), 1)
+        urgent_status = "높음" if urgent_rate > 10 else "보통" if urgent_rate > 5 else "낮음"
+        
+        insights.append({
+            'icon': '🚨',
+            'text': f'긴급 문의 비율',
+            'value': f'{urgent_rate}% ({urgent_status})'
+        })
+    
+    # 답변률 상태
+    if total_inquiries > 0:
+        answer_rate = round((answered_count / total_inquiries * 100), 1)
+        answer_status = "우수" if answer_rate > 80 else "양호" if answer_rate > 60 else "개선필요"
+        
+        insights.append({
+            'icon': '✅',
+            'text': f'답변 완료율',
+            'value': f'{answer_rate}% ({answer_status})'
+        })
+    
+    # 주요 유저 여정 찾기
+    if 'journey_analysis' in results and results['journey_analysis']:
+        top_journey = max(results['journey_analysis'].items(), 
+                         key=lambda x: x[1]['basic_info']['total_inquiries'])
+        journey_name, journey_data = top_journey
+        journey_count = journey_data['basic_info']['total_inquiries']
+        
+        if journey_count > 0:
+            insights.append({
+                'icon': '🎯',
+                'text': f'주요 문의 여정',
+                'value': f'{journey_name} ({journey_count}건)'
+            })
+    
+    # HTML 생성
+    insights_html = ""
+    for insight in insights:
+        insights_html += f'''
+        <div class="insight-item">
+            <div class="insight-icon">{insight['icon']}</div>
+            <div class="insight-text">
+                {insight['text']}: <span class="insight-value">{insight['value']}</span>
+            </div>
+        </div>'''
+    
+    return insights_html
+
+def generate_rank_tables(results):
+    """순위표 생성 (기존 함수 분리)"""
     rank_tables = ""
     
     # 팀별 분포 순위표
@@ -99,8 +184,7 @@ def process_overview_data(results):
             
             rank_tables += f'<div class="entity-card">{journey_table_html}</div>'
     
-    overview_data['rank_tables'] = rank_tables
-    return overview_data
+    return rank_tables
 
 def process_team_data(results):
     """팀별 데이터 처리"""
