@@ -1,5 +1,5 @@
 # html_reporter/templates/category.py
-"""세부 카테고리 탭 템플릿들 (pretty‑printed)"""
+"""세부 카테고리 탭 템플릿들 - 헤더 배지 레이아웃 개선 (완전 수정버전)"""
 
 def get_category_section_template():
     return """<!-- 세부 카테고리 탭 -->
@@ -16,11 +16,11 @@ def get_category_section_template():
 
 
 def get_category_card_template():
+    """수정된 카테고리 카드 템플릿 - 제목과 배지들을 가로 일렬로 배치"""
     return """<div class="entity-card" data-team="{main_team}" data-journey="{main_journey}" data-count="{total_inquiries}">
     <div class="entity-card-header">
         <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{name}</h3>
         <div class="header-badges">
-            <span class="entity-card-badge">{total_inquiries}건</span>
             <span class="journey-badge">{main_journey}</span>
             <div class="team-badges">
                 {team_badges}

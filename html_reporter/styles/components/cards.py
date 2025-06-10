@@ -1,5 +1,5 @@
 # html_reporter/styles/components/cards.py
-"""모든 카드 컴포넌트 스타일 - 통합 버전"""
+"""모든 카드 컴포넌트 스타일 - 헤더 배지 레이아웃 개선 (완전 수정버전)"""
 
 def get_card_styles():
     return """
@@ -34,7 +34,7 @@ def get_card_styles():
     border-color: #c7d2fe;
 }
 
-/* === 엔터티 카드 헤더 === */
+/* === 엔터티 카드 헤더 개선 === */
 .entity-card-header {
     display: flex;
     align-items: center;
@@ -49,6 +49,8 @@ def get_card_styles():
     font-weight: 600;
     margin: 0;
     color: #1e293b;
+    flex: 1;
+    padding-right: 16px; /* 제목과 배지 사이 간격 */
 }
 
 .entity-card-badge {

@@ -1,5 +1,5 @@
 # html_reporter/styles/system/responsive.py
-"""반응형 시스템 - 미디어 쿼리 기반 반응형 처리"""
+"""반응형 시스템 - 미디어 쿼리 기반 반응형 처리 (헤더 배지 개선 포함)"""
 
 def get_responsive_styles():
     return """
@@ -151,24 +151,31 @@ def get_responsive_styles():
     }
     
     /* === 헤더 배지 그룹 반응형 === */
-    .header-badges {
-        align-items: center;
-        min-width: auto;
-    }
-    
     .entity-card-header {
         flex-direction: column;
         align-items: stretch;
-        text-align: center;
         gap: 12px;
     }
     
     .entity-card-title {
         padding-right: 0;
+        margin-bottom: 0;
+    }
+    
+    .header-badges {
+        align-items: flex-start;
+        justify-content: flex-start;
     }
     
     .header-badges .team-badges {
-        justify-content: center;
+        justify-content: flex-start;
+    }
+    
+    /* 배지들이 모바일에서 잘 보이도록 */
+    .journey-badge,
+    .team-badge {
+        font-size: 0.75rem;
+        padding: 3px 10px;
     }
 }
 

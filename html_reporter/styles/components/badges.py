@@ -1,8 +1,17 @@
 # html_reporter/styles/components/badges.py
-"""배지 스타일"""
+"""배지 스타일 - 헤더 배지 레이아웃 개선 (완전 수정버전)"""
 
 def get_badge_styles():
     return """
+/* === 헤더 배지 그룹 레이아웃 === */
+.header-badges {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex-shrink: 0; /* 배지들이 줄어들지 않도록 */
+}
+
 /* === 유저 여정 배지 === */
 .journey-badge {
     background: linear-gradient(135deg, #10b981, #059669);
@@ -12,6 +21,7 @@ def get_badge_styles():
     font-size: 0.8rem;
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 /* === 팀 배지 === */
@@ -19,7 +29,7 @@ def get_badge_styles():
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin: 12px 0;
+    margin: 0; /* 기존 마진 제거 */
 }
 
 .team-badge {
@@ -30,6 +40,7 @@ def get_badge_styles():
     font-size: 0.8rem;
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+    white-space: nowrap; /* 줄바꿈 방지 */
 }
 
 /* === 긴급도 배지 === */
