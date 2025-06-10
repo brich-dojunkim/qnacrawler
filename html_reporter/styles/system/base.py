@@ -1,23 +1,23 @@
-# html_reporter/styles/base.py
-"""기본 스타일 - 리셋, 폰트, 레이아웃"""
+# html_reporter/styles/system/base.py
+"""기본 시스템 스타일 - 리셋, 폰트, 전역 설정"""
 
 def get_base_styles():
     return """
-/* === 기본 리셋 및 폰트 === */
+/* === 기본 리셋 === */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* === 전역 기본 스타일 === */
 body {
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    margin: 0;
-    padding: 20px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     color: #333;
     line-height: 1.6;
+    padding: 20px;
 }
 
 /* === 메인 컨테이너 === */

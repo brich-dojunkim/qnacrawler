@@ -1,9 +1,9 @@
-# html_reporter/styles/layout.py
-"""레이아웃 및 그리드 스타일"""
+# html_reporter/styles/system/layout.py
+"""레이아웃 시스템 - 그리드, 플렉스, 배치 규칙"""
 
 def get_layout_styles():
     return """
-/* === 그리드 레이아웃 === */
+/* === 그리드 시스템 === */
 .grid {
     display: grid;
     gap: 24px;
@@ -31,7 +31,7 @@ def get_layout_styles():
     flex: 1 1 calc(25% - 24px);
 }
 
-/* === 심플 리스트 === */
+/* === 심플 리스트 레이아웃 === */
 .simple-list {
     margin: 16px 0;
 }

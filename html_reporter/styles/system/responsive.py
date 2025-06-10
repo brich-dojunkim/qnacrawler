@@ -1,5 +1,5 @@
-# html_reporter/styles/responsive.py
-"""반응형 디자인 스타일"""
+# html_reporter/styles/system/responsive.py
+"""반응형 시스템 - 미디어 쿼리 기반 반응형 처리"""
 
 def get_responsive_styles():
     return """
@@ -148,6 +148,27 @@ def get_responsive_styles():
     
     .metrics-list li {
         padding: 10px 12px;
+    }
+    
+    /* === 헤더 배지 그룹 반응형 === */
+    .header-badges {
+        align-items: center;
+        min-width: auto;
+    }
+    
+    .entity-card-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+        gap: 12px;
+    }
+    
+    .entity-card-title {
+        padding-right: 0;
+    }
+    
+    .header-badges .team-badges {
+        justify-content: center;
     }
 }
 

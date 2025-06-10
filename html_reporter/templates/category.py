@@ -19,7 +19,13 @@ def get_category_card_template():
     return """<div class="entity-card" data-team="{main_team}" data-journey="{main_journey}" data-count="{total_inquiries}">
     <div class="entity-card-header">
         <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{name}</h3>
-        <span class="entity-card-badge">{total_inquiries}건</span>
+        <div class="header-badges">
+            <span class="entity-card-badge">{total_inquiries}건</span>
+            <span class="journey-badge">{main_journey}</span>
+            <div class="team-badges">
+                {team_badges}
+            </div>
+        </div>
     </div>
     <ul class="metrics-list">
         <li><span class="metric-name">총 문의</span><span class="metric-number">{total_inquiries}</span></li>
@@ -27,12 +33,6 @@ def get_category_card_template():
         <li><span class="metric-name">긴급률</span><span class="metric-number">{urgent_rate}%</span></li>
         <li><span class="metric-name">평균길이</span><span class="metric-number">{avg_content_length}</span></li>
     </ul>
-    <div class="meta-inline">
-        <div class="team-badges">
-            {team_badges}
-        </div>
-        <span class="journey-badge">{main_journey}</span>
-    </div>
     <button class="modal-trigger" onclick="openModal('{modal_id}')">
         문의 내용 보기 ({total_inquiries}건)
     </button>
