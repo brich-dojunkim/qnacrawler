@@ -15,10 +15,10 @@ from html_reporter import (
     get_journey_section_template, get_journey_card_template,
     get_category_section_template, get_category_card_template,
     get_modal_template, get_footer_template,
-    get_main_styles, get_main_scripts,
+    get_main_scripts,
     process_overview_data, process_team_data, process_journey_data, process_category_data
 )
-
+from html_reporter.styles import get_main_styles
 from output_manager import get_report_filename
 
 class CategoryVoCHTMLReporter:
