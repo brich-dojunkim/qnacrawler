@@ -1301,4 +1301,53 @@ body {
 .modal-body::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, #5a67d8, #6b46c1);
 }
+
+/* ─────────── 팀별 탭 3+4 카드 레이아웃 ─────────── */
+#teams .teams-layout{
+    display:flex;
+    flex-wrap:wrap;
+    gap:24px;
+}
+#teams .teams-layout .entity-card{
+    /* 상위 3개(1~3) */
+    flex:1 1 calc(33.333% - 24px);
+}
+#teams .teams-layout .entity-card:nth-child(n+4){
+    /* 하위 4개(4~7) */
+    flex:1 1 calc(25% - 24px);
+}
+/* 반응형(너비 좁아질 때 두 열→한 열) */
+@media (max-width: 1200px){
+    #teams .teams-layout .entity-card,
+    #teams .teams-layout .entity-card:nth-child(n+4){
+        flex:1 1 calc(50% - 24px);
+    }
+}
+@media (max-width: 768px){
+    #teams .teams-layout .entity-card{
+        flex:1 1 100%;
+    }
+}
+
+/* ─────────── 카테고리 카드 메타 데이터 (팀 + 여정) ─────────── */
+.meta-inline {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+.meta-inline .team-badges {
+    margin: 0;
+}
+
+.meta-inline .journey-badge {
+    margin: 0;
+}
+
+/* Ensure the metrics list sits comfortably above the inline meta */
+.metrics-list + .meta-inline {
+    margin-top: 8px;
+}
 """

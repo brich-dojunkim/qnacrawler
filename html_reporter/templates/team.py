@@ -1,18 +1,11 @@
 # html_reporter/templates/team.py
-"""팀별 분석 탭 템플릿들"""
+"""팀별 분석 탭 템플릿들 (제목 제거 + 3 + 4 레이아웃)"""
 
 def get_team_section_template():
     return """<!-- 팀별 분석 탭 -->
 <div id="teams" class="tab-content">
-    <div class="major-section">
-        <div class="major-section-header">
-            <h2>팀별 문의 내용 분석</h2>
-        </div>
-        <div class="major-section-content">
-            <div class="grid grid-3">
-                {team_cards}
-            </div>
-        </div>
+    <div class="teams-layout">
+        {team_cards}
     </div>
 </div>"""
 
