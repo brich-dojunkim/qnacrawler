@@ -1,6 +1,6 @@
-# voc_html_reporter.py (모던 디자인 적용 버전)
+# voc_html_reporter.py (팀 옵션 동적 생성 포함)
 """
-카테고리 기반 VoC HTML 보고서 생성기 - 모던 디자인 적용
+카테고리 기반 VoC HTML 보고서 생성기 - 개선된 필터 방식
 """
 
 import pandas as pd
@@ -16,20 +16,21 @@ from html_reporter import (
     get_category_section_template, get_category_card_template,
     get_modal_template, get_footer_template,
     get_main_scripts,
-    process_overview_data, process_team_data, process_journey_data, process_category_data
+    process_overview_data, process_team_data, process_journey_data, process_category_data,
+    generate_team_options  # 새로 추가
 )
 from html_reporter.styles import get_main_styles
 from output_manager import get_report_filename
 
 class CategoryVoCHTMLReporter:
-    """카테고리 기반 VoC HTML 보고서 생성기 - 모던 디자인"""
+    """카테고리 기반 VoC HTML 보고서 생성기 - 개선된 필터 방식"""
     
     def __init__(self, df: pd.DataFrame):
         self.df = df
 
     def generate_html_report(self, results: dict) -> str:
-        """HTML 보고서 생성 - 모던 탭 기반 레이아웃"""
-        print("🌐 모던 HTML 보고서 생성 중...")
+        """HTML 보고서 생성 - 개선된 세그먼트 선택 + 정렬 기준 방식"""
+        print("🌐 개선된 HTML 보고서 생성 중...")
         
         # 데이터 처리
         overview_data = process_overview_data(results)
@@ -37,11 +38,14 @@ class CategoryVoCHTMLReporter:
         journey_cards = process_journey_data(results)
         category_cards = process_category_data(results)
         
+        # 팀 옵션 동적 생성
+        team_options = generate_team_options(results)
+        
         # 탭 기반 HTML 구조
         html_content = get_base_template().format(
             styles=get_main_styles(),
             header=get_header_template().format(**overview_data),
-            content=self._generate_tab_content(overview_data, team_cards, journey_cards, category_cards),
+            content=self._generate_tab_content(overview_data, team_cards, journey_cards, category_cards, team_options),
             footer=get_footer_template().format(generated_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
             scripts=f"""
             <script>
@@ -68,8 +72,8 @@ class CategoryVoCHTMLReporter:
         
         return html_content
 
-    def _generate_tab_content(self, overview_data, team_cards, journey_cards, category_cards):
-        """탭 컨텐츠 생성"""
+    def _generate_tab_content(self, overview_data, team_cards, journey_cards, category_cards, team_options):
+        """탭 컨텐츠 생성 - 팀 옵션 포함"""
         
         # 개요 탭
         overview_content = get_overview_template().format(**overview_data)
@@ -86,7 +90,7 @@ class CategoryVoCHTMLReporter:
             journey_cards_html += get_journey_card_template().format(**journey)
         journey_content = get_journey_section_template().format(journey_cards=journey_cards_html)
         
-        # 카테고리 탭 + 모달들
+        # 카테고리 탭 + 모달들 (팀 옵션 포함)
         category_cards_html = ""
         modals_html = ""
         for category in category_cards:
@@ -96,7 +100,12 @@ class CategoryVoCHTMLReporter:
                 title=f"{category['name']} - 전체 {category['total_inquiries']}건",
                 content=category['modal_content']
             )
-        category_content = get_category_section_template().format(category_cards=category_cards_html)
+        
+        # 카테고리 섹션에 팀 옵션 삽입
+        category_content = get_category_section_template().format(
+            category_cards=category_cards_html,
+            team_options=team_options
+        )
         
         # 전체 컨텐츠 조합
         all_content = f"""
@@ -122,11 +131,11 @@ class CategoryVoCHTMLReporter:
             f.write(html_content)
         
         file_path = os.path.abspath(filename)
-        print(f"✅ 모던 HTML 보고서 저장: {filename}")
+        print(f"✅ 개선된 HTML 보고서 저장: {filename}")
         
         try:
             webbrowser.open(f'file://{file_path}')
-            print("🌐 브라우저에서 모던 보고서를 열었습니다.")
+            print("🌐 브라우저에서 개선된 보고서를 열었습니다.")
         except Exception as e:
             print(f"브라우저 열기 실패: {e}")
         
@@ -142,5 +151,5 @@ class CategoryVoCHTMLReporter:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        print(f"✅ 모던 HTML 보고서 저장: {filename}")
+        print(f"✅ 개선된 HTML 보고서 저장: {filename}")
         return filename

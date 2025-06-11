@@ -1,14 +1,55 @@
 # html_reporter/templates/category.py
-"""세부 카테고리 탭 템플릿들 - 헤더 배지 레이아웃 개선 (완전 수정버전)"""
+"""세부 카테고리 탭 템플릿들 - 세그먼트 선택 + 정렬 기준 방식"""
 
 def get_category_section_template():
     return """<!-- 세부 카테고리 탭 -->
 <div id="categories" class="tab-content">
-    <div class="filter-buttons">
-        <button class="filter-btn active" onclick="filterCategories('all')">전체</button>
-        <button class="filter-btn" onclick="filterCategories('team')">팀별</button>
-        <button class="filter-btn" onclick="filterCategories('journey')">유저여정별</button>
+    <div class="filter-controls">
+        <!-- 세그먼트 선택 드롭다운 -->
+        <div class="filter-group">
+            <label class="filter-label">보기 범위</label>
+            <div class="segment-selector">
+                <select id="segment-select" class="segment-dropdown">
+                    <option value="all">전체 카테고리</option>
+                    <optgroup label="팀별">
+                        {team_options}
+                    </optgroup>
+                    <optgroup label="유저 여정별">
+                        <option value="journey-계정·입점">계정·입점</option>
+                        <option value="journey-상품·콘텐츠">상품·콘텐츠</option>
+                        <option value="journey-주문·배송">주문·배송</option>
+                        <option value="journey-반품·취소">반품·취소</option>
+                        <option value="journey-정산">정산</option>
+                        <option value="journey-기타">기타</option>
+                    </optgroup>
+                </select>
+            </div>
+        </div>
+        
+        <!-- 정렬 기준 세그먼트 -->
+        <div class="filter-group">
+            <label class="filter-label">정렬 기준</label>
+            <div class="segment-control" id="sortSegment">
+                <input type="radio" id="sort-volume" name="sort-type" value="volume" checked>
+                <label for="sort-volume" class="segment-item">문의량별</label>
+                
+                <input type="radio" id="sort-urgent" name="sort-type" value="urgent">
+                <label for="sort-urgent" class="segment-item">긴급도별</label>
+                
+                <input type="radio" id="sort-answer" name="sort-type" value="answer">
+                <label for="sort-answer" class="segment-item">답변률별</label>
+            </div>
+        </div>
     </div>
+    
+    <!-- 현재 선택된 세그먼트 표시 -->
+    <div class="current-segment-info">
+        <span class="segment-indicator">
+            📂 <span id="current-segment-text">전체 카테고리</span>
+            (<span id="visible-count">0</span>개 표시)
+        </span>
+    </div>
+    
     <div class="grid grid-3" id="categories-container">
         {category_cards}
     </div>
@@ -16,8 +57,8 @@ def get_category_section_template():
 
 
 def get_category_card_template():
-    """수정된 카테고리 카드 템플릿 - 제목과 배지들을 가로 일렬로 배치"""
-    return """<div class="entity-card" data-team="{main_team}" data-journey="{main_journey}" data-count="{total_inquiries}">
+    """카테고리 카드 템플릿 - 제목과 배지들을 가로 일렬로 배치"""
+    return """<div class="entity-card" data-team="{main_team}" data-journey="{main_journey}" data-count="{total_inquiries}" data-urgent-rate="{urgent_rate}" data-answer-rate="{answer_rate}">
     <div class="entity-card-header">
         <h3 class="entity-card-title" style="font-size: 1rem; line-height: 1.4;">{name}</h3>
         <div class="header-badges">

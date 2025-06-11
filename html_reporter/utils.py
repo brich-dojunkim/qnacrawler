@@ -1,5 +1,5 @@
-# html_reporter/utils.py
-"""데이터 처리 유틸리티 - 단순화된 버전"""
+# html_reporter/utils.py (일부 수정 - process_category_data 함수와 팀 옵션 생성)
+"""데이터 처리 유틸리티 - 팀 옵션 동적 생성 포함"""
 
 import pandas as pd
 from datetime import datetime
@@ -19,6 +19,21 @@ def calculate_urgent_rate(urgent, total):
     if total == 0:
         return 0
     return round((urgent / total) * 100, 1)
+
+def generate_team_options(results):
+    """팀 옵션 HTML 생성"""
+    if 'team_analysis' not in results:
+        return ""
+    
+    teams = list(results['team_analysis'].keys())
+    teams = [team for team in teams if team != '기타']  # '기타' 제외
+    teams.sort()  # 알파벳 순 정렬
+    
+    team_options_html = ""
+    for team in teams:
+        team_options_html += f'<option value="team-{team}">{team}</option>\n                        '
+    
+    return team_options_html.rstrip()
 
 def process_overview_data(results):
     """개요 데이터 처리 - 단순화된 버전"""
@@ -211,7 +226,7 @@ def process_team_data(results):
     return team_cards
 
 def process_category_data(results):
-    """카테고리별 데이터 처리"""
+    """카테고리별 데이터 처리 - 답변률 데이터 포함"""
     if 'category_analysis' not in results:
         return []
     
@@ -225,6 +240,22 @@ def process_category_data(results):
         
         # 긴급률 계산
         urgent_rate = calculate_urgent_rate(basic_info['urgent_count'], basic_info['total_inquiries'])
+        
+        # 답변률 계산 (새로 추가)
+        answered_count = 0
+        if 'team_analysis' in results:
+            # 각 팀의 답변 완료 데이터에서 해당 카테고리 답변률 추정
+            for team_data in results['team_analysis'].values():
+                if category_name in team_data.get('sub_categories', {}):
+                    # 간단한 추정: 팀의 전체 답변률을 해당 카테고리에도 적용
+                    team_answer_rate = calculate_answer_rate(
+                        team_data['basic_info'].get('answered_count', 0),
+                        team_data['basic_info']['total_inquiries']
+                    )
+                    category_inquiries = team_data['sub_categories'][category_name]
+                    answered_count += int(category_inquiries * (team_answer_rate / 100))
+        
+        answer_rate = calculate_answer_rate(answered_count, basic_info['total_inquiries'])
         
         # 담당팀 배지 생성
         team_badges_html = ""
@@ -268,6 +299,7 @@ def process_category_data(results):
             'total_inquiries': basic_info['total_inquiries'],
             'urgent_count': basic_info['urgent_count'],
             'urgent_rate': urgent_rate,
+            'answer_rate': answer_rate,  # 새로 추가
             'avg_content_length': round(basic_info['avg_content_length']),
             'main_team': main_team,
             'main_journey': main_journey,
