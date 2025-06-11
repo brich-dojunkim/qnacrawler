@@ -1,4 +1,4 @@
-# html_reporter/styles/tabs.py
+# html_reporter/styles/components/tabs.py
 """탭 네비게이션 스타일"""
 
 def get_tab_styles():

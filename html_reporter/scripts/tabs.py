@@ -1,6 +1,5 @@
-"""
-탭 전환 & 분석 뷰 토글
-"""
+# html_reporter/scripts/tabs.py (개선된 기능 추가)
+"""탭 전환 & 분석 뷰 토글 - 개선된 컨트롤 기능"""
 
 def get_tab_scripts() -> str:
     return """
@@ -18,5 +17,7 @@ function toggleAnalysisView(){
     });
     const target=document.getElementById(`${view}-accordion-view`);
     if(target){ target.style.display='block'; target.classList.add('active'); }
+    
+    console.log(`분석 뷰 전환: ${view}`);
 }
 """

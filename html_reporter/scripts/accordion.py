@@ -61,33 +61,93 @@ function closeAccordion(content, item) {
     }, 300);
 }
 
-// ─────────── 전체 펼치기/접기 ───────────
+// ─────────── 전체 펼치기/접기 (개선된 버전) ───────────
 function expandAllTeamAccordions() {
+    console.log('팀별 전체 펼치기 실행');
     document.querySelectorAll('.team-accordion-item')
         .forEach(item => {
-            const id = item.querySelector('.team-accordion-content').id.replace('content-','');
-            if (!item.classList.contains('expanded')) toggleTeamAccordion(id);
+            const content = item.querySelector('.team-accordion-content');
+            if (content && !item.classList.contains('expanded')) {
+                const id = content.id.replace('content-','');
+                console.log(`팀 펼치기: ${id}`);
+                toggleTeamAccordion(id);
+            }
         });
 }
+
 function collapseAllTeamAccordions() {
+    console.log('팀별 전체 접기 실행');
     document.querySelectorAll('.team-accordion-item')
         .forEach(item => {
-            const id = item.querySelector('.team-accordion-content').id.replace('content-','');
-            if (item.classList.contains('expanded')) toggleTeamAccordion(id);
+            const content = item.querySelector('.team-accordion-content');
+            if (content && item.classList.contains('expanded')) {
+                const id = content.id.replace('content-','');
+                console.log(`팀 접기: ${id}`);
+                toggleTeamAccordion(id);
+            }
         });
 }
+
 function expandAllJourneyAccordions() {
+    console.log('여정별 전체 펼치기 실행');
     document.querySelectorAll('.journey-accordion-item')
         .forEach(item => {
-            const id = item.querySelector('.journey-accordion-content').id.replace('journey-content-','');
-            if (!item.classList.contains('expanded')) toggleJourneyAccordion(id);
+            const content = item.querySelector('.journey-accordion-content');
+            if (content && !item.classList.contains('expanded')) {
+                const id = content.id.replace('journey-content-','');
+                console.log(`여정 펼치기: ${id}`);
+                toggleJourneyAccordion(id);
+            }
         });
 }
+
 function collapseAllJourneyAccordions() {
+    console.log('여정별 전체 접기 실행');
     document.querySelectorAll('.journey-accordion-item')
         .forEach(item => {
-            const id = item.querySelector('.journey-accordion-content').id.replace('journey-content-','');
-            if (item.classList.contains('expanded')) toggleJourneyAccordion(id);
+            const content = item.querySelector('.journey-accordion-content');
+            if (content && item.classList.contains('expanded')) {
+                const id = content.id.replace('journey-content-','');
+                console.log(`여정 접기: ${id}`);
+                toggleJourneyAccordion(id);
+            }
         });
+}
+
+// ─────────── 통합 전체 제어 (새로 추가) ───────────
+function expandAllAccordions() {
+    console.log('통합 전체 펼치기 실행');
+    const activeView = document.querySelector('.analysis-view.active');
+    if (!activeView) {
+        console.log('활성 뷰를 찾을 수 없음');
+        return;
+    }
+    
+    const viewType = activeView.id.includes('teams') ? 'team' : 'journey';
+    console.log(`현재 뷰 타입: ${viewType}`);
+    
+    if (viewType === 'team') {
+        expandAllTeamAccordions();
+    } else {
+        expandAllJourneyAccordions();
+    }
+}
+
+function collapseAllAccordions() {
+    console.log('통합 전체 접기 실행');
+    const activeView = document.querySelector('.analysis-view.active');
+    if (!activeView) {
+        console.log('활성 뷰를 찾을 수 없음');
+        return;
+    }
+    
+    const viewType = activeView.id.includes('teams') ? 'team' : 'journey';
+    console.log(`현재 뷰 타입: ${viewType}`);
+    
+    if (viewType === 'team') {
+        collapseAllTeamAccordions();
+    } else {
+        collapseAllJourneyAccordions();
+    }
 }
 """
