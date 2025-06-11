@@ -1,5 +1,5 @@
-# html_reporter/templates/base.py (업데이트된 버전)
-"""공통 베이스 템플릿들 - 분석 기준일 표시 개선"""
+# html_reporter/templates/base.py (탭 3개로 수정)
+"""공통 베이스 템플릿들 - 3개 탭으로 변경"""
 
 def get_base_template():
     return """<!DOCTYPE html>
@@ -15,13 +15,12 @@ def get_base_template():
     <div class="container">
         {header}
         
-        <!-- 탭 네비게이션 -->
+        <!-- 탭 네비게이션 (3개 탭) -->
         <div class="tab-navigation">
             <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('overview')">분석 개요</button>
-                <button class="tab-btn" onclick="switchTab('teams')">팀별 분석</button>
-                <button class="tab-btn" onclick="switchTab('journey')">유저 여정</button>
-                <button class="tab-btn" onclick="switchTab('categories')">세부 카테고리</button>
+                <button class="tab-btn active" onclick="switchTab('overview')">📊 전체 분석</button>
+                <button class="tab-btn" onclick="switchTab('journey')">🎯 유저 여정</button>
+                <button class="tab-btn" onclick="switchTab('categories')">📂 세부 카테고리</button>
             </div>
         </div>
         

@@ -1,3 +1,4 @@
+# voc_analyzer.py (import 경로 수정)
 import json
 import pandas as pd
 import numpy as np
@@ -405,19 +406,20 @@ def main():
         # 분석 실행
         results = analyzer.generate_category_voc_analysis(verbose=True)
         
-        # HTML 보고서 생성
+        # HTML 보고서 생성 (수정된 import)
         try:
             from voc_html_reporter import CategoryVoCHTMLReporter
             
             html_reporter = CategoryVoCHTMLReporter(analyzer.df)
             html_filename = html_reporter.save_and_open_html_report(results)
             
-            print(f"\n🎉 분석 완료!")
+            print(f"\n🎉 1단계 통합 분석 완료!")
             print(f"📊 분석 결과: output/analysis/")
             print(f"📄 HTML 보고서: output/reports/")
             
-        except ImportError:
-            print("HTML 리포터를 찾을 수 없습니다.")
+        except ImportError as e:
+            print(f"HTML 리포터 import 오류: {e}")
+            print("voc_html_reporter.py 파일이 있는지 확인해주세요.")
         
     except Exception as e:
         print(f"❌ 분석 중 오류: {e}")

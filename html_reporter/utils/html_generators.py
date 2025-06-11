@@ -166,3 +166,7 @@ def generate_team_options(results: Dict) -> str:
 def generate_rank_tables(results: Dict) -> str:
     """하위 호환성을 위한 래퍼 함수"""
     return HTMLGenerator.generate_rank_tables(results)
+
+def generate_sub_categories_html(sub_categories: Dict, max_items: int = 5) -> str:
+    """하위 호환성을 위한 래퍼 함수"""
+    return HTMLGenerator.generate_sub_categories_html(sub_categories, max_items)

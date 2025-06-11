@@ -36,7 +36,8 @@ from .processors import (
 from .html_generators import (
     HTMLGenerator,
     generate_team_options,
-    generate_rank_tables
+    generate_rank_tables,
+    generate_sub_categories_html
 )
 
 __all__ = [
@@ -67,5 +68,6 @@ __all__ = [
     'process_journey_data',
     'process_category_data',
     'generate_team_options',
-    'generate_rank_tables'
+    'generate_rank_tables',
+    'generate_sub_categories_html'
 ]

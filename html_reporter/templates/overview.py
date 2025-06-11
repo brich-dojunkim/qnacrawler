@@ -1,10 +1,10 @@
-# html_reporter/templates/overview.py (개선된 버전)
-"""분석 개요 탭 템플릿들 - 대시보드 스타일 개선"""
+# html_reporter/templates/overview.py (아이디어 2 적용)
+"""분석 개요 탭 템플릿들 - 팀별 아코디언 통합 버전"""
 
 def get_overview_template():
-    return """<!-- 분석 개요 탭 -->
+    return """<!-- 통합 분석 개요 탭 -->
 <div id="overview" class="tab-content active">
-    <!-- 실시간 현황 -->
+    <!-- 전체 현황 -->
     <div class="main-stats-grid">
         <div class="stat-card-large">
             <div class="stat-info">
@@ -44,8 +44,16 @@ def get_overview_template():
         </div>
     </div>
     
-    <!-- 상세 분포 -->
+    <!-- 유저 여정별 분포 (기존 유지) -->
     <div class="distribution-grid">
-        {rank_tables}
+        {journey_rank_table}
+    </div>
+    
+    <!-- 팀별 아코디언 분석 -->
+    <div class="teams-accordion-section">
+        <h2 style="margin-bottom: 20px;">👥 팀별 분석</h2>
+        <div class="teams-accordion-container">
+            {team_accordion_items}
+        </div>
     </div>
 </div>"""

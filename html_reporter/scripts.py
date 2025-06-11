@@ -1,8 +1,79 @@
-# html_reporter/scripts.py
-"""JavaScript 코드 모음 - 세그먼트 선택 + 정렬 기준 방식"""
+# html_reporter/scripts.py (아코디언 기능 추가)
+"""JavaScript 코드 모음 - 팀별 아코디언 + 기존 세그먼트 선택"""
 
 def get_main_scripts():
     return """
+// 팀별 아코디언 토글 함수
+function toggleTeamAccordion(teamId) {
+    const content = document.getElementById(`content-${teamId}`);
+    const button = document.getElementById(`btn-${teamId}`);
+    const item = content.closest('.team-accordion-item');
+    
+    if (content.style.display === 'none' || !content.style.display) {
+        // 아코디언 열기
+        content.style.display = 'block';
+        item.classList.add('expanded');
+        
+        // 부드러운 애니메이션을 위한 높이 설정
+        content.style.height = '0px';
+        content.style.overflow = 'hidden';
+        content.style.transition = 'height 0.3s ease';
+        
+        // 실제 높이 계산 후 애니메이션
+        const scrollHeight = content.scrollHeight;
+        requestAnimationFrame(() => {
+            content.style.height = scrollHeight + 'px';
+        });
+        
+        // 애니메이션 완료 후 높이 auto로 변경
+        setTimeout(() => {
+            content.style.height = 'auto';
+            content.style.overflow = 'visible';
+        }, 300);
+        
+    } else {
+        // 아코디언 닫기
+        content.style.height = content.scrollHeight + 'px';
+        content.style.overflow = 'hidden';
+        content.style.transition = 'height 0.3s ease';
+        
+        requestAnimationFrame(() => {
+            content.style.height = '0px';
+        });
+        
+        setTimeout(() => {
+            content.style.display = 'none';
+            item.classList.remove('expanded');
+            content.style.height = '';
+            content.style.overflow = '';
+            content.style.transition = '';
+        }, 300);
+    }
+}
+
+// 모든 아코디언 열기/닫기
+function expandAllTeamAccordions() {
+    const items = document.querySelectorAll('.team-accordion-item');
+    items.forEach(item => {
+        const content = item.querySelector('.team-accordion-content');
+        const teamId = content.id.replace('content-', '');
+        if (!item.classList.contains('expanded')) {
+            toggleTeamAccordion(teamId);
+        }
+    });
+}
+
+function collapseAllTeamAccordions() {
+    const items = document.querySelectorAll('.team-accordion-item');
+    items.forEach(item => {
+        const content = item.querySelector('.team-accordion-content');
+        const teamId = content.id.replace('content-', '');
+        if (item.classList.contains('expanded')) {
+            toggleTeamAccordion(teamId);
+        }
+    });
+}
+
 // 모달 열기 함수
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
@@ -251,6 +322,31 @@ document.addEventListener('DOMContentLoaded', function() {
             initCategoryFilters();
             applyFilters(); // 초기 필터 적용
         }, 100);
+    }
+    
+    // 팀별 아코디언 초기화
+    if (document.querySelector('.teams-accordion-container')) {
+        console.log('팀별 아코디언 초기화 완료');
+        
+        // 전체 제어 버튼 추가 (선택사항)
+        const accordionSection = document.querySelector('.teams-accordion-section h2');
+        if (accordionSection) {
+            const controlButtons = document.createElement('div');
+            controlButtons.className = 'accordion-controls';
+            controlButtons.style.cssText = 'float: right; font-size: 0.8rem; gap: 8px; display: flex;';
+            controlButtons.innerHTML = `
+                <button onclick="expandAllTeamAccordions()" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">
+                    전체 펼치기
+                </button>
+                <button onclick="collapseAllTeamAccordions()" style="padding: 4px 8px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer;">
+                    전체 접기
+                </button>
+            `;
+            accordionSection.style.display = 'flex';
+            accordionSection.style.justifyContent = 'space-between';
+            accordionSection.style.alignItems = 'center';
+            accordionSection.appendChild(controlButtons);
+        }
     }
 });
 """
