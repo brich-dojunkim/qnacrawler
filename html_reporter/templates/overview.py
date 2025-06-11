@@ -1,5 +1,5 @@
-# html_reporter/templates/overview.py (테이블 헤더 필터 적용)
-"""분석 개요 탭 템플릿들 - 테이블 헤더 로우 필터"""
+# html_reporter/templates/overview.py (최종 수정 - 새 모달 + 개선된 아이콘)
+"""분석 개요 탭 템플릿들 - 새 모달 시스템 + 개선된 아이콘 위치"""
 
 def get_overview_template():
     return """<!-- 통합 분석 개요 탭 -->
@@ -107,49 +107,95 @@ def get_overview_template():
                 <!-- 테이블 컨테이너 -->
                 <div class="category-table-container">
                     <div class="category-table">
-                        <!-- 필터가 포함된 헤더 로우 -->
+                        <!-- 텍스트 옆 아이콘 + 드롭다운 헤더 -->
                         <div class="table-filter-header">
                             <div class="filter-column">
-                                <div class="column-label">카테고리명</div>
-                                <input type="text" class="filter-input" placeholder="카테고리 검색..." 
-                                       oninput="filterByCategory(this.value)">
+                                <div class="column-header">
+                                    <span class="column-label">카테고리명</span>
+                                    <div class="filter-dropdown-wrapper">
+                                        <button class="filter-icon-btn" onclick="toggleSearchFilter()" title="카테고리 검색">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <circle cx="11" cy="11" r="8"></circle>
+                                                <path d="m21 21-4.35-4.35"></path>
+                                            </svg>
+                                        </button>
+                                        <div class="dropdown-menu hidden" id="search-dropdown">
+                                            <input type="text" class="dropdown-filter-input" id="category-search-input" 
+                                                   placeholder="카테고리 검색..." oninput="filterByCategory(this.value)">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
                             <div class="filter-column">
-                                <div class="column-label">담당팀</div>
-                                <select class="filter-dropdown" onchange="filterByTeam(this.value)">
-                                    <option value="">모든 팀</option>
-                                    {team_filter_options}
-                                </select>
+                                <div class="column-header">
+                                    <span class="column-label">담당팀</span>
+                                    <div class="filter-dropdown-wrapper">
+                                        <button class="filter-icon-btn" onclick="toggleTeamFilter()" title="팀 필터">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <path d="M6 9l6 6 6-6"></path>
+                                            </svg>
+                                        </button>
+                                        <div class="dropdown-menu hidden" id="team-dropdown">
+                                            <select class="dropdown-filter-select" id="team-filter-dropdown" onchange="filterByTeam(this.value)">
+                                                <option value="">모든 팀</option>
+                                                {team_filter_options}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
                             <div class="filter-column">
-                                <div class="column-label">유저여정</div>
-                                <select class="filter-dropdown" onchange="filterByJourney(this.value)">
-                                    <option value="">모든 여정</option>
-                                    <option value="계정·입점">계정·입점</option>
-                                    <option value="상품·콘텐츠">상품·콘텐츠</option>
-                                    <option value="주문·배송">주문·배송</option>
-                                    <option value="반품·취소">반품·취소</option>
-                                    <option value="정산">정산</option>
-                                    <option value="기타">기타</option>
-                                </select>
+                                <div class="column-header">
+                                    <span class="column-label">유저여정</span>
+                                    <div class="filter-dropdown-wrapper">
+                                        <button class="filter-icon-btn" onclick="toggleJourneyFilter()" title="여정 필터">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <path d="M6 9l6 6 6-6"></path>
+                                            </svg>
+                                        </button>
+                                        <div class="dropdown-menu hidden" id="journey-dropdown">
+                                            <select class="dropdown-filter-select" id="journey-filter-dropdown" onchange="filterByJourney(this.value)">
+                                                <option value="">모든 여정</option>
+                                                <option value="계정·입점">계정·입점</option>
+                                                <option value="상품·콘텐츠">상품·콘텐츠</option>
+                                                <option value="주문·배송">주문·배송</option>
+                                                <option value="반품·취소">반품·취소</option>
+                                                <option value="정산">정산</option>
+                                                <option value="기타">기타</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
                             <div class="filter-column">
-                                <div class="column-label">문의수</div>
-                                <button class="sort-button" onclick="sortByInquiries()" id="inquiries-sort">
-                                    <span>정렬</span>
-                                </button>
+                                <div class="column-header">
+                                    <span class="column-label">문의수</span>
+                                    <button class="sort-icon-btn" onclick="sortByInquiries()" id="inquiries-sort" title="문의수 정렬">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="M7 13l5 5 5-5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
+                            
                             <div class="filter-column">
-                                <div class="column-label">긴급률</div>
-                                <button class="sort-button" onclick="sortByUrgent()" id="urgent-sort">
-                                    <span>정렬</span>
-                                </button>
+                                <div class="column-header">
+                                    <span class="column-label">긴급률</span>
+                                    <button class="sort-icon-btn" onclick="sortByUrgent()" id="urgent-sort" title="긴급률 정렬">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="M7 13l5 5 5-5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
+                            
                             <div class="filter-column">
-                                <div class="column-label">상세</div>
-                                <button class="filter-button" onclick="toggleSelectAll()">
-                                    <span id="select-all-text">☐</span>
-                                </button>
+                                <div class="column-header">
+                                    <span class="column-label">상세보기</span>
+                                </div>
                             </div>
                         </div>
 
