@@ -39,67 +39,15 @@ def process_overview_data(results: Dict) -> Dict:
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
     
-    # 여정별 순위표만 생성 (팀별은 아코디언으로 처리)
-    journey_rank_table = generate_journey_rank_table_only(results)
-    overview_data['journey_rank_table'] = journey_rank_table
-    
     # 팀별 아코디언 아이템들 생성
     team_accordion_items = generate_team_accordion_items(results)
     overview_data['team_accordion_items'] = team_accordion_items
     
+    # 여정별 아코디언 아이템들 생성
+    journey_accordion_items = generate_journey_accordion_items(results)
+    overview_data['journey_accordion_items'] = journey_accordion_items
+    
     return overview_data
-
-def generate_journey_rank_table_only(results: Dict) -> str:
-    """여정별 순위표만 생성"""
-    if 'journey_analysis' not in results:
-        return ""
-    
-    journey_data = results['journey_analysis']
-    if not journey_data:
-        return ""
-        
-    sorted_journeys = sorted(journey_data.items(), 
-                           key=lambda x: x[1]['basic_info']['total_inquiries'], 
-                           reverse=True)
-    
-    # 문의가 있는 여정만 필터링
-    filtered_journeys = [(name, data) for name, data in sorted_journeys 
-                       if data['basic_info']['total_inquiries'] > 0]
-    
-    total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in filtered_journeys)
-    
-    journey_table_html = '''
-    <div class="distribution-card">
-        <h4 class="distribution-card-title">🎯 고객 여정별 분포</h4>'''
-    
-    for idx, (journey_name, journey_info) in enumerate(filtered_journeys, 1):
-        count = journey_info['basic_info']['total_inquiries']
-        percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
-        
-        # 최대값 대비 진행률 계산
-        max_count = filtered_journeys[0][1]['basic_info']['total_inquiries'] if filtered_journeys else 1
-        progress_width = (count / max_count * 100) if max_count > 0 else 0
-        
-        journey_table_html += f'''
-        <div class="simple-rank-item" style="--progress-width: {progress_width}%;">
-            <div class="simple-rank-number">{idx}</div>
-            <div class="simple-rank-content">
-                <div class="simple-rank-name">{journey_name}</div>
-                <div class="simple-rank-details">
-                    <span class="simple-rank-count">{count:,}건</span>
-                    <span class="simple-rank-percentage">({percentage}%)</span>
-                </div>
-            </div>
-        </div>'''
-    
-    # 요약 정보 추가
-    journey_table_html += f'''
-        <div class="rank-summary">
-            총 {len(filtered_journeys)}개 여정 단계 | 총 {total_inquiries_check:,}건
-        </div>
-    </div>'''
-    
-    return journey_table_html
 
 def generate_team_accordion_items(results: Dict) -> str:
     """팀별 아코디언 아이템들 생성"""
@@ -174,6 +122,96 @@ def generate_team_accordion_items(results: Dict) -> str:
                         <div class="metric-item">
                             <span class="metric-label">답변률</span>
                             <span class="metric-value">{team_answer_rate}%</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">평균 길이</span>
+                            <span class="metric-value">{round(basic_info['avg_content_length'])}자</span>
+                        </div>
+                    </div>
+                    {sub_categories_html}
+                </div>
+            </div>
+        </div>'''
+    
+    return accordion_html
+
+def generate_journey_accordion_items(results: Dict) -> str:
+    """여정별 아코디언 아이템들 생성"""
+    if 'journey_analysis' not in results:
+        return ""
+    
+    journey_data = results['journey_analysis']
+    if not journey_data:
+        return ""
+    
+    # 여정별 데이터를 문의량 순으로 정렬 (문의가 있는 것만)
+    sorted_journeys = sorted(journey_data.items(), 
+                           key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                           reverse=True)
+    
+    # 문의가 있는 여정만 필터링
+    filtered_journeys = [(name, data) for name, data in sorted_journeys 
+                        if data['basic_info']['total_inquiries'] > 0]
+    
+    total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in filtered_journeys)
+    
+    accordion_html = ""
+    
+    for journey_name, journey_info in filtered_journeys:
+        basic_info = journey_info['basic_info']
+        count = basic_info['total_inquiries']
+        percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+        
+        # 최대값 대비 진행률 계산
+        max_count = filtered_journeys[0][1]['basic_info']['total_inquiries'] if filtered_journeys else 1
+        progress_width = (count / max_count * 100) if max_count > 0 else 0
+        
+        # 답변률 계산
+        journey_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        
+        # 세부 카테고리 HTML 생성
+        sub_categories_html = ""
+        if journey_info.get('sub_categories'):
+            sub_categories_html = generate_sub_categories_html(journey_info['sub_categories'])
+        
+        # 안전한 여정명 ID 생성
+        safe_journey_id = journey_name.replace('·', '').replace(' ', '').replace('/', '')
+        
+        accordion_html += f'''
+        <div class="journey-accordion-item">
+            <div class="journey-accordion-header" onclick="toggleJourneyAccordion('{safe_journey_id}')">
+                <div class="journey-summary-info">
+                    <span class="journey-name">{journey_name}</span>
+                    <span class="journey-count">({count:,}건)</span>
+                </div>
+                <div class="journey-progress-container">
+                    <div class="journey-progress-bar">
+                        <div class="journey-progress-fill" style="width: {progress_width}%"></div>
+                    </div>
+                    <span class="journey-percentage">{percentage}%</span>
+                </div>
+                <button class="accordion-toggle-btn" id="journey-btn-{safe_journey_id}">
+                    <span class="toggle-icon">▼</span>
+                </button>
+            </div>
+            <div class="journey-accordion-content" id="journey-content-{safe_journey_id}" style="display: none;">
+                <div class="journey-detail-box">
+                    <div class="journey-metrics-grid">
+                        <div class="metric-item">
+                            <span class="metric-label">총 문의</span>
+                            <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">긴급 문의</span>
+                            <span class="metric-value">{basic_info['urgent_count']:,}건</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">답변 완료</span>
+                            <span class="metric-value">{basic_info.get('answered_count', 0):,}건</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">답변률</span>
+                            <span class="metric-value">{journey_answer_rate}%</span>
                         </div>
                         <div class="metric-item">
                             <span class="metric-label">평균 길이</span>

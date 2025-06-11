@@ -44,16 +44,31 @@ def get_overview_template():
         </div>
     </div>
     
-    <!-- 유저 여정별 분포 (기존 유지) -->
-    <div class="distribution-grid">
-        {journey_rank_table}
-    </div>
-    
-    <!-- 팀별 아코디언 분석 -->
-    <div class="teams-accordion-section">
-        <h2 style="margin-bottom: 20px;">👥 팀별 분석</h2>
-        <div class="teams-accordion-container">
-            {team_accordion_items}
+    <!-- 팀별/여정별 토글 분석 -->
+    <div class="analysis-toggle-section">
+        <div class="section-header-with-toggle">
+            <h2>📋 상세 분석</h2>
+            <div class="analysis-toggle-controls">
+                <input type="radio" id="view-teams" name="analysis-view" value="teams" checked>
+                <label for="view-teams" class="toggle-btn">👥 팀별 보기</label>
+                
+                <input type="radio" id="view-journey" name="analysis-view" value="journey">
+                <label for="view-journey" class="toggle-btn">🎯 여정별 보기</label>
+            </div>
+        </div>
+        
+        <!-- 팀별 아코디언 뷰 -->
+        <div id="teams-accordion-view" class="analysis-view active">
+            <div class="teams-accordion-container">
+                {team_accordion_items}
+            </div>
+        </div>
+        
+        <!-- 여정별 아코디언 뷰 -->
+        <div id="journey-accordion-view" class="analysis-view" style="display: none;">
+            <div class="journey-accordion-container">
+                {journey_accordion_items}
+            </div>
         </div>
     </div>
 </div>"""

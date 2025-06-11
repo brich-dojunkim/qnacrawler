@@ -122,11 +122,11 @@ class CategoryVoCHTMLReporter:
             f.write(html_content)
         
         file_path = os.path.abspath(filename)
-        print(f"✅ 1단계 통합 HTML 보고서 저장: {filename}")
+        print(f"✅ 2단계 통합 HTML 보고서 저장: {filename}")
         
         try:
             webbrowser.open(f'file://{file_path}')
-            print("🌐 브라우저에서 통합 보고서를 열었습니다.")
+            print("🌐 브라우저에서 2단계 통합 보고서를 열었습니다.")
         except Exception as e:
             print(f"브라우저 열기 실패: {e}")
         
@@ -142,5 +142,5 @@ class CategoryVoCHTMLReporter:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        print(f"✅ 1단계 통합 HTML 보고서 저장: {filename}")
+        print(f"✅ 2단계 통합 HTML 보고서 저장: {filename}")
         return filename

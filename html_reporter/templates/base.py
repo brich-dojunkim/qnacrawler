@@ -14,19 +14,21 @@ def get_base_template():
 <body>
     <div class="container">
         {header}
-        
-        <!-- 탭 네비게이션 (3개 탭) -->
+
+        <!-- 탭 네비게이션 (2개 탭) -->
         <div class="tab-navigation">
             <div class="tab-nav">
-                <button class="tab-btn active" onclick="switchTab('overview')">📊 전체 분석</button>
-                <button class="tab-btn" onclick="switchTab('journey')">🎯 유저 여정</button>
-                <button class="tab-btn" onclick="switchTab('categories')">📂 세부 카테고리</button>
+                <button class="tab-btn active"
+                        onclick="switchTab('overview')">📊 통합 분석</button>
+                <button class="tab-btn"
+                        onclick="switchTab('categories')">📂 세부 카테고리</button>
             </div>
         </div>
-        
+
         <div class="main-content">
             {content}
         </div>
+
         {footer}
     </div>
     {scripts}
