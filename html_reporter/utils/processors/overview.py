@@ -172,19 +172,19 @@ def generate_team_accordion_items(results: Dict) -> str:
                 <div class="team-detail-box">
                     <div class="team-metrics-grid">
                         <div class="metric-item total">
-                            <span class="metric-label">📋 총 문의</span>
+                            <span class="metric-label">총 문의</span>
                             <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
                         </div>
                         <div class="metric-item urgent">
-                            <span class="metric-label">🚨 긴급률</span>
+                            <span class="metric-label">긴급률</span>
                             <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
                         </div>
                         <div class="metric-item completed">
-                            <span class="metric-label">✅ 완료율</span>
+                            <span class="metric-label">완료율</span>
                             <span class="metric-value">{answer_rate}%</span>
                         </div>
                         <div class="metric-item status">
-                            <span class="metric-label">📊 주요 현황</span>
+                            <span class="metric-label">주요 현황</span>
                             <span class="metric-value">{top_journey}</span>
                         </div>
                     </div>
@@ -260,19 +260,19 @@ def generate_journey_accordion_items(results: Dict) -> str:
                 <div class="journey-detail-box">
                     <div class="journey-metrics-grid">
                         <div class="metric-item total">
-                            <span class="metric-label">📋 총 문의</span>
+                            <span class="metric-label">총 문의</span>
                             <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
                         </div>
                         <div class="metric-item urgent">
-                            <span class="metric-label">🚨 긴급률</span>
+                            <span class="metric-label">긴급률</span>
                             <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
                         </div>
                         <div class="metric-item completed">
-                            <span class="metric-label">✅ 완료율</span>
+                            <span class="metric-label">완료율</span>
                             <span class="metric-value">{answer_rate}%</span>
                         </div>
                         <div class="metric-item status">
-                            <span class="metric-label">📊 주요 현황</span>
+                            <span class="metric-label">주요 현황</span>
                             <span class="metric-value">{top_team}</span>
                         </div>
                     </div>
