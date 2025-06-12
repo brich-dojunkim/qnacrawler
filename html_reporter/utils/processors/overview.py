@@ -1,5 +1,5 @@
 # html_reporter/utils/processors/overview.py
-"""개요 데이터 처리 - 타이트한 대시보드 인사이트 포함"""
+"""개요 데이터 처리 - 헤더와 일치하는 메트릭으로 변경"""
 
 from typing import Dict
 from datetime import datetime
@@ -86,8 +86,33 @@ def calculate_tight_dashboard_insights(results: Dict) -> Dict:
     
     return insights
 
+def get_team_top_journey(team_info: Dict, results: Dict) -> str:
+    """팀의 최다 처리 유저여정 반환"""
+    from ..mappings import get_journey_for_category
+    
+    if not team_info.get('sub_categories'):
+        return '기타'
+    
+    # 세부 카테고리별로 유저여정을 매핑하고 합산
+    journey_counts = {}
+    for category, count in team_info['sub_categories'].items():
+        journey = get_journey_for_category(category)
+        journey_counts[journey] = journey_counts.get(journey, 0) + count
+    
+    # 가장 많은 유저여정 반환
+    if journey_counts:
+        return max(journey_counts.items(), key=lambda x: x[1])[0]
+    return '기타'
+
+def get_journey_top_team(journey_info: Dict) -> str:
+    """여정의 최다 처리팀 반환"""
+    team_distribution = journey_info.get('team_distribution', {})
+    if team_distribution:
+        return max(team_distribution.items(), key=lambda x: x[1])[0]
+    return '기타'
+
 def generate_team_accordion_items(results: Dict) -> str:
-    """팀별 아코디언 아이템들 생성 - results 데이터 전달"""
+    """팀별 아코디언 아이템들 생성 - 헤더 스타일 메트릭으로 변경"""
     if 'team_analysis' not in results:
         return ""
     
@@ -113,8 +138,10 @@ def generate_team_accordion_items(results: Dict) -> str:
         max_count = sorted_teams[0][1]['basic_info']['total_inquiries'] if sorted_teams else 1
         progress_width = (count / max_count * 100) if max_count > 0 else 0
         
-        # 답변률 계산
-        team_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        # 새로운 메트릭 계산
+        urgent_rate = calculate_urgent_rate(basic_info.get('urgent_count', 0), basic_info['total_inquiries'])
+        answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        top_journey = get_team_top_journey(team_info, results)
         
         # 세부 카테고리 HTML 생성 - results 데이터 전달
         sub_categories_html = ""
@@ -144,25 +171,21 @@ def generate_team_accordion_items(results: Dict) -> str:
             <div class="team-accordion-content" id="content-{safe_team_id}" style="display: none;">
                 <div class="team-detail-box">
                     <div class="team-metrics-grid">
-                        <div class="metric-item">
-                            <span class="metric-label">총 문의</span>
+                        <div class="metric-item total">
+                            <span class="metric-label">📋 총 문의</span>
                             <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">긴급 문의</span>
-                            <span class="metric-value">{basic_info['urgent_count']:,}건</span>
+                        <div class="metric-item urgent">
+                            <span class="metric-label">🚨 긴급률</span>
+                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변 완료</span>
-                            <span class="metric-value">{basic_info.get('answered_count', 0):,}건</span>
+                        <div class="metric-item completed">
+                            <span class="metric-label">✅ 완료율</span>
+                            <span class="metric-value">{answer_rate}%</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변률</span>
-                            <span class="metric-value">{team_answer_rate}%</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">평균 길이</span>
-                            <span class="metric-value">{round(basic_info['avg_content_length'])}자</span>
+                        <div class="metric-item status">
+                            <span class="metric-label">📊 주요 현황</span>
+                            <span class="metric-value">{top_journey}</span>
                         </div>
                     </div>
                     {sub_categories_html}
@@ -173,7 +196,7 @@ def generate_team_accordion_items(results: Dict) -> str:
     return accordion_html
 
 def generate_journey_accordion_items(results: Dict) -> str:
-    """여정별 아코디언 아이템들 생성 - results 데이터 전달"""
+    """여정별 아코디언 아이템들 생성 - 헤더 스타일 메트릭으로 변경"""
     if 'journey_analysis' not in results:
         return ""
     
@@ -203,8 +226,10 @@ def generate_journey_accordion_items(results: Dict) -> str:
         max_count = filtered_journeys[0][1]['basic_info']['total_inquiries'] if filtered_journeys else 1
         progress_width = (count / max_count * 100) if max_count > 0 else 0
         
-        # 답변률 계산
-        journey_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        # 새로운 메트릭 계산
+        urgent_rate = calculate_urgent_rate(basic_info.get('urgent_count', 0), basic_info['total_inquiries'])
+        answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        top_team = get_journey_top_team(journey_info)
         
         # 세부 카테고리 HTML 생성 - results 데이터 전달
         sub_categories_html = ""
@@ -234,25 +259,21 @@ def generate_journey_accordion_items(results: Dict) -> str:
             <div class="journey-accordion-content" id="journey-content-{safe_journey_id}" style="display: none;">
                 <div class="journey-detail-box">
                     <div class="journey-metrics-grid">
-                        <div class="metric-item">
-                            <span class="metric-label">총 문의</span>
+                        <div class="metric-item total">
+                            <span class="metric-label">📋 총 문의</span>
                             <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">긴급 문의</span>
-                            <span class="metric-value">{basic_info['urgent_count']:,}건</span>
+                        <div class="metric-item urgent">
+                            <span class="metric-label">🚨 긴급률</span>
+                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변 완료</span>
-                            <span class="metric-value">{basic_info.get('answered_count', 0):,}건</span>
+                        <div class="metric-item completed">
+                            <span class="metric-label">✅ 완료율</span>
+                            <span class="metric-value">{answer_rate}%</span>
                         </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변률</span>
-                            <span class="metric-value">{journey_answer_rate}%</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">평균 길이</span>
-                            <span class="metric-value">{round(basic_info['avg_content_length'])}자</span>
+                        <div class="metric-item status">
+                            <span class="metric-label">📊 주요 현황</span>
+                            <span class="metric-value">{top_team}</span>
                         </div>
                     </div>
                     {sub_categories_html}

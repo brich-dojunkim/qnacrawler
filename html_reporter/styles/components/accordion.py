@@ -1,5 +1,5 @@
 # html_reporter/styles/components/accordion.py
-"""팀별 아코디언 스타일 - 흰색 배경으로 구분된 버전"""
+"""팀별 아코디언 스타일 - 헤더 메트릭과 일치하는 보더 색상"""
 
 def get_accordion_styles():
     return """
@@ -292,25 +292,70 @@ def get_accordion_styles():
     margin-bottom: 24px;
 }
 
+/* === 헤더 메트릭과 일치하는 보더 색상 적용 === */
 .metric-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    background: white;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 헤더 메트릭 카드와 동일한 보더 색상 */
+.metric-item.total {
+    border: 2px solid #667eea;
+}
+
+.metric-item.urgent {
+    border: 2px solid #ef4444;
+}
+
+.metric-item.completed {
+    border: 2px solid #10b981;
+}
+
+.metric-item.status {
+    border: 2px solid #f59e0b;
+}
+
+/* 호버 효과도 헤더와 동일하게 */
+.metric-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.metric-item.total:hover {
+    border-color: #5b67d8;
+    background: #f8faff;
+}
+
+.metric-item.urgent:hover {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.metric-item.completed:hover {
+    border-color: #059669;
+    background: #f0fdf4;
+}
+
+.metric-item.status:hover {
+    border-color: #d97706;
+    background: #fffbeb;
 }
 
 .metric-label {
     font-size: 0.9rem;
-    color: #64748b;
+    color: #475569;
     font-weight: 500;
 }
 
 .metric-value {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.1rem;
+    font-weight: 700;
     color: #667eea;
 }
 
