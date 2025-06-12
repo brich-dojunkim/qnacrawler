@@ -1,5 +1,5 @@
-# html_reporter/utils/processors/overview.py (아이디어 2 적용)
-"""개요 데이터 처리 - 팀별 아코디언 통합"""
+# html_reporter/utils/processors/overview.py (results 데이터 전달 수정)
+"""개요 데이터 처리 - 팀별 아코디언 통합 + results 데이터 전달"""
 
 from typing import Dict
 from datetime import datetime
@@ -39,18 +39,18 @@ def process_overview_data(results: Dict) -> Dict:
         'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
     }
     
-    # 팀별 아코디언 아이템들 생성
+    # 팀별 아코디언 아이템들 생성 - results 데이터 전달
     team_accordion_items = generate_team_accordion_items(results)
     overview_data['team_accordion_items'] = team_accordion_items
     
-    # 여정별 아코디언 아이템들 생성
+    # 여정별 아코디언 아이템들 생성 - results 데이터 전달
     journey_accordion_items = generate_journey_accordion_items(results)
     overview_data['journey_accordion_items'] = journey_accordion_items
     
     return overview_data
 
 def generate_team_accordion_items(results: Dict) -> str:
-    """팀별 아코디언 아이템들 생성"""
+    """팀별 아코디언 아이템들 생성 - results 데이터 전달"""
     if 'team_analysis' not in results:
         return ""
     
@@ -79,10 +79,10 @@ def generate_team_accordion_items(results: Dict) -> str:
         # 답변률 계산
         team_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
         
-        # 세부 카테고리 HTML 생성
+        # 세부 카테고리 HTML 생성 - results 데이터 전달
         sub_categories_html = ""
         if team_info.get('sub_categories'):
-            sub_categories_html = generate_sub_categories_html(team_info['sub_categories'])
+            sub_categories_html = generate_sub_categories_html(team_info['sub_categories'], results)
         
         # 안전한 팀명 ID 생성
         safe_team_id = team_name.replace(' ', '').replace('팀', '').replace('·', '')
@@ -136,7 +136,7 @@ def generate_team_accordion_items(results: Dict) -> str:
     return accordion_html
 
 def generate_journey_accordion_items(results: Dict) -> str:
-    """여정별 아코디언 아이템들 생성"""
+    """여정별 아코디언 아이템들 생성 - results 데이터 전달"""
     if 'journey_analysis' not in results:
         return ""
     
@@ -169,10 +169,10 @@ def generate_journey_accordion_items(results: Dict) -> str:
         # 답변률 계산
         journey_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
         
-        # 세부 카테고리 HTML 생성
+        # 세부 카테고리 HTML 생성 - results 데이터 전달
         sub_categories_html = ""
         if journey_info.get('sub_categories'):
-            sub_categories_html = generate_sub_categories_html(journey_info['sub_categories'])
+            sub_categories_html = generate_sub_categories_html(journey_info['sub_categories'], results)
         
         # 안전한 여정명 ID 생성
         safe_journey_id = journey_name.replace('·', '').replace(' ', '').replace('/', '')

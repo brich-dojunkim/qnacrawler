@@ -1,10 +1,10 @@
-# html_reporter/scripts/category_table.py (카테고리 검색 기능 제거)
-"""카테고리 테이블 필터링 및 정렬 스크립트 - 카테고리 검색 기능 제거"""
+# html_reporter/scripts/category_table.py (세부카테고리 테이블 지원 추가)
+"""카테고리 테이블 필터링 및 정렬 스크립트 - 세부카테고리 테이블 지원"""
 
 def get_category_table_scripts():
     return """
 // ═══════════════════════════════════════════════════════════
-// 카테고리 테이블 필터링 및 정렬 스크립트 - 카테고리 검색 기능 제거
+// 카테고리 테이블 필터링 및 정렬 스크립트 - 세부카테고리 테이블 지원
 // ═══════════════════════════════════════════════════════════
 
 let tableFilters = {
@@ -14,19 +14,57 @@ let tableFilters = {
     sortOrder: ''
 };
 
-// ─────────── 새 모달 시스템 ───────────
+// ─────────── 개선된 모달 시스템 (세부카테고리 테이블 지원) ───────────
 function openCategoryModal(button) {
+    // 메인 카테고리 테이블에서 호출된 경우
     const row = button.closest('.category-table-row');
+    if (row) {
+        openMainCategoryModal(button, row);
+        return;
+    }
+    
+    // 세부카테고리 테이블에서 호출된 경우
+    const subRow = button.closest('.sub-category-row');
+    if (subRow) {
+        openSubCategoryModal(button, subRow);
+        return;
+    }
+    
+    console.log('❌ 카테고리 행을 찾을 수 없습니다.');
+}
+
+function openMainCategoryModal(button, row) {
     const categoryName = row.dataset.categoryName;
     const team = row.dataset.team;
     const journey = row.dataset.journey;
     const inquiries = row.dataset.inquiries;
     const urgentRate = row.dataset.urgent;
     
-    console.log(`카테고리 모달 열기: ${categoryName}`);
+    console.log(`메인 카테고리 모달 열기: ${categoryName}`);
     
-    // 모달 HTML 생성
-    const modalContent = `
+    const modalContent = generateCategoryModalContent(categoryName, team, journey, inquiries, urgentRate);
+    createNewModal(`category-modal-${categoryName.replace(/[^a-zA-Z0-9]/g, '')}`, 
+                   `📂 ${categoryName} 상세 보기`, 
+                   modalContent);
+}
+
+function openSubCategoryModal(button, row) {
+    const categoryName = row.dataset.category;
+    const team = row.dataset.team;
+    const journey = row.dataset.journey;
+    const inquiries = row.dataset.inquiries;
+    const urgentRate = row.dataset.urgent;
+    
+    console.log(`세부 카테고리 모달 열기: ${categoryName}`);
+    
+    const modalContent = generateCategoryModalContent(categoryName, team, journey, inquiries, urgentRate);
+    createNewModal(`sub-category-modal-${categoryName.replace(/[^a-zA-Z0-9]/g, '')}`, 
+                   `📋 ${categoryName} 상세 보기`, 
+                   modalContent);
+}
+
+function generateCategoryModalContent(categoryName, team, journey, inquiries, urgentRate) {
+    return `
         <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 8px;">
             <h4 style="margin: 0 0 12px 0; color: #374151;">📊 ${categoryName} 상세 정보</h4>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px;">
@@ -78,10 +116,6 @@ function openCategoryModal(button) {
             </div>
         </div>
     `;
-    
-    createNewModal(`category-modal-${categoryName.replace(/[^a-zA-Z0-9]/g, '')}`, 
-                   `📂 ${categoryName} 상세 보기`, 
-                   modalContent);
 }
 
 function createNewModal(modalId, title, content) {

@@ -1,8 +1,10 @@
 # html_reporter/utils/html_generators.py
-"""HTML 문자열 생성 함수들"""
+"""HTML 문자열 생성 함수들 - 세부카테고리 테이블 형태로 개선"""
 
 from typing import Dict, List
 from .formatters import format_number
+from .mappings import get_journey_for_category
+from .calculations import calculate_urgent_rate
 
 class HTMLGenerator:
     """HTML 생성 클래스"""
@@ -24,19 +26,95 @@ class HTMLGenerator:
         return team_options_html.rstrip()
     
     @staticmethod
-    def generate_sub_categories_html(sub_categories: Dict, max_items: int = 5) -> str:
-        """세부 카테고리 HTML 생성"""
+    def generate_sub_categories_html(sub_categories: Dict, results: Dict = None, max_items: int = 10) -> str:
+        """세부 카테고리 테이블 형태 HTML 생성 - 카테고리별 테이블과 동일한 구조"""
         if not sub_categories:
             return ""
         
-        html = '<div class="simple-list"><h5 class="simple-list-title">세부 카테고리 분포</h5>'
+        # 카테고리 분석 데이터 가져오기
+        category_analysis = results.get('category_analysis', {}) if results else {}
         
+        html = '''<div class="sub-categories-table">
+            <h5 class="sub-categories-title">📂 세부 카테고리 상세</h5>
+            <div class="sub-categories-table-container">
+                <div class="sub-categories-table-header">
+                    <div class="sub-cat-column">카테고리명</div>
+                    <div class="sub-cat-column">담당팀</div>
+                    <div class="sub-cat-column">유저여정</div>
+                    <div class="sub-cat-column">문의수</div>
+                    <div class="sub-cat-column">긴급률</div>
+                    <div class="sub-cat-column">상세보기</div>
+                </div>
+                <div class="sub-categories-table-body">'''
+        
+        # 문의량 순으로 정렬
         sorted_categories = sorted(sub_categories.items(), key=lambda x: x[1], reverse=True)
         
-        for idx, (category, count) in enumerate(sorted_categories[:max_items], 1):
-            html += f'''<div class="simple-item"><span class="simple-rank">{idx}</span><span class="simple-name">{category}</span><span class="simple-value">{count}건</span></div>'''
+        for category_name, count in sorted_categories[:max_items]:
+            # 카테고리별 상세 정보 가져오기
+            category_info = category_analysis.get(category_name, {})
+            basic_info = category_info.get('basic_info', {})
+            
+            # 담당팀 추출 (가장 많은 문의를 처리하는 팀)
+            team_distribution = category_info.get('team_distribution', {})
+            main_team = list(team_distribution.keys())[0] if team_distribution else '미분류'
+            
+            # 유저여정 매핑
+            main_journey = get_journey_for_category(category_name)
+            
+            # 긴급률 계산
+            urgent_count = basic_info.get('urgent_count', 0)
+            urgent_rate = calculate_urgent_rate(urgent_count, count)
+            
+            # 긴급률 레벨 계산
+            if urgent_rate >= 20:
+                urgent_level = 'high'
+            elif urgent_rate >= 10:
+                urgent_level = 'medium'
+            else:
+                urgent_level = 'low'
+            
+            # 안전한 카테고리 ID 생성
+            safe_category_id = category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '').replace('·', '-').replace('&', 'and')
+            modal_id = f"modal-{safe_category_id}"
+            
+            html += f'''
+                    <div class="sub-category-row" 
+                         data-category="{category_name}"
+                         data-team="{main_team}" 
+                         data-journey="{main_journey}" 
+                         data-inquiries="{count}" 
+                         data-urgent="{urgent_rate}">
+                        <div class="sub-cat-cell category-name">{category_name}</div>
+                        <div class="sub-cat-cell"><span class="team-badge">{main_team}</span></div>
+                        <div class="sub-cat-cell"><span class="journey-badge">{main_journey}</span></div>
+                        <div class="sub-cat-cell metric-value">{count}건</div>
+                        <div class="sub-cat-cell urgent-rate {urgent_level}">{urgent_rate}%</div>
+                        <div class="sub-cat-cell">
+                            <button class="sub-cat-action-btn" onclick="openCategoryModal(this)" title="상세 문의 보기">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.35-4.35"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>'''
         
-        html += '</div>'
+        # 남은 카테고리들이 있으면 요약 표시
+        if len(sorted_categories) > max_items:
+            remaining_count = len(sorted_categories) - max_items
+            remaining_total = sum(count for _, count in sorted_categories[max_items:])
+            
+            html += f'''
+                    <div class="sub-category-summary">
+                        기타 {remaining_count}개 카테고리 (총 {remaining_total}건)
+                    </div>'''
+        
+        html += '''
+                </div>
+            </div>
+        </div>'''
+        
         return html
     
     @staticmethod
@@ -167,6 +245,6 @@ def generate_rank_tables(results: Dict) -> str:
     """하위 호환성을 위한 래퍼 함수"""
     return HTMLGenerator.generate_rank_tables(results)
 
-def generate_sub_categories_html(sub_categories: Dict, max_items: int = 5) -> str:
-    """하위 호환성을 위한 래퍼 함수"""
-    return HTMLGenerator.generate_sub_categories_html(sub_categories, max_items)
+def generate_sub_categories_html(sub_categories: Dict, results: Dict = None, max_items: int = 10) -> str:
+    """하위 호환성을 위한 래퍼 함수 - results 파라미터 추가"""
+    return HTMLGenerator.generate_sub_categories_html(sub_categories, results, max_items)
