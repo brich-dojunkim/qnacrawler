@@ -1,5 +1,5 @@
 # html_reporter/utils/processors/overview.py
-"""개요 데이터 처리 - 헤더와 일치하는 메트릭으로 변경"""
+"""개요 데이터 처리 - 헤더와 일치하는 메트릭으로 변경 + 정렬용 data 속성 추가"""
 
 from typing import Dict
 from datetime import datetime
@@ -46,11 +46,11 @@ def process_overview_data(results: Dict) -> Dict:
         'top_team': insight_data['top_team']
     }
     
-    # 팀별 아코디언 아이템들 생성 - results 데이터 전달
+    # 팀별 아코디언 아이템들 생성 - results 데이터 전달 + 정렬용 data 속성
     team_accordion_items = generate_team_accordion_items(results)
     overview_data['team_accordion_items'] = team_accordion_items
     
-    # 여정별 아코디언 아이템들 생성 - results 데이터 전달
+    # 여정별 아코디언 아이템들 생성 - results 데이터 전달 + 정렬용 data 속성
     journey_accordion_items = generate_journey_accordion_items(results)
     overview_data['journey_accordion_items'] = journey_accordion_items
     
@@ -112,7 +112,7 @@ def get_journey_top_team(journey_info: Dict) -> str:
     return '기타'
 
 def generate_team_accordion_items(results: Dict) -> str:
-    """팀별 아코디언 아이템들 생성 - 헤더 스타일 메트릭으로 변경"""
+    """팀별 아코디언 아이템들 생성 - 헤더 스타일 메트릭 + 정렬용 data 속성"""
     if 'team_analysis' not in results:
         return ""
     
@@ -129,7 +129,7 @@ def generate_team_accordion_items(results: Dict) -> str:
     
     accordion_html = ""
     
-    for team_name, team_info in sorted_teams:
+    for order_index, (team_name, team_info) in enumerate(sorted_teams):
         basic_info = team_info['basic_info']
         count = basic_info['total_inquiries']
         percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
@@ -151,8 +151,13 @@ def generate_team_accordion_items(results: Dict) -> str:
         # 안전한 팀명 ID 생성
         safe_team_id = team_name.replace(' ', '').replace('팀', '').replace('·', '')
         
+        # 정렬용 data 속성 추가
         accordion_html += f'''
-        <div class="team-accordion-item">
+        <div class="team-accordion-item" 
+             data-total-inquiries="{basic_info['total_inquiries']}"
+             data-urgent-rate="{urgent_rate}"
+             data-answer-rate="{answer_rate}"
+             data-original-order="{order_index}">
             <div class="team-accordion-header" onclick="toggleTeamAccordion('{safe_team_id}')">
                 <div class="team-summary-info">
                     <span class="team-name">{team_name}</span>
@@ -196,7 +201,7 @@ def generate_team_accordion_items(results: Dict) -> str:
     return accordion_html
 
 def generate_journey_accordion_items(results: Dict) -> str:
-    """여정별 아코디언 아이템들 생성 - 헤더 스타일 메트릭으로 변경"""
+    """여정별 아코디언 아이템들 생성 - 헤더 스타일 메트릭 + 정렬용 data 속성"""
     if 'journey_analysis' not in results:
         return ""
     
@@ -217,7 +222,7 @@ def generate_journey_accordion_items(results: Dict) -> str:
     
     accordion_html = ""
     
-    for journey_name, journey_info in filtered_journeys:
+    for order_index, (journey_name, journey_info) in enumerate(filtered_journeys):
         basic_info = journey_info['basic_info']
         count = basic_info['total_inquiries']
         percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
@@ -239,8 +244,13 @@ def generate_journey_accordion_items(results: Dict) -> str:
         # 안전한 여정명 ID 생성
         safe_journey_id = journey_name.replace('·', '').replace(' ', '').replace('/', '')
         
+        # 정렬용 data 속성 추가
         accordion_html += f'''
-        <div class="journey-accordion-item">
+        <div class="journey-accordion-item"
+             data-total-inquiries="{basic_info['total_inquiries']}"
+             data-urgent-rate="{urgent_rate}"
+             data-answer-rate="{answer_rate}"
+             data-original-order="{order_index}">
             <div class="journey-accordion-header" onclick="toggleJourneyAccordion('{safe_journey_id}')">
                 <div class="journey-summary-info">
                     <span class="journey-name">{journey_name}</span>

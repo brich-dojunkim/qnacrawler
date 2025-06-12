@@ -1,5 +1,5 @@
-# html_reporter/scripts/tabs.py (탭 제거된 버전)
-"""분석 뷰 토글 스크립트 - 탭 제거, 뷰 전환만"""
+# html_reporter/scripts/tabs.py (정렬 초기화 추가된 버전)
+"""분석 뷰 토글 스크립트 - 탭 제거, 뷰 전환만 + 정렬 초기화"""
 
 def get_tab_scripts() -> str:
     return """
@@ -46,6 +46,16 @@ function toggleAnalysisView(){
         // 컨트롤 전환
         if (accordionControls) accordionControls.classList.remove('hidden');
         if (tableControls) tableControls.classList.remove('active');
+        
+        // 아코디언 정렬 초기화 (뷰 전환시)
+        if (typeof resetAccordionSort === 'function') {
+            resetAccordionSort();
+        }
+        
+        // 뷰 변경 이벤트 호출 (accordion.js에서 사용)
+        if (typeof onViewChange === 'function') {
+            onViewChange();
+        }
     }
     
     console.log(`분석 뷰 전환: ${view}`);

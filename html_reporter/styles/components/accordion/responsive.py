@@ -1,6 +1,6 @@
 # html_reporter/styles/components/accordion/responsive.py
 """
-아코디언 컴포넌트 반응형 스타일
+아코디언 컴포넌트 반응형 스타일 - 정렬 버튼 포함
 """
 
 def get_tablet_responsive_styles():
@@ -21,6 +21,27 @@ def get_tablet_responsive_styles():
     }
     
     .bulk-controls {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .accordion-controls {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .accordion-sort-controls {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 8px;
+        margin-right: 0;
+        margin-bottom: 8px;
+        justify-content: center;
+    }
+    
+    .bulk-actions {
         justify-content: center;
     }
     
@@ -84,6 +105,21 @@ def get_mobile_responsive_styles():
         font-size: 0.75rem;
     }
     
+    /* 정렬 버튼 모바일 반응형 */
+    .accordion-sort-btn {
+        padding: 5px 8px;
+        font-size: 0.7rem;
+        gap: 2px;
+    }
+    
+    .sort-direction {
+        font-size: 0.5rem;
+    }
+    
+    .accordion-sort-controls {
+        gap: 4px;
+    }
+    
     .team-accordion-header,
     .journey-accordion-header {
         padding: 12px 16px;
@@ -139,6 +175,32 @@ def get_sub_table_responsive_styles():
     .sub-cat-cell {
         font-size: 0.8rem;
         padding: 6px 12px;
+    }
+}
+
+/* === 추가 반응형 - 매우 작은 화면 === */
+@media (max-width: 320px) {
+    .accordion-sort-controls {
+        flex-direction: column;
+        gap: 4px;
+        width: 100%;
+    }
+    
+    .accordion-sort-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 6px 8px;
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 4px;
+    }
+    
+    .bulk-control-btn {
+        width: 100%;
+        text-align: center;
     }
 }
 """

@@ -1,33 +1,49 @@
-# html_reporter/templates/overview.py (탭 제거된 단순화 버전)
-"""개요 템플릿 - 단일 페이지, 탭 없음"""
+# html_reporter/templates/overview.py (정렬 버튼 추가된 버전)
+"""개요 템플릿 - 단일 페이지, 아코디언 정렬 기능 포함"""
 
 def get_overview_template():
-    """단일 페이지 템플릿 - 탭 없이 바로 분석 뷰"""
+    """단일 페이지 템플릿 - 아코디언 정렬 기능이 추가된 뷰"""
     return """
     <div class="detailed-analysis-section">
         <div class="controls-bar">
             <div class="view-toggle-group">
                 <div class="view-toggle-controls">
                     <input type="radio" name="analysis-view" value="teams" id="teams-view" checked>
-                    <label for="teams-view" class="toggle-btn">👥 팀별 분석</label>
+                    <label for="teams-view" class="toggle-btn">팀별 분석</label>
                     
                     <input type="radio" name="analysis-view" value="journey" id="journey-view">
-                    <label for="journey-view" class="toggle-btn">🎯 여정별 분석</label>
+                    <label for="journey-view" class="toggle-btn">여정별 분석</label>
                     
                     <input type="radio" name="analysis-view" value="categories" id="categories-view">
-                    <label for="categories-view" class="toggle-btn">📂 카테고리 테이블</label>
+                    <label for="categories-view" class="toggle-btn">카테고리 테이블</label>
                 </div>
             </div>
             
             <div class="bulk-controls">
                 <div class="accordion-controls">
-                    <button class="bulk-control-btn" onclick="expandAllAccordions()">전체 펼치기</button>
-                    <button class="bulk-control-btn" onclick="collapseAllAccordions()">전체 접기</button>
+                    <div class="accordion-sort-controls">
+                        <button class="accordion-sort-btn" data-sort="total" onclick="sortAccordions('total')" title="총 문의량 기준 정렬">
+                            총문의
+                            <span class="sort-direction">▼</span>
+                        </button>
+                        <button class="accordion-sort-btn" data-sort="urgent" onclick="sortAccordions('urgent')" title="긴급률 기준 정렬">
+                            긴급률
+                            <span class="sort-direction">▼</span>
+                        </button>
+                        <button class="accordion-sort-btn" data-sort="completed" onclick="sortAccordions('completed')" title="완료율 기준 정렬">
+                            완료율
+                            <span class="sort-direction">▼</span>
+                        </button>
+                    </div>
+                    <div class="bulk-actions">
+                        <button class="bulk-control-btn" onclick="expandAllAccordions()">전체 펼치기</button>
+                        <button class="bulk-control-btn" onclick="collapseAllAccordions()">전체 접기</button>
+                    </div>
                 </div>
                 
                 <div class="table-controls">
-                    <button class="bulk-control-btn" onclick="exportTableData()">📁 내보내기</button>
-                    <button class="bulk-control-btn" onclick="resetTableFilters()">🔄 필터 초기화</button>
+                    <button class="bulk-control-btn" onclick="exportTableData()">내보내기</button>
+                    <button class="bulk-control-btn" onclick="resetTableFilters()">필터 초기화</button>
                 </div>
             </div>
         </div>
@@ -51,7 +67,7 @@ def get_overview_template():
             <div id="categories-table-view" class="analysis-view">
                 <div class="category-table-container">
                     <div id="table-filter-status" class="table-filter-status">
-                        📂 <strong>전체 카테고리</strong> 표시 중 (<span id="visible-categories-count">0</span>개)
+                        전체 카테고리 표시 중 (<span id="visible-categories-count">0</span>개)
                         <button class="clear-table-filters" onclick="clearAllTableFilters()" style="display: none;">모든 필터 제거</button>
                     </div>
                     
