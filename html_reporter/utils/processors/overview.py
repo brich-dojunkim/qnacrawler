@@ -1,5 +1,5 @@
-# html_reporter/utils/processors/overview.py (results 데이터 전달 수정)
-"""개요 데이터 처리 - 팀별 아코디언 통합 + results 데이터 전달"""
+# html_reporter/utils/processors/overview.py
+"""개요 데이터 처리 - 타이트한 대시보드 인사이트 포함"""
 
 from typing import Dict
 from datetime import datetime
@@ -8,7 +8,7 @@ from ..calculations import calculate_answer_rate, calculate_urgent_rate
 from ..html_generators import HTMLGenerator, generate_sub_categories_html
 
 def process_overview_data(results: Dict) -> Dict:
-    """개요 데이터 처리 - 팀별 아코디언 포함"""
+    """개요 데이터 처리 - 타이트한 대시보드 인사이트 포함"""
     overall_summary = results.get('overall_summary', {})
     
     # 기본 데이터
@@ -28,6 +28,9 @@ def process_overview_data(results: Dict) -> Dict:
     answer_rate = calculate_answer_rate(answered_count, total_inquiries)
     pending_rate = calculate_urgent_rate(pending_count, total_inquiries)
     
+    # 타이트한 대시보드용 인사이트 계산
+    insight_data = calculate_tight_dashboard_insights(results)
+    
     overview_data = {
         'total_inquiries': total_inquiries,
         'urgent_count': urgent_count,
@@ -36,7 +39,11 @@ def process_overview_data(results: Dict) -> Dict:
         'urgent_rate': urgent_rate,
         'answer_rate': answer_rate,
         'pending_rate': pending_rate,
-        'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' ')
+        'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' '),
+        
+        # 타이트한 대시보드용 인사이트
+        'main_journey': insight_data['main_journey'],
+        'top_team': insight_data['top_team']
     }
     
     # 팀별 아코디언 아이템들 생성 - results 데이터 전달
@@ -48,6 +55,36 @@ def process_overview_data(results: Dict) -> Dict:
     overview_data['journey_accordion_items'] = journey_accordion_items
     
     return overview_data
+
+def calculate_tight_dashboard_insights(results: Dict) -> Dict:
+    """타이트한 대시보드용 핵심 인사이트만 계산"""
+    insights = {
+        'main_journey': '기타',
+        'top_team': '기타'
+    }
+    
+    # 주요 여정 단계 계산 (가장 많은 문의)
+    if 'journey_analysis' in results:
+        journey_data = results['journey_analysis']
+        if journey_data:
+            # 문의가 있는 여정들만 필터링
+            valid_journeys = [(name, data) for name, data in journey_data.items() 
+                            if data['basic_info']['total_inquiries'] > 0]
+            
+            if valid_journeys:
+                # 가장 많은 문의를 가진 여정
+                top_journey = max(valid_journeys, key=lambda x: x[1]['basic_info']['total_inquiries'])
+                insights['main_journey'] = top_journey[0]
+    
+    # 최다 처리팀 계산
+    if 'team_analysis' in results:
+        team_data = results['team_analysis']
+        if team_data:
+            # 가장 많은 문의를 처리하는 팀
+            top_team = max(team_data.items(), key=lambda x: x[1]['basic_info']['total_inquiries'])
+            insights['top_team'] = top_team[0]
+    
+    return insights
 
 def generate_team_accordion_items(results: Dict) -> str:
     """팀별 아코디언 아이템들 생성 - results 데이터 전달"""

@@ -1,5 +1,5 @@
-# html_reporter/styles/system/base.py
-"""기본 시스템 스타일 - 리셋, 폰트, 전역 설정"""
+# html_reporter/styles/system/base.py (대시보드 헤더 스타일)
+"""기본 시스템 스타일 - 통합 대시보드 헤더"""
 
 def get_base_styles():
     return """
@@ -30,42 +30,60 @@ body {
     overflow: hidden;
 }
 
-/* === 헤더 === */
-.header {
+/* === 타이트한 대시보드 헤더 === */
+.dashboard-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 40px 30px;
-    text-align: center;
+    padding: 20px 30px;
     position: relative;
 }
 
-.header h1 {
-    font-size: 2.5rem;
+.dashboard-title {
+    font-size: 1.4rem;
     font-weight: 700;
-    margin-bottom: 15px;
-    text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-align: center;
 }
 
-.header p {
+.dashboard-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: center;
+}
+
+.stats-line {
     font-size: 1.1rem;
-    margin-bottom: 10px;
-    opacity: 0.95;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.95);
 }
 
-.header .analysis-date {
-    font-size: 1rem;
-    margin-top: 15px;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 20px;
-    display: inline-block;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+.stats-line strong {
+    font-weight: 700;
+    color: white;
 }
 
-/* === 메인 콘텐츠 === */
+.insights-line {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.insights-line strong {
+    font-weight: 700;
+    color: white;
+}
+
+.date-line {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+}
+
+/* === 메인 콘텐츠 (패딩 줄임) === */
 .main-content {
-    padding: 40px 30px;
+    padding: 0;
 }
 
 /* === 푸터 === */
@@ -77,5 +95,56 @@ body {
     color: #64748b;
     font-size: 0.9rem;
     font-weight: 500;
+}
+
+/* === 반응형 타이트 대시보드 === */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        border-radius: 16px;
+    }
+    
+    .dashboard-header {
+        padding: 16px 20px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.2rem;
+    }
+    
+    .stats-line {
+        font-size: 1rem;
+    }
+    
+    .insights-line {
+        font-size: 0.9rem;
+    }
+    
+    .date-line {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-title {
+        font-size: 1.1rem;
+    }
+    
+    .stats-line {
+        font-size: 0.95rem;
+        line-height: 1.4;
+    }
+    
+    .insights-line {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+    
+    .date-line {
+        font-size: 0.75rem;
+    }
 }
 """

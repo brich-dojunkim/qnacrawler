@@ -1,40 +1,15 @@
-# html_reporter/styles/components/accordion.py (세부카테고리 테이블 스타일 추가)
-"""팀별 아코디언 스타일 - 개선된 상세 분석 섹션 + 세부카테고리 테이블"""
+# html_reporter/styles/components/accordion.py
+"""팀별 아코디언 스타일 - 타이트한 대시보드 버전 + 세부카테고리 테이블"""
 
 def get_accordion_styles():
     return """
-/* === 개선된 상세 분석 섹션 === */
+/* === 타이트한 상세 분석 섹션 === */
 .detailed-analysis-section {
     background: linear-gradient(135deg, #f8fafc, #f1f5f9);
-    border-top: 1px solid #e2e8f0;
     margin-top: 0;
 }
 
-.section-header {
-    background: white;
-    padding: 24px 30px;
-    border-bottom: 1px solid #e2e8f0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 0;
-}
-
-.section-title::before {
-    content: '📊';
-    font-size: 1.3rem;
-}
-
-/* === 통합된 컨트롤 바 === */
+/* === 통합된 컨트롤 바 (상단 여백 제거) === */
 .controls-bar {
     background: white;
     padding: 16px 30px;
@@ -530,14 +505,9 @@ def get_accordion_styles():
 
 /* === 반응형 === */
 @media (max-width: 768px) {
-    .section-header,
-    .controls-bar,
-    .accordion-content-area {
+    .controls-bar {
         padding-left: 20px;
         padding-right: 20px;
-    }
-    
-    .controls-bar {
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
@@ -549,6 +519,11 @@ def get_accordion_styles():
     
     .bulk-controls {
         justify-content: center;
+    }
+    
+    .accordion-content-area {
+        padding-left: 20px;
+        padding-right: 20px;
     }
     
     .team-accordion-header,
@@ -609,14 +584,6 @@ def get_accordion_styles():
 }
 
 @media (max-width: 480px) {
-    .section-header {
-        padding: 16px 20px;
-    }
-    
-    .section-title {
-        font-size: 1.3rem;
-    }
-    
     .controls-bar {
         padding: 12px 20px;
     }

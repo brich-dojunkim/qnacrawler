@@ -1,5 +1,5 @@
-# html_reporter/templates/base.py (탭 네비게이션 제거)
-"""공통 베이스 템플릿들 - 탭 네비게이션 제거"""
+# html_reporter/templates/base.py (통합 대시보드 헤더)
+"""공통 베이스 템플릿들 - 통합 대시보드 헤더"""
 
 def get_base_template():
     return """<!DOCTYPE html>
@@ -26,10 +26,18 @@ def get_base_template():
 </html>"""
 
 def get_header_template():
-    return """<div class="header">
-    <h1>카테고리 기반 VoC 분석</h1>
-    <p>고객 문의 데이터의 카테고리별 분석 및 인사이트 도출</p>
-    <div class="analysis-date">분석 기준일: {analysis_date}</div>
+    return """<div class="dashboard-header">
+    <div class="dashboard-title">📊 VoC 분석 대시보드</div>
+    
+    <div class="dashboard-stats">
+        <div class="stats-line">
+            총 <strong>{total_inquiries:,}건</strong> | 긴급 <strong>{urgent_count}건</strong>({urgent_rate}%) | 완료율 <strong>{answer_rate}%</strong>
+        </div>
+        <div class="insights-line">
+            주요단계: <strong>{main_journey}</strong> | 최다팀: <strong>{top_team}</strong>
+        </div>
+        <div class="date-line">📅 {analysis_date} 기준</div>
+    </div>
 </div>"""
 
 def get_footer_template():

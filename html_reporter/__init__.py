@@ -1,4 +1,4 @@
-# html_reporter/__init__.py (정리된 버전)
+# html_reporter/__init__.py (import 경로 수정)
 """HTML 리포터 패키지 - 사용하는 것만 안전하게 import"""
 
 # === 필수 템플릿 함수들 ===
