@@ -1,263 +1,148 @@
-# html_reporter/utils/processors/overview.py
-"""개요 데이터 처리 - 타이트한 대시보드 인사이트 포함"""
+# html_reporter/templates/overview.py (탭 제거된 단순화 버전)
+"""개요 템플릿 - 단일 페이지, 탭 없음"""
 
-from typing import Dict
-from datetime import datetime
-
-from ..calculations import calculate_answer_rate, calculate_urgent_rate
-from ..html_generators import HTMLGenerator, generate_sub_categories_html
-
-def process_overview_data(results: Dict) -> Dict:
-    """개요 데이터 처리 - 타이트한 대시보드 인사이트 포함"""
-    overall_summary = results.get('overall_summary', {})
-    
-    # 기본 데이터
-    total_inquiries = overall_summary.get('total_inquiries', 0)
-    urgent_count = overall_summary.get('urgent_count', 0)
-    
-    # 답변 완료/대기 계산
-    answered_count = 0
-    if 'team_analysis' in results:
-        for team_data in results['team_analysis'].values():
-            answered_count += team_data['basic_info'].get('answered_count', 0)
-    
-    pending_count = total_inquiries - answered_count
-    
-    # 비율 계산
-    urgent_rate = calculate_urgent_rate(urgent_count, total_inquiries)
-    answer_rate = calculate_answer_rate(answered_count, total_inquiries)
-    pending_rate = calculate_urgent_rate(pending_count, total_inquiries)
-    
-    # 타이트한 대시보드용 인사이트 계산
-    insight_data = calculate_tight_dashboard_insights(results)
-    
-    overview_data = {
-        'total_inquiries': total_inquiries,
-        'urgent_count': urgent_count,
-        'answered_count': answered_count,
-        'pending_count': pending_count,
-        'urgent_rate': urgent_rate,
-        'answer_rate': answer_rate,
-        'pending_rate': pending_rate,
-        'analysis_date': results.get('analysis_timestamp', datetime.now().isoformat())[:19].replace('T', ' '),
-        
-        # 타이트한 대시보드용 인사이트
-        'main_journey': insight_data['main_journey'],
-        'top_team': insight_data['top_team']
-    }
-    
-    # 팀별 아코디언 아이템들 생성 - results 데이터 전달
-    team_accordion_items = generate_team_accordion_items(results)
-    overview_data['team_accordion_items'] = team_accordion_items
-    
-    # 여정별 아코디언 아이템들 생성 - results 데이터 전달
-    journey_accordion_items = generate_journey_accordion_items(results)
-    overview_data['journey_accordion_items'] = journey_accordion_items
-    
-    return overview_data
-
-def calculate_tight_dashboard_insights(results: Dict) -> Dict:
-    """타이트한 대시보드용 핵심 인사이트만 계산"""
-    insights = {
-        'main_journey': '기타',
-        'top_team': '기타'
-    }
-    
-    # 주요 여정 단계 계산 (가장 많은 문의)
-    if 'journey_analysis' in results:
-        journey_data = results['journey_analysis']
-        if journey_data:
-            # 문의가 있는 여정들만 필터링
-            valid_journeys = [(name, data) for name, data in journey_data.items() 
-                            if data['basic_info']['total_inquiries'] > 0]
+def get_overview_template():
+    """단일 페이지 템플릿 - 탭 없이 바로 분석 뷰"""
+    return """
+    <div class="detailed-analysis-section">
+        <div class="controls-bar">
+            <div class="view-toggle-group">
+                <div class="view-toggle-controls">
+                    <input type="radio" name="analysis-view" value="teams" id="teams-view" checked>
+                    <label for="teams-view" class="toggle-btn">👥 팀별 분석</label>
+                    
+                    <input type="radio" name="analysis-view" value="journey" id="journey-view">
+                    <label for="journey-view" class="toggle-btn">🎯 여정별 분석</label>
+                    
+                    <input type="radio" name="analysis-view" value="categories" id="categories-view">
+                    <label for="categories-view" class="toggle-btn">📂 카테고리 테이블</label>
+                </div>
+            </div>
             
-            if valid_journeys:
-                # 가장 많은 문의를 가진 여정
-                top_journey = max(valid_journeys, key=lambda x: x[1]['basic_info']['total_inquiries'])
-                insights['main_journey'] = top_journey[0]
-    
-    # 최다 처리팀 계산
-    if 'team_analysis' in results:
-        team_data = results['team_analysis']
-        if team_data:
-            # 가장 많은 문의를 처리하는 팀
-            top_team = max(team_data.items(), key=lambda x: x[1]['basic_info']['total_inquiries'])
-            insights['top_team'] = top_team[0]
-    
-    return insights
-
-def generate_team_accordion_items(results: Dict) -> str:
-    """팀별 아코디언 아이템들 생성 - results 데이터 전달"""
-    if 'team_analysis' not in results:
-        return ""
-    
-    team_data = results['team_analysis']
-    if not team_data:
-        return ""
-    
-    # 팀별 데이터를 문의량 순으로 정렬
-    sorted_teams = sorted(team_data.items(), 
-                         key=lambda x: x[1]['basic_info']['total_inquiries'], 
-                         reverse=True)
-    
-    total_inquiries_check = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
-    
-    accordion_html = ""
-    
-    for team_name, team_info in sorted_teams:
-        basic_info = team_info['basic_info']
-        count = basic_info['total_inquiries']
-        percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
-        
-        # 최대값 대비 진행률 계산
-        max_count = sorted_teams[0][1]['basic_info']['total_inquiries'] if sorted_teams else 1
-        progress_width = (count / max_count * 100) if max_count > 0 else 0
-        
-        # 답변률 계산
-        team_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
-        
-        # 세부 카테고리 HTML 생성 - results 데이터 전달
-        sub_categories_html = ""
-        if team_info.get('sub_categories'):
-            sub_categories_html = generate_sub_categories_html(team_info['sub_categories'], results)
-        
-        # 안전한 팀명 ID 생성
-        safe_team_id = team_name.replace(' ', '').replace('팀', '').replace('·', '')
-        
-        accordion_html += f'''
-        <div class="team-accordion-item">
-            <div class="team-accordion-header" onclick="toggleTeamAccordion('{safe_team_id}')">
-                <div class="team-summary-info">
-                    <span class="team-name">{team_name}</span>
-                    <span class="team-count">({count:,}건)</span>
+            <div class="bulk-controls">
+                <div class="accordion-controls">
+                    <button class="bulk-control-btn" onclick="expandAllAccordions()">전체 펼치기</button>
+                    <button class="bulk-control-btn" onclick="collapseAllAccordions()">전체 접기</button>
                 </div>
-                <div class="team-progress-container">
-                    <div class="team-progress-bar">
-                        <div class="team-progress-fill" style="width: {progress_width}%"></div>
-                    </div>
-                    <span class="team-percentage">{percentage}%</span>
-                </div>
-                <button class="accordion-toggle-btn" id="btn-{safe_team_id}">
-                    <span class="toggle-icon">▼</span>
-                </button>
-            </div>
-            <div class="team-accordion-content" id="content-{safe_team_id}" style="display: none;">
-                <div class="team-detail-box">
-                    <div class="team-metrics-grid">
-                        <div class="metric-item">
-                            <span class="metric-label">총 문의</span>
-                            <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">긴급 문의</span>
-                            <span class="metric-value">{basic_info['urgent_count']:,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변 완료</span>
-                            <span class="metric-value">{basic_info.get('answered_count', 0):,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변률</span>
-                            <span class="metric-value">{team_answer_rate}%</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">평균 길이</span>
-                            <span class="metric-value">{round(basic_info['avg_content_length'])}자</span>
-                        </div>
-                    </div>
-                    {sub_categories_html}
+                
+                <div class="table-controls">
+                    <button class="bulk-control-btn" onclick="exportTableData()">📁 내보내기</button>
+                    <button class="bulk-control-btn" onclick="resetTableFilters()">🔄 필터 초기화</button>
                 </div>
             </div>
-        </div>'''
-    
-    return accordion_html
-
-def generate_journey_accordion_items(results: Dict) -> str:
-    """여정별 아코디언 아이템들 생성 - results 데이터 전달"""
-    if 'journey_analysis' not in results:
-        return ""
-    
-    journey_data = results['journey_analysis']
-    if not journey_data:
-        return ""
-    
-    # 여정별 데이터를 문의량 순으로 정렬 (문의가 있는 것만)
-    sorted_journeys = sorted(journey_data.items(), 
-                           key=lambda x: x[1]['basic_info']['total_inquiries'], 
-                           reverse=True)
-    
-    # 문의가 있는 여정만 필터링
-    filtered_journeys = [(name, data) for name, data in sorted_journeys 
-                        if data['basic_info']['total_inquiries'] > 0]
-    
-    total_inquiries_check = sum(data['basic_info']['total_inquiries'] for _, data in filtered_journeys)
-    
-    accordion_html = ""
-    
-    for journey_name, journey_info in filtered_journeys:
-        basic_info = journey_info['basic_info']
-        count = basic_info['total_inquiries']
-        percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+        </div>
         
-        # 최대값 대비 진행률 계산
-        max_count = filtered_journeys[0][1]['basic_info']['total_inquiries'] if filtered_journeys else 1
-        progress_width = (count / max_count * 100) if max_count > 0 else 0
-        
-        # 답변률 계산
-        journey_answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
-        
-        # 세부 카테고리 HTML 생성 - results 데이터 전달
-        sub_categories_html = ""
-        if journey_info.get('sub_categories'):
-            sub_categories_html = generate_sub_categories_html(journey_info['sub_categories'], results)
-        
-        # 안전한 여정명 ID 생성
-        safe_journey_id = journey_name.replace('·', '').replace(' ', '').replace('/', '')
-        
-        accordion_html += f'''
-        <div class="journey-accordion-item">
-            <div class="journey-accordion-header" onclick="toggleJourneyAccordion('{safe_journey_id}')">
-                <div class="journey-summary-info">
-                    <span class="journey-name">{journey_name}</span>
-                    <span class="journey-count">({count:,}건)</span>
-                </div>
-                <div class="journey-progress-container">
-                    <div class="journey-progress-bar">
-                        <div class="journey-progress-fill" style="width: {progress_width}%"></div>
-                    </div>
-                    <span class="journey-percentage">{percentage}%</span>
-                </div>
-                <button class="accordion-toggle-btn" id="journey-btn-{safe_journey_id}">
-                    <span class="toggle-icon">▼</span>
-                </button>
-            </div>
-            <div class="journey-accordion-content" id="journey-content-{safe_journey_id}" style="display: none;">
-                <div class="journey-detail-box">
-                    <div class="journey-metrics-grid">
-                        <div class="metric-item">
-                            <span class="metric-label">총 문의</span>
-                            <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">긴급 문의</span>
-                            <span class="metric-value">{basic_info['urgent_count']:,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변 완료</span>
-                            <span class="metric-value">{basic_info.get('answered_count', 0):,}건</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">답변률</span>
-                            <span class="metric-value">{journey_answer_rate}%</span>
-                        </div>
-                        <div class="metric-item">
-                            <span class="metric-label">평균 길이</span>
-                            <span class="metric-value">{round(basic_info['avg_content_length'])}자</span>
-                        </div>
-                    </div>
-                    {sub_categories_html}
+        <div class="accordion-content-area">
+            <!-- 팀별 아코디언 뷰 -->
+            <div id="teams-accordion-view" class="analysis-view active">
+                <div class="teams-accordion-container">
+                    {team_accordion_items}
                 </div>
             </div>
-        </div>'''
-    
-    return accordion_html
+            
+            <!-- 여정별 아코디언 뷰 -->
+            <div id="journey-accordion-view" class="analysis-view">
+                <div class="journey-accordion-container">
+                    {journey_accordion_items}
+                </div>
+            </div>
+            
+            <!-- 카테고리 테이블 뷰 -->
+            <div id="categories-table-view" class="analysis-view">
+                <div class="category-table-container">
+                    <div id="table-filter-status" class="table-filter-status">
+                        📂 <strong>전체 카테고리</strong> 표시 중 (<span id="visible-categories-count">0</span>개)
+                        <button class="clear-table-filters" onclick="clearAllTableFilters()" style="display: none;">모든 필터 제거</button>
+                    </div>
+                    
+                    <div class="category-table">
+                        <div class="table-filter-header">
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">카테고리명</span>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">담당팀</span>
+                                    <div class="filter-dropdown-wrapper">
+                                        <button class="filter-icon-btn" onclick="toggleTeamFilter()" title="팀 필터">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+                                            </svg>
+                                        </button>
+                                        <div id="team-dropdown" class="dropdown-menu hidden">
+                                            <select id="team-filter-dropdown" class="dropdown-filter-select" onchange="filterByTeam(this.value)">
+                                                <option value="">전체 팀</option>
+                                                {team_filter_options}
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">유저여정</span>
+                                    <div class="filter-dropdown-wrapper">
+                                        <button class="filter-icon-btn" onclick="toggleJourneyFilter()" title="여정 필터">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                                <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+                                            </svg>
+                                        </button>
+                                        <div id="journey-dropdown" class="dropdown-menu hidden">
+                                            <select id="journey-filter-dropdown" class="dropdown-filter-select" onchange="filterByJourney(this.value)">
+                                                <option value="">전체 여정</option>
+                                                <option value="계정·입점">계정·입점</option>
+                                                <option value="상품·콘텐츠">상품·콘텐츠</option>
+                                                <option value="주문·배송">주문·배송</option>
+                                                <option value="반품·취소">반품·취소</option>
+                                                <option value="정산">정산</option>
+                                                <option value="기타">기타</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">문의수</span>
+                                    <button id="inquiries-sort" class="sort-icon-btn" onclick="sortByInquiries()" title="문의수 정렬">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">긴급률</span>
+                                    <button id="urgent-sort" class="sort-icon-btn" onclick="sortByUrgent()" title="긴급률 정렬">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">상세보기</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="category-table-body">
+                            {category_table_rows}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    """

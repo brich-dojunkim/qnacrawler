@@ -1,11 +1,11 @@
-# html_reporter/styles/components/category_table.py (최종 스타일)
-"""카테고리 테이블 스타일 - 텍스트 옆 아이콘 + 오른쪽 아래 드롭다운"""
+# html_reporter/styles/components/category_table.py (스크롤 제거된 버전)
+"""카테고리 테이블 스타일 - 텍스트 옆 아이콘 + 내부 스크롤 제거"""
 
 def get_category_table_styles():
     return """
-/* === 카테고리 테이블 뷰 === */
+/* === 카테고리 테이블 뷰 (흰색 배경) === */
 .category-table-container {
-    background: #f8fafc;
+    background: white;
     padding: 20px 0;
 }
 
@@ -161,10 +161,10 @@ def get_category_table_styles():
     box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 
-/* === 테이블 데이터 로우 === */
+/* === 테이블 데이터 로우 (스크롤 제거) === */
 .category-table-body {
-    max-height: 600px;
-    overflow-y: auto;
+    /* max-height 제거하여 내부 스크롤 없앰 */
+    /* overflow-y 제거 */
 }
 
 .category-table-row {
@@ -373,24 +373,20 @@ def get_category_table_styles():
     display: none;
 }
 
-/* === 스크롤바 스타일 === */
-.category-table-body::-webkit-scrollbar,
+/* === 스크롤바 스타일 (모달용만 남김) === */
 .new-modal-body::-webkit-scrollbar {
     width: 6px;
 }
 
-.category-table-body::-webkit-scrollbar-track,
 .new-modal-body::-webkit-scrollbar-track {
     background: #f1f5f9;
 }
 
-.category-table-body::-webkit-scrollbar-thumb,
 .new-modal-body::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 3px;
 }
 
-.category-table-body::-webkit-scrollbar-thumb:hover,
 .new-modal-body::-webkit-scrollbar-thumb:hover {
     background: #94a3b8;
 }

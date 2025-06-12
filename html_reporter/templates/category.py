@@ -1,5 +1,5 @@
-# html_reporter/templates/category.py (탭 제거, 필수 함수만 유지)
-"""카테고리별 분석 템플릿들 - 탭 제거"""
+# html_reporter/templates/category.py (수정된 버전)
+"""카테고리별 분석 템플릿들 - 필수 함수만 유지"""
 
 def get_category_section_template():
     """사용되지 않음 - 호환성을 위해 빈 문자열 반환"""

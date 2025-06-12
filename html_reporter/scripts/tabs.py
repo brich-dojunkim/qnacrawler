@@ -1,15 +1,8 @@
-# html_reporter/scripts/tabs.py (개선된 기능 추가)
-"""탭 전환 & 분석 뷰 토글 - 개선된 컨트롤 기능"""
+# html_reporter/scripts/tabs.py (탭 제거된 버전)
+"""분석 뷰 토글 스크립트 - 탭 제거, 뷰 전환만"""
 
 def get_tab_scripts() -> str:
     return """
-function switchTab(name){
-    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    document.getElementById(name).classList.add('active');
-    event.target.classList.add('active');
-}
-
 function toggleAnalysisView(){
     const view=document.querySelector('input[name="analysis-view"]:checked').value;
     

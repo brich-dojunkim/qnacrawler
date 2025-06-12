@@ -1,4 +1,4 @@
-# html_reporter/templates/category_table.py (새 모달 시스템)
+# html_reporter/templates/category_table.py (수정된 버전)
 """카테고리 테이블 로우 템플릿 - 새 모달 시스템"""
 
 def get_category_table_row_template():

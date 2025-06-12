@@ -1,11 +1,11 @@
 # html_reporter/styles/components/accordion.py
-"""팀별 아코디언 스타일 - 타이트한 대시보드 버전 + 세부카테고리 테이블"""
+"""팀별 아코디언 스타일 - 흰색 배경으로 구분된 버전"""
 
 def get_accordion_styles():
     return """
 /* === 타이트한 상세 분석 섹션 === */
 .detailed-analysis-section {
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    background: white;
     margin-top: 0;
 }
 
@@ -91,9 +91,9 @@ def get_accordion_styles():
     background: #f8fafc;
 }
 
-/* === 아코디언 컨텐츠 영역 === */
+/* === 아코디언 컨텐츠 영역 (흰색 배경) === */
 .accordion-content-area {
-    background: #f8fafc;
+    background: white;
     padding: 20px 30px 30px;
     min-height: 300px;
 }

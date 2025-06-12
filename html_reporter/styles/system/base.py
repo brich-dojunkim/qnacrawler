@@ -1,5 +1,5 @@
-# html_reporter/styles/system/base.py (대시보드 헤더 스타일)
-"""기본 시스템 스타일 - 통합 대시보드 헤더"""
+# html_reporter/styles/system/base.py (깔끔한 헤더 스타일)
+"""기본 시스템 스타일 - 기존 디자인 유지하면서 헤더만 구분된 배경색"""
 
 def get_base_styles():
     return """
@@ -30,58 +30,115 @@ body {
     overflow: hidden;
 }
 
-/* === 타이트한 대시보드 헤더 === */
+/* === 푸터와 어울리는 헤더 === */
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px 30px;
-    position: relative;
+    background: #f8fafc;
+    color: #374151;
+    padding: 24px 30px;
+    border-bottom: 1px solid #e2e8f0;
 }
 
-.dashboard-title {
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+.header-title {
+    font-size: 1.5rem;
+    font-weight: 600;
     text-align: center;
+    margin-bottom: 20px;
 }
 
-.dashboard-stats {
+.header-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.metric-card {
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* === 각 카드별 다른 테두리 색상 === */
+.metric-card.total {
+    border-color: #667eea;
+}
+
+.metric-card.urgent {
+    border-color: #ef4444;
+}
+
+.metric-card.completed {
+    border-color: #10b981;
+}
+
+.metric-card.status {
+    border-color: #f59e0b;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card.total:hover {
+    border-color: #5b67d8;
+    background: #f8faff;
+}
+
+.metric-card.urgent:hover {
+    border-color: #dc2626;
+    background: #fef2f2;
+}
+
+.metric-card.completed:hover {
+    border-color: #059669;
+    background: #f0fdf4;
+}
+
+.metric-card.status:hover {
+    border-color: #d97706;
+    background: #fffbeb;
+}
+
+.metric-icon {
+    font-size: 1.5rem;
+    opacity: 0.9;
+    flex-shrink: 0;
+}
+
+.metric-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.metric-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 2px;
+}
+
+.metric-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    line-height: 1.2;
+}
+
+.header-date {
     text-align: center;
-}
-
-.stats-line {
-    font-size: 1.1rem;
+    font-size: 0.8rem;
+    color: #6b7280;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.95);
 }
 
-.stats-line strong {
-    font-weight: 700;
-    color: white;
-}
-
-.insights-line {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: rgba(255, 255, 255, 0.9);
-}
-
-.insights-line strong {
-    font-weight: 700;
-    color: white;
-}
-
-.date-line {
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.8);
-    margin-top: 4px;
-}
-
-/* === 메인 콘텐츠 (패딩 줄임) === */
+/* === 메인 콘텐츠 === */
 .main-content {
     padding: 0;
 }
@@ -97,7 +154,7 @@ body {
     font-weight: 500;
 }
 
-/* === 반응형 타이트 대시보드 === */
+/* === 반응형 - 태블릿 === */
 @media (max-width: 768px) {
     body {
         padding: 10px;
@@ -108,42 +165,69 @@ body {
     }
     
     .dashboard-header {
-        padding: 16px 20px;
+        padding: 20px;
     }
     
-    .dashboard-title {
-        font-size: 1.2rem;
+    .header-title {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
     }
     
-    .stats-line {
-        font-size: 1rem;
+    .header-metrics {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 12px;
     }
     
-    .insights-line {
+    .metric-card {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .metric-icon {
+        font-size: 1.3rem;
+    }
+    
+    .metric-value {
         font-size: 0.9rem;
     }
     
-    .date-line {
-        font-size: 0.8rem;
+    .metric-label {
+        font-size: 0.75rem;
     }
 }
 
+/* === 반응형 - 모바일 === */
 @media (max-width: 480px) {
-    .dashboard-title {
-        font-size: 1.1rem;
+    .dashboard-header {
+        padding: 16px;
     }
     
-    .stats-line {
-        font-size: 0.95rem;
-        line-height: 1.4;
+    .header-title {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
     }
     
-    .insights-line {
+    .header-metrics {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .metric-card {
+        padding: 12px 16px;
+        gap: 12px;
+    }
+    
+    .metric-icon {
+        font-size: 1.4rem;
+    }
+    
+    .metric-value {
         font-size: 0.85rem;
-        line-height: 1.4;
     }
     
-    .date-line {
+    .header-date {
         font-size: 0.75rem;
     }
 }

@@ -2,13 +2,6 @@
 """컴포넌트 스타일 모듈 - 모든 스타일 컴포넌트 통합 (카테고리 테이블 포함)"""
 
 try:
-    from .tabs import get_tab_styles
-except ImportError:
-    print("Warning: tabs 모듈에서 get_tab_styles를 import할 수 없습니다.")
-    def get_tab_styles():
-        return ""
-
-try:
     from .cards import get_card_styles
 except ImportError:
     print("Warning: cards 모듈에서 get_card_styles를 import할 수 없습니다.")
@@ -67,7 +60,6 @@ except ImportError:
 def get_component_styles():
     """모든 UI 컴포넌트 스타일 조합"""
     styles = [
-        get_tab_styles(),        # 탭 컴포넌트
         get_card_styles(),       # 카드 컴포넌트
         get_button_styles(),     # 버튼 컴포넌트
         get_badge_styles(),      # 배지 컴포넌트
@@ -83,7 +75,6 @@ def get_component_styles():
 def get_navigation_components():
     """네비게이션 관련 컴포넌트들"""
     styles = [
-        get_tab_styles(),        # 탭 네비게이션
         get_button_styles(),     # 네비게이션 버튼들
         get_accordion_styles(),  # 아코디언 네비게이션
     ]
@@ -93,7 +84,6 @@ def get_navigation_components():
 def get_ui_components_only():
     """기본 UI 컴포넌트만 (카드 + 버튼 + 배지 + 탭 + 아코디언 + 테이블)"""
     styles = [
-        get_tab_styles(),
         get_card_styles(),
         get_button_styles(),
         get_badge_styles(),
@@ -106,7 +96,6 @@ def get_ui_components_only():
 def get_overview_components():
     """개요 탭 컴포넌트들"""
     styles = [
-        get_tab_styles(),        # 탭 네비게이션
         get_card_styles(),       # 분포 카드용
         get_stats_styles(),      # 통계 카드용
         get_ranking_styles(),    # 순위 아이템용
