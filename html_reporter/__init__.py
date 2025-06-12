@@ -1,7 +1,7 @@
-# html_reporter/__init__.py (안전한 import 적용)
-"""HTML 리포터 패키지 - 안전한 import 구조"""
+# html_reporter/__init__.py (정리된 버전)
+"""HTML 리포터 패키지 - 사용하는 것만 안전하게 import"""
 
-# === 템플릿 함수들 ===
+# === 필수 템플릿 함수들 ===
 try:
     from .templates.base import get_base_template, get_header_template, get_footer_template
 except ImportError as e:
@@ -17,28 +17,11 @@ except ImportError as e:
     def get_overview_template(): return ""
 
 try:
-    from .templates.team import get_team_section_template, get_team_card_template
+    from .templates.category import get_modal_template
 except ImportError as e:
-    print(f"Warning: team templates import 오류: {e}")
-    def get_team_section_template(): return ""
-    def get_team_card_template(): return ""
-
-try:
-    from .templates.journey import get_journey_section_template, get_journey_card_template
-except ImportError as e:
-    print(f"Warning: journey templates import 오류: {e}")
-    def get_journey_section_template(): return ""
-    def get_journey_card_template(): return ""
-
-try:
-    from .templates.category import get_category_section_template, get_category_card_template, get_modal_template
-except ImportError as e:
-    print(f"Warning: category templates import 오류: {e}")
-    def get_category_section_template(): return ""
-    def get_category_card_template(): return ""
+    print(f"Warning: category modal template import 오류: {e}")
     def get_modal_template(): return ""
 
-# === 새로 추가된 카테고리 테이블 템플릿 ===
 try:
     from .templates.category_table import get_category_table_row_template, get_team_filter_options
 except ImportError as e:
@@ -60,38 +43,26 @@ except ImportError as e:
     print(f"Warning: styles import 오류: {e}")
     def get_main_styles(): return ""
 
-# === 유틸리티 함수들 ===
+# === 사용하는 유틸리티 함수들만 ===
 try:
     from .utils import (
-        process_overview_data, process_team_data, process_journey_data, process_category_data,
-        generate_team_options, generate_rank_tables, generate_sub_categories_html
+        process_overview_data, process_category_data,
+        generate_team_options
     )
 except ImportError as e:
     print(f"Warning: utils import 오류: {e}")
     def process_overview_data(data): return {}
-    def process_team_data(data): return []
-    def process_journey_data(data): return []
     def process_category_data(data): return []
     def generate_team_options(data): return ""
-    def generate_rank_tables(data): return ""
-    def generate_sub_categories_html(data, max_items=5): return ""
 
-# === 패키지 내 모든 함수 목록 ===
+# === 패키지 내 사용하는 함수 목록만 ===
 __all__ = [
-    # 템플릿 함수들
+    # 필수 템플릿 함수들
     'get_base_template',
     'get_header_template', 
     'get_footer_template',
     'get_overview_template',
-    'get_team_section_template',
-    'get_team_card_template',
-    'get_journey_section_template',
-    'get_journey_card_template',
-    'get_category_section_template',
-    'get_category_card_template',
     'get_modal_template',
-    
-    # 새로 추가된 템플릿
     'get_category_table_row_template',
     'get_team_filter_options',
     
@@ -101,12 +72,8 @@ __all__ = [
     # 스타일 함수들
     'get_main_styles',
     
-    # 유틸리티 함수들
+    # 사용하는 유틸리티 함수들만
     'process_overview_data',
-    'process_team_data',
-    'process_journey_data',
     'process_category_data',
-    'generate_team_options',
-    'generate_rank_tables',
-    'generate_sub_categories_html'
+    'generate_team_options'
 ]

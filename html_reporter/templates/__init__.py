@@ -1,11 +1,14 @@
-# html_reporter/templates/__init__.py
-"""간단한 템플릿 모듈 - 기존처럼 사용 가능"""
+# html_reporter/templates/__init__.py (정리된 버전)
+"""템플릿 모듈 - 사용하는 것만 import"""
 
-# 베이스 템플릿
-from .base import *
+# 베이스 템플릿 (필수)
+from .base import get_base_template, get_header_template, get_footer_template
 
-# 각 탭별 템플릿
-from .overview import *
-from .team import *
-from .journey import *
-from .category import *
+# 개요 템플릿 (필수)
+from .overview import get_overview_template
+
+# 카테고리 모달 템플릿 (필수)  
+from .category import get_modal_template
+
+# 카테고리 테이블 템플릿 (필수)
+from .category_table import get_category_table_row_template, get_team_filter_options

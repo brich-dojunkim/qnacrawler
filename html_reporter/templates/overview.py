@@ -1,5 +1,5 @@
-# html_reporter/templates/overview.py (최종 수정 - 새 모달 + 개선된 아이콘)
-"""분석 개요 탭 템플릿들 - 새 모달 시스템 + 개선된 아이콘 위치"""
+# html_reporter/templates/overview.py (카테고리명 검색 기능 제거)
+"""분석 개요 탭 템플릿들 - 카테고리명 검색 기능 제거"""
 
 def get_overview_template():
     return """<!-- 통합 분석 개요 탭 -->
@@ -107,23 +107,12 @@ def get_overview_template():
                 <!-- 테이블 컨테이너 -->
                 <div class="category-table-container">
                     <div class="category-table">
-                        <!-- 텍스트 옆 아이콘 + 드롭다운 헤더 -->
+                        <!-- 카테고리명 검색 기능 제거된 헤더 -->
                         <div class="table-filter-header">
                             <div class="filter-column">
                                 <div class="column-header">
                                     <span class="column-label">카테고리명</span>
-                                    <div class="filter-dropdown-wrapper">
-                                        <button class="filter-icon-btn" onclick="toggleSearchFilter()" title="카테고리 검색">
-                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                                <circle cx="11" cy="11" r="8"></circle>
-                                                <path d="m21 21-4.35-4.35"></path>
-                                            </svg>
-                                        </button>
-                                        <div class="dropdown-menu hidden" id="search-dropdown">
-                                            <input type="text" class="dropdown-filter-input" id="category-search-input" 
-                                                   placeholder="카테고리 검색..." oninput="filterByCategory(this.value)">
-                                        </div>
-                                    </div>
+                                    <!-- 검색 기능 제거됨 -->
                                 </div>
                             </div>
                             

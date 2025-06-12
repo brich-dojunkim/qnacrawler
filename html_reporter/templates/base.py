@@ -1,5 +1,5 @@
-# html_reporter/templates/base.py (탭 3개로 수정)
-"""공통 베이스 템플릿들 - 3개 탭으로 변경"""
+# html_reporter/templates/base.py (탭 네비게이션 제거)
+"""공통 베이스 템플릿들 - 탭 네비게이션 제거"""
 
 def get_base_template():
     return """<!DOCTYPE html>
@@ -14,16 +14,6 @@ def get_base_template():
 <body>
     <div class="container">
         {header}
-
-        <!-- 탭 네비게이션 (2개 탭) -->
-        <div class="tab-navigation">
-            <div class="tab-nav">
-                <button class="tab-btn active"
-                        onclick="switchTab('overview')">📊 통합 분석</button>
-                <button class="tab-btn"
-                        onclick="switchTab('categories')">📂 세부 카테고리</button>
-            </div>
-        </div>
 
         <div class="main-content">
             {content}

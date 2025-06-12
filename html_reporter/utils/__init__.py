@@ -1,7 +1,7 @@
-# html_reporter/utils/__init__.py
-"""Utils 패키지 공통 인터페이스"""
+# html_reporter/utils/__init__.py (정리된 버전)
+"""Utils 패키지 공통 인터페이스 - 사용하는 것만"""
 
-# 계산 함수들
+# 계산 함수들 (사용됨)
 from .calculations import (
     calculate_answer_rate,
     calculate_urgent_rate,
@@ -9,14 +9,14 @@ from .calculations import (
     calculate_pending_rate
 )
 
-# 포맷팅 함수들
+# 포맷팅 함수들 (사용됨)
 from .formatters import (
     format_number,
     format_percentage,
     format_metric_value
 )
 
-# 매핑 및 상수
+# 매핑 및 상수 (사용됨)
 from .mappings import (
     USER_JOURNEY_MAPPING,
     JOURNEY_ORDER,
@@ -24,20 +24,16 @@ from .mappings import (
     get_journey_for_category
 )
 
-# 데이터 처리 (processors 서브모듈에서 직접 import)
+# 실제로 사용하는 데이터 처리만
 from .processors import (
     process_overview_data,
-    process_team_data,
-    process_journey_data,
     process_category_data
 )
 
-# HTML 생성
+# 실제로 사용하는 HTML 생성만
 from .html_generators import (
     HTMLGenerator,
-    generate_team_options,
-    generate_rank_tables,
-    generate_sub_categories_html
+    generate_team_options
 )
 
 __all__ = [
@@ -58,16 +54,11 @@ __all__ = [
     'METRICS_CONFIG',
     'get_journey_for_category',
     
-    # 클래스들 (제거)
-    # 'DataProcessor',  # 더 이상 사용하지 않음
+    # 클래스들
     'HTMLGenerator',
     
-    # 하위 호환성 함수들 (기존 인터페이스 유지)
+    # 실제로 사용하는 함수들만
     'process_overview_data',
-    'process_team_data',
-    'process_journey_data',
     'process_category_data',
-    'generate_team_options',
-    'generate_rank_tables',
-    'generate_sub_categories_html'
+    'generate_team_options'
 ]

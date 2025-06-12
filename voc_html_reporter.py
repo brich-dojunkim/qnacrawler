@@ -1,6 +1,6 @@
-# voc_html_reporter.py (모달 시스템 확인)
+# voc_html_reporter.py (정리된 버전)
 """
-카테고리 기반 VoC HTML 보고서 생성기 - 개별 모달 시스템
+카테고리 기반 VoC HTML 보고서 생성기 - 불필요한 import 제거
 """
 
 import pandas as pd
@@ -8,34 +8,35 @@ import webbrowser
 import os
 from datetime import datetime
 
-# 분리된 모듈들 임포트
+# 실제로 사용하는 것만 import
 from html_reporter import (
     get_base_template, get_header_template, get_overview_template,
-    get_journey_section_template, get_journey_card_template,
-    get_category_section_template, get_category_card_template,
     get_modal_template, get_footer_template,
     get_main_scripts,
-    process_overview_data, process_journey_data, process_category_data,
+    process_overview_data, process_category_data,
     generate_team_options  
 )
 from html_reporter.templates.category_table import get_category_table_row_template, get_team_filter_options
 from html_reporter.styles import get_main_styles
 from output_manager import get_report_filename
 
+# 제거된 import들:
+# - get_journey_section_template, get_journey_card_template (사용 안함)
+# - get_category_section_template, get_category_card_template (사용 안함)  
+# - process_journey_data (사용 안함)
+
 class CategoryVoCHTMLReporter:
-    """카테고리 기반 VoC HTML 보고서 생성기 - 개별 모달 시스템"""
+    """카테고리 기반 VoC HTML 보고서 생성기 - 단일 페이지"""
     
     def __init__(self, df: pd.DataFrame):
         self.df = df
 
     def generate_html_report(self, results: dict) -> str:
-        """HTML 보고서 생성 - 개별 모달 시스템"""
-        print("🌐 개별 모달 시스템 HTML 보고서 생성 중...")
+        """HTML 보고서 생성 - 단일 페이지"""
+        print("🌐 단일 페이지 HTML 보고서 생성 중...")
         
-        # 데이터 처리
+        # 데이터 처리 (사용하는 것만)
         overview_data = process_overview_data(results)
-        journey_cards = process_journey_data(results)
-        category_cards = process_category_data(results)
         
         # 팀 옵션 동적 생성
         team_options = generate_team_options(results)
@@ -43,31 +44,19 @@ class CategoryVoCHTMLReporter:
         # 카테고리 테이블 데이터 생성
         category_table_data = self._generate_category_table_data(results)
         
-        # 2개 탭 기반 HTML 구조
+        # 단일 페이지 HTML 구조
         html_content = get_base_template().format(
             styles=get_main_styles(),
             header=get_header_template().format(**overview_data),
-            content=self._generate_tab_content(overview_data, journey_cards, category_cards, team_options, category_table_data),
+            content=get_overview_template().format(
+                **overview_data,
+                team_filter_options=category_table_data['team_filter_options'],
+                category_table_rows=category_table_data['category_table_rows']
+            ) + category_table_data['modals_html'],
             footer=get_footer_template().format(generated_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
             scripts=f"""
             <script>
                 {get_main_scripts()}
-                
-                function switchTab(tabName) {{
-                    // 모든 탭 컨텐츠 숨기기
-                    document.querySelectorAll('.tab-content').forEach(tab => {{
-                        tab.classList.remove('active');
-                    }});
-                    
-                    // 모든 탭 버튼 비활성화
-                    document.querySelectorAll('.tab-btn').forEach(btn => {{
-                        btn.classList.remove('active');
-                    }});
-                    
-                    // 선택된 탭 활성화
-                    document.getElementById(tabName).classList.add('active');
-                    event.target.classList.add('active');
-                }}
             </script>
             """
         )
@@ -75,7 +64,7 @@ class CategoryVoCHTMLReporter:
         return html_content
 
     def _generate_category_table_data(self, results: dict):
-        """카테고리 테이블 로우 데이터 생성 - 개별 모달 확인"""
+        """카테고리 테이블 로우 데이터 생성"""
         if 'category_analysis' not in results:
             return {
                 'category_table_rows': '',
@@ -145,33 +134,6 @@ class CategoryVoCHTMLReporter:
             'modals_html': modals_html
         }
 
-    def _generate_tab_content(self, overview_data, journey_cards, category_cards, team_options, category_table_data):
-        """2개 탭 컨텐츠 생성 - 개별 모달 포함"""
-        
-        # 개요 탭 (아코디언 + 인라인 드롭다운 테이블 뷰)
-        overview_content = get_overview_template().format(
-            **overview_data,
-            team_filter_options=category_table_data['team_filter_options'],
-            category_table_rows=category_table_data['category_table_rows']
-        )
-        
-        # 유저 여정 탭
-        journey_cards_html = ""
-        for journey in journey_cards:
-            journey_cards_html += get_journey_card_template().format(**journey)
-        journey_content = get_journey_section_template().format(journey_cards=journey_cards_html)
-        
-        # 전체 컨텐츠 조합 (2개 탭 + 개별 모달들)
-        all_content = f"""
-            {overview_content}
-            {journey_content}
-            
-            <!-- 개별 카테고리 모달들 -->
-            {category_table_data['modals_html']}
-        """
-        
-        return all_content
-
     def save_and_open_html_report(self, results: dict) -> str:
         """HTML 보고서 저장 및 브라우저에서 열기"""
         html_content = self.generate_html_report(results)
@@ -183,11 +145,11 @@ class CategoryVoCHTMLReporter:
             f.write(html_content)
         
         file_path = os.path.abspath(filename)
-        print(f"✅ 개별 모달 시스템 HTML 보고서 저장: {filename}")
+        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename}")
         
         try:
             webbrowser.open(f'file://{file_path}')
-            print("🌐 브라우저에서 개별 모달 시스템 보고서를 열었습니다.")
+            print("🌐 브라우저에서 단일 페이지 보고서를 열었습니다.")
         except Exception as e:
             print(f"브라우저 열기 실패: {e}")
         
@@ -203,5 +165,5 @@ class CategoryVoCHTMLReporter:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        print(f"✅ 개별 모달 시스템 HTML 보고서 저장: {filename}")
+        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename}")
         return filename

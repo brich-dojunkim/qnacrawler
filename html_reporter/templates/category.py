@@ -1,26 +1,24 @@
-# html_reporter/templates/category_table.py (새 파일)
-"""카테고리 테이블 로우 템플릿"""
+# html_reporter/templates/category.py (탭 제거, 필수 함수만 유지)
+"""카테고리별 분석 템플릿들 - 탭 제거"""
 
-def get_category_table_row_template():
-    """개별 카테고리 테이블 로우 템플릿"""
-    return """<div class="category-table-row" 
-             data-team="{main_team}" 
-             data-journey="{main_journey}" 
-             data-inquiries="{total_inquiries}" 
-             data-urgent="{urgent_rate}"
-             data-category="{name_lower}">
-    <div class="category-name">{name}</div>
-    <div><span class="team-badge">{main_team}</span></div>
-    <div><span class="journey-badge">{main_journey}</span></div>
-    <div class="metric-value">{total_inquiries}건</div>
-    <div class="urgent-rate {urgent_level}">{urgent_rate}%</div>
-    <div><button class="action-btn" onclick="openModal('{modal_id}')">👁️</button></div>
+def get_category_section_template():
+    """사용되지 않음 - 호환성을 위해 빈 문자열 반환"""
+    return ""
+
+def get_category_card_template():
+    """사용되지 않음 - 호환성을 위해 빈 문자열 반환"""
+    return ""
+
+def get_modal_template():
+    """모달 템플릿"""
+    return """<div id="{modal_id}" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">{title}</h3>
+            <button class="modal-close" onclick="closeModal('{modal_id}')">&times;</button>
+        </div>
+        <div class="modal-body">
+            {content}
+        </div>
+    </div>
 </div>"""
-
-def get_team_filter_options(teams):
-    """팀 필터 옵션 생성"""
-    options = []
-    for team in sorted(teams):
-        if team != '기타':
-            options.append(f'<option value="{team}">{team}</option>')
-    return '\n                                    '.join(options)

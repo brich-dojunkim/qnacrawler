@@ -1,14 +1,13 @@
-# html_reporter/scripts/category_table.py (새 모달 + 드롭다운)
-"""카테고리 테이블 필터링 및 정렬 스크립트 - 새 모달 시스템 + 오른쪽 아래 드롭다운"""
+# html_reporter/scripts/category_table.py (카테고리 검색 기능 제거)
+"""카테고리 테이블 필터링 및 정렬 스크립트 - 카테고리 검색 기능 제거"""
 
 def get_category_table_scripts():
     return """
 // ═══════════════════════════════════════════════════════════
-// 카테고리 테이블 필터링 및 정렬 스크립트 - 새 모달 + 드롭다운
+// 카테고리 테이블 필터링 및 정렬 스크립트 - 카테고리 검색 기능 제거
 // ═══════════════════════════════════════════════════════════
 
 let tableFilters = {
-    category: '',
     team: '',
     journey: '',
     sort: '',
@@ -129,30 +128,7 @@ function closeNewModal(modalId) {
     }
 }
 
-// ─────────── 오른쪽 아래 드롭다운 토글 함수들 ───────────
-function toggleSearchFilter() {
-    const btn = event.target.closest('.filter-icon-btn');
-    const dropdown = document.getElementById('search-dropdown');
-    const input = document.getElementById('category-search-input');
-    
-    // 다른 활성 드롭다운들 닫기
-    closeOtherDropdowns('search');
-    
-    if (dropdown.classList.contains('hidden')) {
-        dropdown.classList.remove('hidden');
-        input.focus();
-        btn.classList.add('active');
-    } else {
-        dropdown.classList.add('hidden');
-        btn.classList.remove('active');
-        // 드롭다운을 닫을 때만 필터 초기화 (X 버튼 클릭이나 외부 클릭)
-        if (input.value) {
-            input.value = '';
-            filterByCategory('');
-        }
-    }
-}
-
+// ─────────── 드롭다운 토글 함수들 (카테고리 검색 제거) ───────────
 function toggleTeamFilter() {
     const btn = event.target.closest('.filter-icon-btn');
     const dropdown = document.getElementById('team-dropdown');
@@ -166,7 +142,7 @@ function toggleTeamFilter() {
     } else {
         dropdown.classList.add('hidden');
         btn.classList.remove('active');
-        // 드롭다운을 닫을 때만 필터 초기화 (X 버튼 클릭이나 외부 클릭)
+        // 드롭다운을 닫을 때 필터 초기화
         const select = document.getElementById('team-filter-dropdown');
         if (select.value) {
             select.selectedIndex = 0;
@@ -188,7 +164,7 @@ function toggleJourneyFilter() {
     } else {
         dropdown.classList.add('hidden');
         btn.classList.remove('active');
-        // 드롭다운을 닫을 때만 필터 초기화 (X 버튼 클릭이나 외부 클릭)
+        // 드롭다운을 닫을 때 필터 초기화
         const select = document.getElementById('journey-filter-dropdown');
         if (select.value) {
             select.selectedIndex = 0;
@@ -199,10 +175,6 @@ function toggleJourneyFilter() {
 
 function closeOtherDropdowns(except) {
     const dropdowns = [
-        { id: 'search-dropdown', btn: '[onclick="toggleSearchFilter()"]', reset: () => {
-            document.getElementById('category-search-input').value = '';
-            filterByCategory('');
-        }},
         { id: 'team-dropdown', btn: '[onclick="toggleTeamFilter()"]', reset: () => {
             document.getElementById('team-filter-dropdown').selectedIndex = 0;
             filterByTeam('');
@@ -227,20 +199,7 @@ function closeOtherDropdowns(except) {
     });
 }
 
-// ─────────── 필터링 함수들 ───────────
-function filterByCategory(value) {
-    tableFilters.category = value.toLowerCase();
-    applyTableFilters();
-    
-    // 필터 선택 즉시 드롭다운 닫기
-    if (value) {
-        const dropdown = document.getElementById('search-dropdown');
-        const btn = document.querySelector('[onclick="toggleSearchFilter()"]');
-        if (dropdown) dropdown.classList.add('hidden');
-        if (btn) btn.classList.remove('active');
-    }
-}
-
+// ─────────── 필터링 함수들 (카테고리 검색 제거) ───────────
 function filterByTeam(value) {
     tableFilters.team = value;
     applyTableFilters();
@@ -300,7 +259,7 @@ function updateSortButtons(activeBtn) {
     activeBtn.classList.add('active', tableFilters.sortOrder);
 }
 
-// ─────────── 필터 적용 메인 함수 ───────────
+// ─────────── 필터 적용 메인 함수 (카테고리 검색 제거) ───────────
 function applyTableFilters() {
     const rows = Array.from(document.querySelectorAll('.category-table-row'));
     let visibleCount = 0;
@@ -308,14 +267,6 @@ function applyTableFilters() {
     // 필터링
     rows.forEach(row => {
         let show = true;
-
-        // 카테고리명 검색
-        if (tableFilters.category) {
-            const categoryName = row.dataset.category || '';
-            if (!categoryName.includes(tableFilters.category)) {
-                show = false;
-            }
-        }
 
         // 팀 필터
         if (tableFilters.team) {
@@ -376,7 +327,7 @@ function sortTableRows(rows) {
     visibleRows.forEach(row => container.appendChild(row));
 }
 
-// ─────────── 상태 업데이트 ───────────
+// ─────────── 상태 업데이트 (카테고리 검색 제거) ───────────
 function updateTableFilterStatus(visible, total) {
     const statusElement = document.getElementById('table-filter-status');
     const countElement = document.getElementById('visible-categories-count');
@@ -389,11 +340,8 @@ function updateTableFilterStatus(visible, total) {
     let statusText = '';
     let filterDescription = '';
     
-    // 적용된 필터들 수집
+    // 적용된 필터들 수집 (카테고리 검색 제외)
     const activeFilters = [];
-    if (tableFilters.category) {
-        activeFilters.push(`검색: "${tableFilters.category}"`);
-    }
     if (tableFilters.team) {
         activeFilters.push(`팀: ${tableFilters.team}`);
     }
@@ -415,16 +363,11 @@ function updateTableFilterStatus(visible, total) {
     }
 }
 
-// ─────────── 필터 초기화 ───────────
+// ─────────── 필터 초기화 (카테고리 검색 제거) ───────────
 function clearAllTableFilters() {
-    tableFilters = { category: '', team: '', journey: '', sort: '', sortOrder: '' };
+    tableFilters = { team: '', journey: '', sort: '', sortOrder: '' };
     
-    // 모든 입력 초기화
-    const categoryInput = document.getElementById('category-search-input');
-    if (categoryInput) {
-        categoryInput.value = '';
-    }
-    
+    // 팀/여정 필터만 초기화
     document.querySelectorAll('.dropdown-filter-select').forEach(select => {
         select.selectedIndex = 0;
     });
