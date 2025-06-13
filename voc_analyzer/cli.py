@@ -60,10 +60,10 @@ def main():
     analyzer = CategoryBasedVoCAnalyzer(str(json_path))
     results  = analyzer.generate(verbose=True)
 
-    # HTML 리포트
+    # HTML 리포트 (JSON 경로 전달 추가)
     try:
         from voc_html_reporter import CategoryVoCHTMLReporter
-        html = CategoryVoCHTMLReporter(analyzer.df)
+        html = CategoryVoCHTMLReporter(analyzer.df, json_path=str(json_path))  # JSON 경로 추가
         html.save_and_open_html_report(results)
         print("\n🎉 2단계 통합 분석 완료!")
     except ImportError as e:

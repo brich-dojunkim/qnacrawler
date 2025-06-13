@@ -1,5 +1,5 @@
-# html_reporter/__init__.py (import 경로 수정)
-"""HTML 리포터 패키지 - 사용하는 것만 안전하게 import"""
+# html_reporter/__init__.py (import 경로 수정 + 드로어 추가)
+"""HTML 리포터 패키지 - 사용하는 것만 안전하게 import + 드로어 추가"""
 
 # === 필수 템플릿 함수들 ===
 try:
@@ -29,6 +29,13 @@ except ImportError as e:
     def get_category_table_row_template(): return ""
     def get_team_filter_options(teams): return ""
 
+# === 드로어 템플릿 (새로 추가) ===
+try:
+    from .templates.drawer import get_drawer_template
+except ImportError as e:
+    print(f"Warning: drawer template import 오류: {e}")
+    def get_drawer_template(): return ""
+
 # === 스크립트 함수들 ===
 try:
     from .scripts import get_main_scripts
@@ -55,7 +62,7 @@ except ImportError as e:
     def process_category_data(data): return []
     def generate_team_options(data): return ""
 
-# === 패키지 내 사용하는 함수 목록만 ===
+# === 패키지 내 사용하는 함수 목록만 + 드로어 추가 ===
 __all__ = [
     # 필수 템플릿 함수들
     'get_base_template',
@@ -65,6 +72,7 @@ __all__ = [
     'get_modal_template',
     'get_category_table_row_template',
     'get_team_filter_options',
+    'get_drawer_template',  # 새로 추가
     
     # 스크립트 함수들
     'get_main_scripts',

@@ -245,7 +245,7 @@ function getMetricValueV2(element, metric) {
     }
 }
 
-// 정렬 초기화 (여정 설명 박스 숨김 추가)
+// 정렬 초기화 (여정 설명 박스 숨김 + 원래 비율 복원)
 window.resetAccordionSort = function() {
     console.log('🔄 정렬 초기화');
     
@@ -270,11 +270,46 @@ window.resetAccordionSort = function() {
             }
         });
         
-        // 헤더를 기본 상태(총 문의)로 복원
+        // 헤더를 원래 상태로 복원 (비율 포함)
         const activeView2 = document.querySelector('.analysis-view.active');
         if (activeView2) {
             const isTeamView = activeView2.id.includes('teams');
-            updateAccordionHeaders('total', isTeamView);
+            const itemSelector = isTeamView ? '.team-accordion-item' : '.journey-accordion-item';
+            const countSelector = isTeamView ? '.team-count' : '.journey-count';
+            const progressSelector = isTeamView ? '.team-progress-fill' : '.journey-progress-fill';
+            const percentageSelector = isTeamView ? '.team-percentage' : '.journey-percentage';
+            
+            const items = document.querySelectorAll(itemSelector);
+            
+            // 전체 문의 수 계산 (원래 비율 복원용)
+            const totalInquiries = Array.from(items).reduce((sum, item) => {
+                return sum + (parseInt(item.dataset.totalInquiries) || 0);
+            }, 0);
+            
+            // 각 아이템을 원래 상태로 복원
+            items.forEach(item => {
+                const originalInquiries = parseInt(item.dataset.totalInquiries) || 0;
+                const originalPercentage = totalInquiries > 0 ? Math.round((originalInquiries / totalInquiries) * 100) : 0;
+                
+                // 카운트 텍스트 복원
+                const countElement = item.querySelector(countSelector);
+                if (countElement) {
+                    countElement.textContent = `(${originalInquiries.toLocaleString()}건)`;
+                }
+                
+                // 프로그레스바와 비율 복원
+                const progressElement = item.querySelector(progressSelector);
+                const percentageElement = item.querySelector(percentageSelector);
+                
+                if (progressElement && percentageElement) {
+                    // 최대값 기준 프로그레스바 계산
+                    const maxInquiries = Math.max(...Array.from(items).map(i => parseInt(i.dataset.totalInquiries) || 0));
+                    const progressWidth = maxInquiries > 0 ? (originalInquiries / maxInquiries) * 100 : 0;
+                    
+                    progressElement.style.width = `${progressWidth}%`;
+                    percentageElement.textContent = `${originalPercentage}%`;
+                }
+            });
         }
         
         // 원래 순서로 복원
@@ -298,7 +333,7 @@ window.resetAccordionSort = function() {
             items.forEach(item => container.appendChild(item));
         }
         
-        console.log('✅ 정렬 초기화 완료');
+        console.log('✅ 정렬 초기화 완료 (원래 비율 복원됨)');
         
     } catch (error) {
         console.error('❌ 정렬 초기화 오류:', error);

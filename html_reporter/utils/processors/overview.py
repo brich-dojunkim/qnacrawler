@@ -182,7 +182,7 @@ def generate_team_accordion_items(results: Dict) -> str:
                         </div>
                         <div class="metric-item urgent">
                             <span class="metric-label">긴급률</span>
-                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
+                            <span class="metric-value">{urgent_rate}%</span>
                         </div>
                         <div class="metric-item completed">
                             <span class="metric-label">완료율</span>
@@ -271,7 +271,7 @@ def generate_team_accordion_items(results: Dict) -> str:
                         </div>
                         <div class="metric-item urgent">
                             <span class="metric-label">긴급률</span>
-                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
+                            <span class="metric-value">{urgent_rate}%</span>
                         </div>
                         <div class="metric-item completed">
                             <span class="metric-label">완료율</span>
@@ -380,7 +380,7 @@ def generate_journey_accordion_items(results: Dict) -> str:
                         </div>
                         <div class="metric-item urgent">
                             <span class="metric-label">긴급률</span>
-                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
+                            <span class="metric-value">{urgent_rate}%</span>
                         </div>
                         <div class="metric-item completed">
                             <span class="metric-label">완료율</span>

@@ -42,7 +42,7 @@ def get_header_template():
             <div class="metric-icon">🚨</div>
             <div class="metric-content">
                 <div class="metric-label">긴급률</div>
-                <div class="metric-value">{urgent_rate}% ({urgent_count}건)</div>
+                <div class="metric-value">{urgent_rate}%</div>
             </div>
         </div>
         

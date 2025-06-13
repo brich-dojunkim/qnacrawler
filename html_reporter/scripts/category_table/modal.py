@@ -1,29 +1,83 @@
 """
-카테고리 테이블 모달 시스템
+카테고리 테이블 모달 시스템 - 드로어로 변경 + 아코디언 세부카테고리 지원
 """
 
 def get_modal_scripts():
-    """모달 관련 스크립트"""
+    """모달 관련 스크립트 - 드로어 연동으로 변경 + 세부카테고리 지원"""
     return """
-// ─────────── 개선된 모달 시스템 (세부카테고리 테이블 지원) ───────────
+// ─────────── 개선된 모달 시스템 (드로어로 변경) ───────────
 function openCategoryModal(button) {
     // 메인 카테고리 테이블에서 호출된 경우
     const row = button.closest('.category-table-row');
     if (row) {
-        openMainCategoryModal(button, row);
+        openMainCategoryDrawer(button, row);
         return;
     }
     
-    // 세부카테고리 테이블에서 호출된 경우
+    // 세부카테고리 테이블에서 호출된 경우 (기존 방식)
     const subRow = button.closest('.sub-category-row');
     if (subRow) {
-        openSubCategoryModal(button, subRow);
+        openSubCategoryDrawer(button, subRow);
         return;
     }
     
     console.log('❌ 카테고리 행을 찾을 수 없습니다.');
 }
 
+function openMainCategoryDrawer(button, row) {
+    const categoryName = row.dataset.categoryName;
+    const team = row.dataset.team;
+    const journey = row.dataset.journey;
+    
+    console.log(`📂 메인 카테고리 드로어 열기: ${categoryName}`);
+    
+    // 드로어 열기 함수 호출
+    if (window.openCategoryDrawer) {
+        window.openCategoryDrawer('카테고리', categoryName);
+    } else {
+        console.error('❌ 드로어 시스템이 로드되지 않았습니다.');
+        // Fallback: 기존 모달 방식
+        openMainCategoryModal(button, row);
+    }
+}
+
+function openSubCategoryDrawer(button, row) {
+    const categoryName = row.dataset.category;
+    const team = row.dataset.team;
+    const journey = row.dataset.journey;
+    
+    console.log(`📂 세부 카테고리 드로어 열기 (기존 방식): ${categoryName}`);
+    
+    // 드로어 열기 함수 호출
+    if (window.openCategoryDrawer) {
+        window.openCategoryDrawer('세부카테고리', categoryName);
+    } else {
+        console.error('❌ 드로어 시스템이 로드되지 않았습니다.');
+        // Fallback: 기존 모달 방식
+        openSubCategoryModal(button, row);
+    }
+}
+
+// ─────────── 아코디언에서 직접 호출하는 함수 (개선됨) ───────────
+window.openSubCategoryDrawer = function(subCategoryName) {
+    console.log(`🎯 아코디언에서 세부카테고리 드로어 열기: ${subCategoryName}`);
+    
+    // 입력값 검증
+    if (!subCategoryName || typeof subCategoryName !== 'string') {
+        console.error('❌ 유효하지 않은 카테고리명:', subCategoryName);
+        alert('유효하지 않은 카테고리명입니다.');
+        return;
+    }
+    
+    if (window.openCategoryDrawer) {
+        window.openCategoryDrawer('세부카테고리', subCategoryName);
+    } else {
+        console.error('❌ 드로어 시스템이 로드되지 않았습니다.');
+        alert('드로어 시스템을 불러올 수 없습니다.');
+    }
+};
+
+// ─────────── 기존 모달 방식 (Fallback용) ───────────
 function openMainCategoryModal(button, row) {
     const categoryName = row.dataset.categoryName;
     const team = row.dataset.team;
@@ -31,7 +85,7 @@ function openMainCategoryModal(button, row) {
     const inquiries = row.dataset.inquiries;
     const urgentRate = row.dataset.urgent;
     
-    console.log(`메인 카테고리 모달 열기: ${categoryName}`);
+    console.log(`📋 메인 카테고리 모달 열기 (Fallback): ${categoryName}`);
     
     const modalContent = generateCategoryModalContent(categoryName, team, journey, inquiries, urgentRate);
     createNewModal(`category-modal-${categoryName.replace(/[^a-zA-Z0-9]/g, '')}`, 
@@ -46,7 +100,7 @@ function openSubCategoryModal(button, row) {
     const inquiries = row.dataset.inquiries;
     const urgentRate = row.dataset.urgent;
     
-    console.log(`세부 카테고리 모달 열기: ${categoryName}`);
+    console.log(`📋 세부 카테고리 모달 열기 (Fallback): ${categoryName}`);
     
     const modalContent = generateCategoryModalContent(categoryName, team, journey, inquiries, urgentRate);
     createNewModal(`sub-category-modal-${categoryName.replace(/[^a-zA-Z0-9]/g, '')}`, 
@@ -79,30 +133,11 @@ function generateCategoryModalContent(categoryName, team, journey, inquiries, ur
         </div>
         
         <div style="background: #f8fafc; padding: 16px; border-radius: 8px;">
-            <h5 style="margin: 0 0 12px 0; color: #374151;">📝 문의 샘플</h5>
+            <h5 style="margin: 0 0 12px 0; color: #374151;">📝 안내</h5>
             <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #667eea;">
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 8px;">
-                    <strong>샘플 문의 내용:</strong>
-                </div>
                 <div style="color: #374151; line-height: 1.5;">
-                    이 카테고리에 해당하는 실제 고객 문의 내용이 여기에 표시됩니다. 
-                    현재는 샘플 데이터로 표시되고 있으며, 실제 구현 시에는 해당 카테고리의 
-                    대표적인 문의 사례들이 표시될 예정입니다.
-                </div>
-                <div style="margin-top: 8px; font-size: 0.8rem; color: #9ca3af;">
-                    등록일: 2024-01-15 | 상태: 답변완료
-                </div>
-            </div>
-            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 4px solid #f59e0b; margin-top: 8px;">
-                <div style="font-size: 0.9rem; color: #6b7280; margin-bottom: 8px;">
-                    <strong>긴급 문의 샘플:</strong>
-                </div>
-                <div style="color: #374151; line-height: 1.5;">
-                    긴급하게 처리가 필요한 문의 사례입니다. 
-                    이런 유형의 문의들이 전체 문의 중 ${urgentRate}%를 차지하고 있습니다.
-                </div>
-                <div style="margin-top: 8px; font-size: 0.8rem; color: #ef4444;">
-                    등록일: 2024-01-16 | 상태: 처리중 | 🚨 긴급
+                    더 자세한 문의 내용을 보시려면 드로어를 사용해주세요.
+                    현재는 기본 정보만 표시됩니다.
                 </div>
             </div>
         </div>
@@ -152,4 +187,21 @@ function closeNewModal(modalId) {
         }, 300);
     }
 }
+
+// ─────────── 디버깅 및 검증 함수 ───────────
+function debugCategoryButton(element) {
+    console.log('🔍 버튼 디버깅:', {
+        element: element,
+        elementType: typeof element,
+        tagName: element?.tagName,
+        closest_row: element?.closest?.('.sub-category-row, .category-table-row'),
+        data_category: element?.closest?.('.sub-category-row')?.dataset?.category,
+        data_categoryName: element?.closest?.('.category-table-row')?.dataset?.categoryName
+    });
+}
+
+// 전역 함수로 등록하여 HTML에서 접근 가능하게 함
+window.debugCategoryButton = debugCategoryButton;
+
+console.log('✅ 카테고리 모달 시스템 로딩 완료 (드로어 + 아코디언 지원)');
 """

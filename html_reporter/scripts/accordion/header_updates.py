@@ -1,11 +1,11 @@
 """
-헤더 업데이트 기능 (정렬 기준에 따른 동적 표시)
+헤더 업데이트 기능 (정렬 기준에 따른 동적 표시) - 비율 계산 버그 수정
 """
 
 def get_header_update_scripts():
-    """헤더 업데이트 스크립트"""
+    """헤더 업데이트 스크립트 - 비율 계산 로직 수정"""
     return """
-// 헤더 업데이트 함수 (정렬 기준에 따른 동적 표시)
+// 헤더 업데이트 함수 (정렬 기준에 따른 동적 표시) - 비율 계산 수정
 function updateAccordionHeaders(metric, isTeamView) {
     console.log(`🔄 헤더 업데이트: ${metric} (${isTeamView ? '팀별' : '여정별'})`);
     
@@ -30,52 +30,53 @@ function updateAccordionHeaders(metric, isTeamView) {
         items.forEach(item => {
             const value = getMetricValueV2(item, metric);
             
-            // 카운트 텍스트 업데이트
+            // 카운트 텍스트 업데이트 - 모든 정렬에서 건수로 통일
             const countElement = item.querySelector(countSelector);
             if (countElement) {
-                let displayText = '';
-                switch(metric) {
-                    case 'total':
-                        displayText = `(${value.toLocaleString()}건)`;
-                        break;
-                    case 'urgent':
-                        displayText = `(${value}%)`;
-                        break;
-                    case 'completed':
-                        displayText = `(${value}%)`;
-                        break;
-                    default:
-                        displayText = `(${value.toLocaleString()}건)`;
-                }
-                countElement.textContent = displayText;
+                const originalInquiries = parseInt(item.dataset.totalInquiries) || 0;
+                countElement.textContent = `(${originalInquiries.toLocaleString()}건)`;
             }
             
-            // 프로그레스바 업데이트
+            // 프로그레스바 업데이트 - 메트릭별 다른 계산 방식 적용
             const progressElement = item.querySelector(progressSelector);
-            if (progressElement && maxValue > 0) {
-                const percentage = (value / maxValue) * 100;
-                progressElement.style.width = `${percentage}%`;
-            }
-            
-            // 퍼센티지 텍스트 업데이트
             const percentageElement = item.querySelector(percentageSelector);
-            if (percentageElement && maxValue > 0) {
-                const percentage = Math.round((value / maxValue) * 100);
-                let displayText = '';
+            
+            if (progressElement && maxValue > 0) {
+                let progressWidth = 0;
+                let displayPercentage = '';
+                
                 switch(metric) {
                     case 'total':
-                        displayText = `${percentage}%`;
+                        // 문의량: 최대값 대비 비율로 프로그레스바 계산
+                        progressWidth = (value / maxValue) * 100;
+                        // 표시는 원래 비율(전체 대비) 유지
+                        const originalTotalInquiries = parseInt(item.dataset.totalInquiries) || 0;
+                        const totalSum = Array.from(items).reduce((sum, i) => sum + (parseInt(i.dataset.totalInquiries) || 0), 0);
+                        displayPercentage = totalSum > 0 ? Math.round((originalTotalInquiries / totalSum) * 100) + '%' : '0%';
                         break;
+                        
                     case 'urgent':
-                        displayText = `${value}%`;
+                        // 긴급률: 최대 긴급률 기준으로 프로그레스바
+                        progressWidth = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                        displayPercentage = `${value}%`;
                         break;
+                        
                     case 'completed':
-                        displayText = `${value}%`;
+                        // 완료율: 최대 완료율 기준으로 프로그레스바
+                        progressWidth = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                        displayPercentage = `${value}%`;
                         break;
+                        
                     default:
-                        displayText = `${percentage}%`;
+                        progressWidth = (value / maxValue) * 100;
+                        displayPercentage = Math.round((value / maxValue) * 100) + '%';
                 }
-                percentageElement.textContent = displayText;
+                
+                progressElement.style.width = `${progressWidth}%`;
+                
+                if (percentageElement) {
+                    percentageElement.textContent = displayPercentage;
+                }
             }
         });
         

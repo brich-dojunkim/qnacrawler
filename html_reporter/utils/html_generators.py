@@ -1,5 +1,5 @@
-# html_reporter/utils/html_generators.py (완료율 칼럼 추가)
-"""HTML 문자열 생성 함수들 - 완료율 칼럼 포함"""
+# html_reporter/utils/html_generators.py (완료율 칼럼 추가 + 아코디언 세부카테고리 버튼 수정)
+"""HTML 문자열 생성 함수들 - 완료율 칼럼 포함 + 세부카테고리 드로어 연동"""
 
 from typing import Dict, List
 from .formatters import format_number
@@ -27,7 +27,7 @@ class HTMLGenerator:
     
     @staticmethod
     def generate_sub_categories_html(sub_categories: Dict, results: Dict = None, max_items: int = 10) -> str:
-        """세부 카테고리 테이블 형태 HTML 생성 - 문의율 칼럼 포함"""
+        """세부 카테고리 테이블 형태 HTML 생성 - 문의율 칼럼 포함 + 드로어 연동"""
         if not sub_categories:
             return ""
         
@@ -108,9 +108,8 @@ class HTMLGenerator:
             else:
                 complete_level = 'low'
             
-            # 안전한 카테고리 ID 생성
-            safe_category_id = category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '').replace('·', '-').replace('&', 'and')
-            modal_id = f"modal-{safe_category_id}"
+            # JavaScript에서 안전하게 사용할 수 있도록 카테고리명 이스케이프
+            safe_category_name = category_name.replace("'", "\\'").replace('"', '\\"')
             
             html += f'''
                     <div class="sub-category-row" 
@@ -127,7 +126,7 @@ class HTMLGenerator:
                         <div class="sub-cat-cell urgent-rate {urgent_level}">{urgent_rate}%</div>
                         <div class="sub-cat-cell complete-rate {complete_level}">{answer_rate}%</div>
                         <div class="sub-cat-cell">
-                            <button class="sub-cat-action-btn" onclick="openCategoryModal(this)" title="상세 문의 보기">
+                            <button class="sub-cat-action-btn" onclick="openSubCategoryDrawer('{safe_category_name}')" title="상세 문의 보기">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <path d="m21 21-4.35-4.35"></path>

@@ -7,7 +7,22 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     // 카테고리 필터 초기화
     if(document.getElementById('categories-table-view')){
-        setTimeout(()=>{ populateTeamOptions(); initCategoryFilters(); applyFilters(); },100);
+        setTimeout(()=>{
+            // populateTeamOptions 함수가 있으면 호출, 없으면 무시
+            if (typeof populateTeamOptions === 'function') {
+                populateTeamOptions();
+            }
+            
+            // initCategoryFilters 함수가 있으면 호출, 없으면 무시
+            if (typeof initCategoryFilters === 'function') {
+                initCategoryFilters();
+            }
+            
+            // applyFilters 함수가 있으면 호출, 없으면 무시  
+            if (typeof applyFilters === 'function') {
+                applyFilters();
+            }
+        },100);
     }
 
     // 상세 분석 섹션 초기화
