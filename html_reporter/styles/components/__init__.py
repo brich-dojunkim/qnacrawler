@@ -1,5 +1,5 @@
-# html_reporter/styles/components/__init__.py (모듈화된 accordion과 category_table 적용 + 드로어 추가)
-"""컴포넌트 스타일 모듈 - 모든 스타일 컴포넌트 통합 (모듈화된 accordion과 category_table + 드로어 포함)"""
+# html_reporter/styles/components/__init__.py (모듈화된 패키지들만 사용)
+"""컴포넌트 스타일 모듈 - 모듈화된 컴포넌트들만 사용"""
 
 try:
     from .cards import get_card_styles
@@ -43,32 +43,30 @@ except ImportError:
     def get_ranking_styles():
         return ""
 
-# 모듈화된 accordion import
+# 모듈화된 패키지들만 import
 try:
     from .accordion import get_accordion_styles
 except ImportError:
-    print("Warning: accordion 모듈에서 get_accordion_styles를 import할 수 없습니다.")
+    print("Warning: accordion 패키지에서 get_accordion_styles를 import할 수 없습니다.")
     def get_accordion_styles():
         return ""
 
-# 모듈화된 category_table import
 try:
     from .category_table import get_category_table_styles
 except ImportError:
-    print("Warning: category_table 모듈에서 get_category_table_styles를 import할 수 없습니다.")
+    print("Warning: category_table 패키지에서 get_category_table_styles를 import할 수 없습니다.")
     def get_category_table_styles():
         return ""
 
-# 드로어 스타일 import (새로 추가)
 try:
     from .drawer import get_drawer_styles
 except ImportError:
-    print("Warning: drawer 모듈에서 get_drawer_styles를 import할 수 없습니다.")
+    print("Warning: drawer 패키지에서 get_drawer_styles를 import할 수 없습니다.")
     def get_drawer_styles():
         return ""
 
 def get_component_styles():
-    """모든 UI 컴포넌트 스타일 조합 (모듈화된 버전 + 드로어)"""
+    """모든 UI 컴포넌트 스타일 조합 (모듈화된 패키지들만 사용)"""
     styles = [
         get_card_styles(),           # 카드 컴포넌트
         get_button_styles(),         # 버튼 컴포넌트
@@ -76,9 +74,9 @@ def get_component_styles():
         get_modal_styles(),          # 모달 컴포넌트
         get_stats_styles(),          # 통계 컴포넌트
         get_ranking_styles(),        # 랭킹 컴포넌트
-        get_accordion_styles(),      # 모듈화된 아코디언 컴포넌트
-        get_category_table_styles(), # 모듈화된 카테고리 테이블 컴포넌트
-        get_drawer_styles(),         # 드로어 컴포넌트 (새로 추가)
+        get_accordion_styles(),      # 모듈화된 아코디언 패키지
+        get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
+        get_drawer_styles(),         # 모듈화된 드로어 패키지
     ]
     
     return '\n'.join(styles)
@@ -88,20 +86,20 @@ def get_navigation_components():
     styles = [
         get_button_styles(),         # 네비게이션 버튼들
         get_accordion_styles(),      # 아코디언 네비게이션
-        get_drawer_styles(),         # 드로어 네비게이션 (새로 추가)
+        get_drawer_styles(),         # 드로어 네비게이션
     ]
     
     return '\n'.join(styles)
 
 def get_ui_components_only():
-    """기본 UI 컴포넌트만 (카드 + 버튼 + 배지 + 아코디언 + 테이블 + 드로어)"""
+    """기본 UI 컴포넌트만"""
     styles = [
         get_card_styles(),
         get_button_styles(),
         get_badge_styles(),
-        get_accordion_styles(),
-        get_category_table_styles(),
-        get_drawer_styles()          # 새로 추가
+        get_accordion_styles(),      # 모듈화된 아코디언 패키지
+        get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
+        get_drawer_styles()          # 모듈화된 드로어 패키지
     ]
     
     return '\n'.join(styles)
@@ -114,7 +112,7 @@ def get_overview_components():
         get_ranking_styles(),        # 순위 아이템용
         get_accordion_styles(),      # 팀별 아코디언용
         get_category_table_styles(), # 카테고리 테이블용
-        get_drawer_styles(),         # 드로어용 (새로 추가)
+        get_drawer_styles(),         # 드로어용
     ]
     
     return '\n'.join(styles)
@@ -125,12 +123,12 @@ def get_modal_components_only():
         get_button_styles(),         # modal-trigger 포함
         get_modal_styles(),          # 모달 오버레이
         get_card_styles(),           # inquiry-card 포함
-        get_drawer_styles(),         # 드로어 (모달 대체) (새로 추가)
+        get_drawer_styles(),         # 드로어 (모달 대체)
     ]
     
     return '\n'.join(styles)
 
-# 개별 accordion 기능별 접근 함수들 (모듈화된 구조에서)
+# 개별 모듈화된 패키지 기능별 접근 함수들
 def get_accordion_base_styles():
     """기본 아코디언 구조만"""
     try:
@@ -155,7 +153,6 @@ def get_accordion_metrics_styles():
     except ImportError:
         return ""
 
-# 개별 category_table 기능별 접근 함수들 (기존)
 def get_category_table_header_styles():
     """카테고리 테이블 헤더 스타일만"""
     try:
@@ -180,6 +177,30 @@ def get_category_table_modal_styles():
     except ImportError:
         return ""
 
+def get_drawer_layout_styles():
+    """드로어 기본 레이아웃만"""
+    try:
+        from .drawer import get_drawer_layout_styles as _get_layout
+        return _get_layout()
+    except ImportError:
+        return ""
+
+def get_drawer_header_combined():
+    """드로어 헤더 관련 스타일만"""
+    try:
+        from .drawer import get_drawer_header_combined as _get_header
+        return _get_header()
+    except ImportError:
+        return ""
+
+def get_drawer_inquiry_styles():
+    """드로어 문의 관련 스타일만"""
+    try:
+        from .drawer import get_drawer_inquiry_styles as _get_inquiry
+        return _get_inquiry()
+    except ImportError:
+        return ""
+
 __all__ = [
     # 메인 함수들
     'get_component_styles',
@@ -195,17 +216,18 @@ __all__ = [
     'get_modal_styles',
     'get_stats_styles',
     'get_ranking_styles',
-    'get_accordion_styles',          # 모듈화된 아코디언 스타일
-    'get_category_table_styles',     # 모듈화된 카테고리 테이블 스타일
-    'get_drawer_styles',             # 드로어 스타일 (새로 추가)
+    'get_accordion_styles',          # 모듈화된 아코디언 패키지
+    'get_category_table_styles',     # 모듈화된 카테고리 테이블 패키지
+    'get_drawer_styles',             # 모듈화된 드로어 패키지
     
-    # 개별 accordion 기능별 함수들
+    # 개별 모듈화된 패키지 기능별 함수들
     'get_accordion_base_styles',
     'get_accordion_control_styles',
     'get_accordion_metrics_styles',
-    
-    # 개별 category_table 기능별 함수들
     'get_category_table_header_styles',
     'get_category_table_body_styles',
     'get_category_table_modal_styles',
+    'get_drawer_layout_styles',
+    'get_drawer_header_combined',
+    'get_drawer_inquiry_styles',
 ]

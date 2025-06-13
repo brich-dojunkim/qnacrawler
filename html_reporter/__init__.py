@@ -1,5 +1,5 @@
-# html_reporter/__init__.py (import 경로 수정 + 드로어 추가)
-"""HTML 리포터 패키지 - 사용하는 것만 안전하게 import + 드로어 추가"""
+# html_reporter/__init__.py (모듈화된 패키지들만 사용)
+"""HTML 리포터 패키지 - 모듈화된 컴포넌트 패키지들만 사용"""
 
 # === 필수 템플릿 함수들 ===
 try:
@@ -29,14 +29,14 @@ except ImportError as e:
     def get_category_table_row_template(): return ""
     def get_team_filter_options(teams): return ""
 
-# === 드로어 템플릿 (새로 추가) ===
+# === 모듈화된 드로어 템플릿 ===
 try:
     from .templates.drawer import get_drawer_template
 except ImportError as e:
     print(f"Warning: drawer template import 오류: {e}")
     def get_drawer_template(): return ""
 
-# === 스크립트 함수들 ===
+# === 모듈화된 스크립트 함수들 ===
 try:
     from .scripts import get_main_scripts
 except ImportError as e:
@@ -62,7 +62,7 @@ except ImportError as e:
     def process_category_data(data): return []
     def generate_team_options(data): return ""
 
-# === 패키지 내 사용하는 함수 목록만 + 드로어 추가 ===
+# === 패키지 내 사용하는 함수 목록 (모듈화된 패키지들만) ===
 __all__ = [
     # 필수 템플릿 함수들
     'get_base_template',
@@ -72,12 +72,12 @@ __all__ = [
     'get_modal_template',
     'get_category_table_row_template',
     'get_team_filter_options',
-    'get_drawer_template',  # 새로 추가
+    'get_drawer_template',  # 모듈화된 드로어 패키지
     
-    # 스크립트 함수들
+    # 스크립트 함수들 (모듈화된 패키지들 사용)
     'get_main_scripts',
     
-    # 스타일 함수들
+    # 스타일 함수들 (모듈화된 패키지들 사용)
     'get_main_styles',
     
     # 사용하는 유틸리티 함수들만
