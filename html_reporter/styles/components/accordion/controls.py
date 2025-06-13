@@ -85,6 +85,40 @@ def get_controls_bar_styles():
     border-color: #5b67d8;
 }
 
+/* === 여정순서 버튼 특별 스타일 (오렌지/골드 테마) === */
+.accordion-sort-btn.journey-only {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #f59e0b;
+    color: white;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    font-weight: 600;
+}
+
+.accordion-sort-btn.journey-only:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    border-color: #d97706;
+    box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
+    transform: translateY(-1px);
+}
+
+/* 여정순서 버튼은 활성화 상태가 별도로 없음 (항상 고정 스타일) */
+.accordion-sort-btn.journey-only.active {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #f59e0b;
+    color: white;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+}
+
+.accordion-sort-btn.journey-only.active:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    border-color: #d97706;
+}
+
+/* 여정순서 버튼에서 화살표 아이콘 숨김 */
+.accordion-sort-btn.journey-only .sort-direction {
+    display: none;
+}
+
 /* === 정렬 방향 아이콘 === */
 .sort-direction {
     font-size: 0.6rem;

@@ -1,12 +1,22 @@
 """
-아코디언 정렬 기능
+아코디언 정렬 기능 - 여정순서 정렬 포함
 """
 
 def get_sorting_scripts():
-    """정렬 관련 스크립트"""
+    """정렬 관련 스크립트 - 여정순서 정렬 포함"""
     return """
-// ─────────── 정렬 기능 (헤더 업데이트 포함) ───────────
-console.log('🎯 정렬 시스템 v2.1 로딩 중...');
+// ─────────── 정렬 기능 (헤더 업데이트 포함) + 여정순서 ───────────
+console.log('🎯 정렬 시스템 v2.2 로딩 중 (여정순서 포함)...');
+
+// 여정 시간 순서 정의
+const JOURNEY_TIME_ORDER = [
+    '계정·입점',
+    '상품·콘텐츠', 
+    '주문·배송',
+    '반품·취소',
+    '정산',
+    '기타'
+];
 
 // 전역 정렬 상태
 window.accordionSortState = {
@@ -27,27 +37,43 @@ window.sortAccordions = function(metric) {
         }
         
         const isTeamView = activeView.id.includes('teams');
-        console.log(`📊 뷰 타입: ${isTeamView ? '팀별' : '여정별'}`);
+        const isJourneyView = activeView.id.includes('journey');
+        console.log(`📊 뷰 타입: ${isTeamView ? '팀별' : isJourneyView ? '여정별' : '카테고리'}`);
+        
+        // 여정순서 정렬은 여정별 분석에서만 가능
+        if (metric === 'journey' && !isJourneyView) {
+            console.log('❌ 여정순서 정렬은 여정별 분석에서만 가능');
+            alert('여정순서 정렬은 여정별 분석에서만 사용할 수 있습니다.');
+            return;
+        }
         
         // 정렬 순서 결정
         let order = 'desc';
-        if (window.accordionSortState.metric === metric) {
+        if (metric === 'journey') {
+            // 여정순서는 항상 시간순(asc) - 토글 없음
+            order = 'asc';
+            window.accordionSortState = { metric: 'journey', order: 'asc' };
+        } else if (window.accordionSortState.metric === metric) {
             order = window.accordionSortState.order === 'desc' ? 'asc' : 'desc';
+            window.accordionSortState = { metric, order };
+        } else {
+            window.accordionSortState = { metric, order };
         }
         
-        window.accordionSortState = { metric, order };
         console.log(`📋 정렬 설정: ${metric} ${order}`);
         
         // 버튼 상태 업데이트
         updateSortButtonsV2(metric, order);
         
-        // 헤더 정보 업데이트 (정렬 전)
-        updateAccordionHeaders(metric, isTeamView);
+        // 헤더 정보 업데이트 (여정순서가 아닐 때만)
+        if (metric !== 'journey') {
+            updateAccordionHeaders(metric, isTeamView);
+        }
         
         // 실제 정렬 실행
         if (isTeamView) {
             sortItemsV2('.teams-accordion-container', '.team-accordion-item', metric, order);
-        } else {
+        } else if (isJourneyView) {
             sortItemsV2('.journey-accordion-container', '.journey-accordion-item', metric, order);
         }
         
@@ -60,7 +86,7 @@ window.sortAccordions = function(metric) {
 
 // 버튼 상태 업데이트
 function updateSortButtonsV2(activeMetric, order) {
-    console.log(`🎨 버튼 업데이트 v2: ${activeMetric} ${order}`);
+    console.log(`🎨 버튼 업데이트 v2.2: ${activeMetric} ${order}`);
     
     try {
         // 모든 버튼 초기화
@@ -99,7 +125,7 @@ function updateSortButtonsV2(activeMetric, order) {
 
 // 아이템 정렬
 function sortItemsV2(containerSelector, itemSelector, metric, order) {
-    console.log(`🔄 아이템 정렬 v2: ${containerSelector} ${metric} ${order}`);
+    console.log(`🔄 아이템 정렬 v2.2: ${containerSelector} ${metric} ${order}`);
     
     try {
         const container = document.querySelector(containerSelector);
@@ -115,10 +141,16 @@ function sortItemsV2(containerSelector, itemSelector, metric, order) {
         
         // 정렬 실행
         items.sort((a, b) => {
-            const aValue = getMetricValueV2(a, metric);
-            const bValue = getMetricValueV2(b, metric);
-            
-            return order === 'asc' ? aValue - bValue : bValue - aValue;
+            if (metric === 'journey') {
+                // 여정순서 정렬
+                return sortByJourneyOrder(a, b);
+            } else {
+                // 기존 메트릭 정렬
+                const aValue = getMetricValueV2(a, metric);
+                const bValue = getMetricValueV2(b, metric);
+                
+                return order === 'asc' ? aValue - bValue : bValue - aValue;
+            }
         });
         
         // DOM 재배치
@@ -132,6 +164,35 @@ function sortItemsV2(containerSelector, itemSelector, metric, order) {
         
     } catch (error) {
         console.error('❌ 아이템 정렬 오류:', error);
+    }
+}
+
+// 여정 순서별 정렬 함수
+function sortByJourneyOrder(a, b) {
+    try {
+        // 여정별 아이템에서 여정명 추출
+        const aJourneyName = a.querySelector('.journey-name')?.textContent?.trim() || '';
+        const bJourneyName = b.querySelector('.journey-name')?.textContent?.trim() || '';
+        
+        const aIndex = JOURNEY_TIME_ORDER.indexOf(aJourneyName);
+        const bIndex = JOURNEY_TIME_ORDER.indexOf(bJourneyName);
+        
+        // 정의된 순서대로 정렬
+        const aOrder = aIndex !== -1 ? aIndex : JOURNEY_TIME_ORDER.length;
+        const bOrder = bIndex !== -1 ? bIndex : JOURNEY_TIME_ORDER.length;
+        
+        if (aOrder === bOrder) {
+            // 같은 여정이거나 둘 다 정의되지 않은 경우, 문의량으로 2차 정렬
+            const aInquiries = getMetricValueV2(a, 'total');
+            const bInquiries = getMetricValueV2(b, 'total');
+            return bInquiries - aInquiries; // 문의량 내림차순
+        }
+        
+        return aOrder - bOrder; // 여정 순서대로
+        
+    } catch (error) {
+        console.error('❌ 여정 순서 정렬 오류:', error);
+        return 0;
     }
 }
 
@@ -182,6 +243,7 @@ window.resetAccordionSort = function() {
         if (!activeView2) return;
         
         const isTeamView = activeView2.id.includes('teams');
+        const isJourneyView = activeView2.id.includes('journey');
         const containerSelector = isTeamView ? '.teams-accordion-container' : '.journey-accordion-container';
         const itemSelector = isTeamView ? '.team-accordion-item' : '.journey-accordion-item';
         

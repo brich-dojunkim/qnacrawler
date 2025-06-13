@@ -34,6 +34,10 @@ def get_overview_template():
                             완료율
                             <span class="sort-direction">▼</span>
                         </button>
+                        <button class="accordion-sort-btn journey-only" data-sort="journey" onclick="sortAccordions('journey')" title="여정 순서 기준 정렬">
+                            여정순서
+                            <span class="sort-direction">▼</span>
+                        </button>
                     </div>
                     <div class="bulk-actions">
                         <button class="bulk-control-btn" onclick="expandAllAccordions()">전체 펼치기</button>
@@ -49,7 +53,7 @@ def get_overview_template():
         </div>
         
         <div class="accordion-content-area">
-            <!-- 팀별 아코디언 뷰 -->
+            <!-- 팀별 아코디언 뷰 (기본 활성화) -->
             <div id="teams-accordion-view" class="analysis-view active">
                 <div class="teams-accordion-container">
                     {team_accordion_items}

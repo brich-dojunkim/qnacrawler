@@ -1,5 +1,5 @@
-# html_reporter/utils/mappings.py
-"""상수 및 매핑 데이터"""
+# html_reporter/utils/mappings.py (여정 순서 추가)
+"""상수 및 매핑 데이터 - 여정 시간 순서 포함"""
 
 import pandas as pd
 
@@ -25,8 +25,18 @@ USER_JOURNEY_MAPPING = {
     ]
 }
 
-# 여정 순서
+# 여정 순서 (기존)
 JOURNEY_ORDER = ['계정·입점', '상품·콘텐츠', '주문·배송', '반품·취소', '정산', '기타']
+
+# 여정 시간 순서 (새로 추가 - 비즈니스 플로우 순서)
+JOURNEY_TIME_ORDER = [
+    '계정·입점',    # 1단계: 서비스 시작/계정 생성
+    '상품·콘텐츠',  # 2단계: 상품 준비/등록
+    '주문·배송',    # 3단계: 거래 진행/배송
+    '반품·취소',    # 4단계: 사후 처리
+    '정산',         # 5단계: 거래 완료/정산
+    '기타'          # 6단계: 분류 불가
+]
 
 # 메트릭 정의
 METRICS_CONFIG = {
@@ -46,3 +56,10 @@ def get_journey_for_category(category_name: str) -> str:
             return journey
     
     return '기타'
+
+def get_journey_time_order_index(journey_name: str) -> int:
+    """여정의 시간 순서 인덱스 반환 (정렬용)"""
+    try:
+        return JOURNEY_TIME_ORDER.index(journey_name)
+    except ValueError:
+        return len(JOURNEY_TIME_ORDER)  # '기타'나 정의되지 않은 여정은 마지막으로
