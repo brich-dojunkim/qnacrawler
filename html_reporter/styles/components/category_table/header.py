@@ -49,13 +49,13 @@ def get_header_styles():
     line-height: 1.2;
 }
 
-/* === 필터 상태 표시 (아코디언 테이블 제목과 동일한 스타일) === */
+/* === 필터 상태 표시 (이중 여백 제거) === */
 .table-filter-status {
     font-size: 1rem;
     font-weight: 700;
     color: #374151;
     padding: 16px 20px;
-    margin: 0 20px;
+    margin: 0; /* 마진 제거 - accordion-content-area에서 이미 여백 적용됨 */
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     border: 1px solid #e2e8f0;
     border-bottom: 1px solid #e2e8f0; /* 하단 경계선 명확히 */

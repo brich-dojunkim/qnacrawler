@@ -5,10 +5,10 @@
 def get_table_container_styles():
     """테이블 컨테이너 스타일 - 둥근 모서리 적용"""
     return """
-/* === 카테고리 테이블 뷰 (흰색 배경) === */
+/* === 카테고리 테이블 뷰 (이중 여백 제거) === */
 .category-table-container {
     background: white;
-    padding: 20px 0;
+    padding: 0; /* 패딩 제거 - accordion-content-area에서 이미 여백 적용됨 */
 }
 
 .category-table {
@@ -17,7 +17,7 @@ def get_table_container_styles():
     overflow: hidden;
     border: 1px solid #e2e8f0;
     border-top: none; /* 상단 보더 제거하여 status와 연결 */
-    margin: 0 20px;
+    margin: 0; /* 마진 제거 - accordion-content-area에서 이미 여백 적용됨 */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 아코디언 테이블과 동일한 그림자 */
 }
 """
@@ -298,15 +298,15 @@ def get_accordion_table_styles():
     }
     
     .category-table-container {
-        padding: 10px 0;
+        padding: 10px 0; /* 모바일에서는 약간의 패딩 추가 */
     }
     
     .category-table {
-        margin: 0 10px;
+        margin: 0 10px; /* 모바일에서는 10px 마진 추가 */
     }
     
     .table-filter-status {
-        margin: 0 10px;
+        margin: 0 10px; /* 모바일에서는 10px 마진 추가 */
         padding: 8px 15px;
     }
     

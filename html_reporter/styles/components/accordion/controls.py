@@ -1,10 +1,10 @@
 # html_reporter/styles/components/accordion/controls.py
 """
-아코디언 컨트롤 바 및 토글 스타일 - 정렬 버튼 추가
+아코디언 컨트롤 바 및 토글 스타일 - 테이블 컨트롤 간격 포함
 """
 
 def get_controls_bar_styles():
-    """통합된 컨트롤 바 스타일"""
+    """통합된 컨트롤 바 스타일 - 테이블 컨트롤 간격 포함"""
     return """
 /* === 통합된 컨트롤 바 (상단 여백 제거) === */
 .controls-bar {
@@ -101,13 +101,26 @@ def get_controls_bar_styles():
     transform: rotate(0deg);
 }
 
-/* === 테이블 컨트롤 버튼 === */
+/* === 테이블 컨트롤 버튼 - 아코디언과 동일한 간격 === */
 .table-controls {
     display: none;
 }
 
 .table-controls.active {
     display: flex;
+    gap: 8px; /* 아코디언 버튼과 동일한 간격 */
+}
+
+/* === 강제 적용하되 마진은 제거 === */
+.controls-bar .bulk-controls .table-controls.active {
+    display: flex !important;
+    gap: 8px !important;
+}
+
+/* === 기존 마진 제거 (gap만 사용) === */
+.controls-bar .bulk-controls .table-controls.active .bulk-control-btn {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
 }
 
 .accordion-controls.hidden {
