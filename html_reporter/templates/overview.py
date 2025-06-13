@@ -22,8 +22,8 @@ def get_overview_template():
             <div class="bulk-controls">
                 <div class="accordion-controls">
                     <div class="accordion-sort-controls">
-                        <button class="accordion-sort-btn" data-sort="total" onclick="sortAccordions('total')" title="총 문의량 기준 정렬">
-                            총문의
+                        <button class="accordion-sort-btn" data-sort="total" onclick="sortAccordions('total')" title="문의율 기준 정렬">
+                            문의율
                             <span class="sort-direction">▼</span>
                         </button>
                         <button class="accordion-sort-btn" data-sort="urgent" onclick="sortAccordions('urgent')" title="긴급률 기준 정렬">
@@ -128,8 +128,8 @@ def get_overview_template():
                             
                             <div class="filter-column">
                                 <div class="column-header">
-                                    <span class="column-label">문의수</span>
-                                    <button id="inquiries-sort" class="sort-icon-btn" onclick="sortByInquiries()" title="문의수 정렬">
+                                    <span class="column-label">문의율</span>
+                                    <button id="inquiries-sort" class="sort-icon-btn" onclick="sortByInquiries()" title="문의율 정렬">
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                             <path d="m7 15 5 5 5-5"></path>
                                             <path d="m7 9 5-5 5 5"></path>

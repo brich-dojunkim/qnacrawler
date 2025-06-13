@@ -1,6 +1,6 @@
 # html_reporter/styles/components/accordion/headers.py
 """
-아코디언 헤더 및 정보 표시 스타일
+아코디언 헤더 및 정보 표시 스타일 - 여정 설명 박스 포함
 """
 
 def get_accordion_header_styles():
@@ -62,6 +62,22 @@ def get_summary_info_styles():
 .team-accordion-item.expanded .team-count,
 .journey-accordion-item.expanded .journey-count {
     color: rgba(255, 255, 255, 0.9);
+}
+
+/* === 여정 설명 박스 스타일 (헤더 밖에 배치) === */
+.journey-description-box {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-left: 3px solid #667eea;
+    font-size: 0.85rem;
+    color: #374151;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    margin: 0;
+}
+
+.journey-description-box:empty {
+    display: none !important;
 }
 """
 

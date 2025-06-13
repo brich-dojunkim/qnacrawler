@@ -200,10 +200,109 @@ def generate_team_accordion_items(results: Dict) -> str:
     
     return accordion_html
 
+def generate_team_accordion_items(results: Dict) -> str:
+    """팀별 아코디언 아이템들 생성 - 헤더 스타일 메트릭 + 정렬용 data 속성"""
+    if 'team_analysis' not in results:
+        return ""
+    
+    team_data = results['team_analysis']
+    if not team_data:
+        return ""
+    
+    # 팀별 데이터를 문의량 순으로 정렬
+    sorted_teams = sorted(team_data.items(), 
+                         key=lambda x: x[1]['basic_info']['total_inquiries'], 
+                         reverse=True)
+    
+    total_inquiries_check = sum(team_data[team]['basic_info']['total_inquiries'] for team in team_data.keys())
+    
+    accordion_html = ""
+    
+    for order_index, (team_name, team_info) in enumerate(sorted_teams):
+        basic_info = team_info['basic_info']
+        count = basic_info['total_inquiries']
+        percentage = round((count / total_inquiries_check * 100), 1) if total_inquiries_check > 0 else 0
+        
+        # 최대값 대비 진행률 계산
+        max_count = sorted_teams[0][1]['basic_info']['total_inquiries'] if sorted_teams else 1
+        progress_width = (count / max_count * 100) if max_count > 0 else 0
+        
+        # 새로운 메트릭 계산
+        urgent_rate = calculate_urgent_rate(basic_info.get('urgent_count', 0), basic_info['total_inquiries'])
+        answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
+        top_journey = get_team_top_journey(team_info, results)
+        
+        # 세부 카테고리 HTML 생성 - results 데이터 전달
+        sub_categories_html = ""
+        if team_info.get('sub_categories'):
+            sub_categories_html = generate_sub_categories_html(team_info['sub_categories'], results)
+        
+        # 안전한 팀명 ID 생성
+        safe_team_id = team_name.replace(' ', '').replace('팀', '').replace('·', '')
+        
+        # 정렬용 data 속성 추가
+        accordion_html += f'''
+        <div class="team-accordion-item" 
+             data-total-inquiries="{basic_info['total_inquiries']}"
+             data-urgent-rate="{urgent_rate}"
+             data-answer-rate="{answer_rate}"
+             data-original-order="{order_index}">
+            <div class="team-accordion-header" onclick="toggleTeamAccordion('{safe_team_id}')">
+                <div class="team-summary-info">
+                    <span class="team-name">{team_name}</span>
+                    <span class="team-count">({count:,}건)</span>
+                </div>
+                <div class="team-progress-container">
+                    <div class="team-progress-bar">
+                        <div class="team-progress-fill" style="width: {progress_width}%"></div>
+                    </div>
+                    <span class="team-percentage">{percentage}%</span>
+                </div>
+                <button class="accordion-toggle-btn" id="btn-{safe_team_id}">
+                    <span class="toggle-icon">▼</span>
+                </button>
+            </div>
+            <div class="team-accordion-content" id="content-{safe_team_id}" style="display: none;">
+                <div class="team-detail-box">
+                    <div class="team-metrics-grid">
+                        <div class="metric-item total">
+                            <span class="metric-label">문의율</span>
+                            <span class="metric-value">{percentage}%</span>
+                        </div>
+                        <div class="metric-item urgent">
+                            <span class="metric-label">긴급률</span>
+                            <span class="metric-value">{urgent_rate}% ({basic_info.get('urgent_count', 0)}건)</span>
+                        </div>
+                        <div class="metric-item completed">
+                            <span class="metric-label">완료율</span>
+                            <span class="metric-value">{answer_rate}%</span>
+                        </div>
+                        <div class="metric-item status">
+                            <span class="metric-label">주요 현황</span>
+                            <span class="metric-value">{top_journey}</span>
+                        </div>
+                    </div>
+                    {sub_categories_html}
+                </div>
+            </div>
+        </div>'''
+    
+    return accordion_html
+
 def generate_journey_accordion_items(results: Dict) -> str:
-    """여정별 아코디언 아이템들 생성 - 헤더 스타일 메트릭 + 정렬용 data 속성"""
+    """여정별 아코디언 아이템들 생성 - 헤더 스타일 메트릭 + 정렬용 data 속성 + 여정 설명"""
     if 'journey_analysis' not in results:
         return ""
+    
+    # 여정별 설명 매핑
+    JOURNEY_DESCRIPTIONS = {
+        '계정·입점': '판매자 등록부터 브랜드권한 신청까지, 플랫폼 진입을 위한 초기 설정 과정',
+        '상품·콘텐츠': '상품 등록과 채널 연동부터 기획전 참여까지, 판매 상품 준비 및 관리 과정',
+        '주문·배송': '주문 접수부터 배송 완료까지, 고객과의 실제 거래 진행 과정',
+        '반품·취소': '취소·교환·반품 처리를 통한 거래 완료 후 고객 요청 대응 과정',
+        '정산': '구매 확정부터 정산 완료까지, 판매 수익 정리 및 지급 과정',
+        '기타': '위 여정에 포함되지 않는 플랫폼 이용 관련 일반 문의사항'
+    }
     
     journey_data = results['journey_analysis']
     if not journey_data:
@@ -236,6 +335,9 @@ def generate_journey_accordion_items(results: Dict) -> str:
         answer_rate = calculate_answer_rate(basic_info.get('answered_count', 0), basic_info['total_inquiries'])
         top_team = get_journey_top_team(journey_info)
         
+        # 여정 설명 가져오기
+        journey_description = JOURNEY_DESCRIPTIONS.get(journey_name, '')
+        
         # 세부 카테고리 HTML 생성 - results 데이터 전달
         sub_categories_html = ""
         if journey_info.get('sub_categories'):
@@ -244,7 +346,7 @@ def generate_journey_accordion_items(results: Dict) -> str:
         # 안전한 여정명 ID 생성
         safe_journey_id = journey_name.replace('·', '').replace(' ', '').replace('/', '')
         
-        # 정렬용 data 속성 추가
+        # 정렬용 data 속성 추가 - HTML 구조 변경 (설명을 헤더 밖으로)
         accordion_html += f'''
         <div class="journey-accordion-item"
              data-total-inquiries="{basic_info['total_inquiries']}"
@@ -266,12 +368,15 @@ def generate_journey_accordion_items(results: Dict) -> str:
                     <span class="toggle-icon">▼</span>
                 </button>
             </div>
+            <div class="journey-description-box" style="display: none;">
+                {journey_description}
+            </div>
             <div class="journey-accordion-content" id="journey-content-{safe_journey_id}" style="display: none;">
                 <div class="journey-detail-box">
                     <div class="journey-metrics-grid">
                         <div class="metric-item total">
-                            <span class="metric-label">총 문의</span>
-                            <span class="metric-value">{basic_info['total_inquiries']:,}건</span>
+                            <span class="metric-label">문의율</span>
+                            <span class="metric-value">{percentage}%</span>
                         </div>
                         <div class="metric-item urgent">
                             <span class="metric-label">긴급률</span>

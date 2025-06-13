@@ -1,12 +1,12 @@
 """
-아코디언 정렬 기능 - 여정순서 정렬 포함
+아코디언 정렬 기능 - 여정순서 정렬 + 여정 설명 박스 표시/숨김 포함
 """
 
 def get_sorting_scripts():
-    """정렬 관련 스크립트 - 여정순서 정렬 포함"""
+    """정렬 관련 스크립트 - 여정 설명 박스 표시/숨김 포함"""
     return """
-// ─────────── 정렬 기능 (헤더 업데이트 포함) + 여정순서 ───────────
-console.log('🎯 정렬 시스템 v2.2 로딩 중 (여정순서 포함)...');
+// ─────────── 정렬 기능 (헤더 업데이트 포함) + 여정순서 + 여정 설명 ───────────
+console.log('🎯 정렬 시스템 v2.4 로딩 중 (여정 설명 박스 포함)...');
 
 // 여정 시간 순서 정의
 const JOURNEY_TIME_ORDER = [
@@ -24,7 +24,29 @@ window.accordionSortState = {
     order: null
 };
 
-// 메인 정렬 함수
+// 여정 설명 박스 표시/숨김 함수
+function toggleJourneyDescriptions(show) {
+    console.log(`${show ? '표시' : '숨김'}: 여정 설명 박스`);
+    
+    try {
+        const descriptionBoxes = document.querySelectorAll('.journey-description-box');
+        
+        descriptionBoxes.forEach(box => {
+            if (show) {
+                box.style.display = 'block';
+            } else {
+                box.style.display = 'none';
+            }
+        });
+        
+        console.log(`✅ 여정 설명 박스 ${show ? '표시' : '숨김'} 완료`);
+        
+    } catch (error) {
+        console.error('❌ 여정 설명 박스 토글 오류:', error);
+    }
+}
+
+// 메인 정렬 함수 (여정 설명 박스 토글 추가)
 window.sortAccordions = function(metric) {
     console.log(`🚀 정렬 시작: ${metric}`);
     
@@ -45,6 +67,17 @@ window.sortAccordions = function(metric) {
             console.log('❌ 여정순서 정렬은 여정별 분석에서만 가능');
             alert('여정순서 정렬은 여정별 분석에서만 사용할 수 있습니다.');
             return;
+        }
+        
+        // === 여정 설명 박스 표시/숨김 처리 ===
+        if (isJourneyView) {
+            if (metric === 'journey') {
+                // 여정순서 정렬시 설명 박스 표시
+                toggleJourneyDescriptions(true);
+            } else {
+                // 다른 정렬시 설명 박스 숨김
+                toggleJourneyDescriptions(false);
+            }
         }
         
         // 정렬 순서 결정
@@ -86,7 +119,7 @@ window.sortAccordions = function(metric) {
 
 // 버튼 상태 업데이트
 function updateSortButtonsV2(activeMetric, order) {
-    console.log(`🎨 버튼 업데이트 v2.2: ${activeMetric} ${order}`);
+    console.log(`🎨 버튼 업데이트 v2.4: ${activeMetric} ${order}`);
     
     try {
         // 모든 버튼 초기화
@@ -125,7 +158,7 @@ function updateSortButtonsV2(activeMetric, order) {
 
 // 아이템 정렬
 function sortItemsV2(containerSelector, itemSelector, metric, order) {
-    console.log(`🔄 아이템 정렬 v2.2: ${containerSelector} ${metric} ${order}`);
+    console.log(`🔄 아이템 정렬 v2.4: ${containerSelector} ${metric} ${order}`);
     
     try {
         const container = document.querySelector(containerSelector);
@@ -212,12 +245,18 @@ function getMetricValueV2(element, metric) {
     }
 }
 
-// 정렬 초기화
+// 정렬 초기화 (여정 설명 박스 숨김 추가)
 window.resetAccordionSort = function() {
     console.log('🔄 정렬 초기화');
     
     try {
         window.accordionSortState = { metric: null, order: null };
+        
+        // 여정 설명 박스 숨김
+        const activeView = document.querySelector('.analysis-view.active');
+        if (activeView && activeView.id.includes('journey')) {
+            toggleJourneyDescriptions(false);
+        }
         
         // 모든 버튼 비활성화
         document.querySelectorAll('.accordion-sort-btn').forEach(btn => {
@@ -232,18 +271,18 @@ window.resetAccordionSort = function() {
         });
         
         // 헤더를 기본 상태(총 문의)로 복원
-        const activeView = document.querySelector('.analysis-view.active');
-        if (activeView) {
-            const isTeamView = activeView.id.includes('teams');
+        const activeView2 = document.querySelector('.analysis-view.active');
+        if (activeView2) {
+            const isTeamView = activeView2.id.includes('teams');
             updateAccordionHeaders('total', isTeamView);
         }
         
         // 원래 순서로 복원
-        const activeView2 = document.querySelector('.analysis-view.active');
-        if (!activeView2) return;
+        const activeView3 = document.querySelector('.analysis-view.active');
+        if (!activeView3) return;
         
-        const isTeamView = activeView2.id.includes('teams');
-        const isJourneyView = activeView2.id.includes('journey');
+        const isTeamView = activeView3.id.includes('teams');
+        const isJourneyView = activeView3.id.includes('journey');
         const containerSelector = isTeamView ? '.teams-accordion-container' : '.journey-accordion-container';
         const itemSelector = isTeamView ? '.team-accordion-item' : '.journey-accordion-item';
         

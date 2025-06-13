@@ -70,18 +70,18 @@ function updateTableFilterStatus(visible, total) {
     // 적용된 필터들 수집 (카테고리 검색 제외)
     const activeFilters = [];
     if (tableFilters.team) {
-        activeFilters.push(`팀: ${tableFilters.team}`);
+        activeFilters.push(`${tableFilters.team}`);
     }
     if (tableFilters.journey) {
-        activeFilters.push(`여정: ${tableFilters.journey}`);
+        activeFilters.push(`${tableFilters.journey}`);
     }
     
     if (activeFilters.length > 0) {
         filterDescription = activeFilters.join(' | ');
-        statusText = `📂 <strong>필터 적용</strong>: ${filterDescription} (${total}개 중 ${visible}개 표시)`;
+        statusText = `📂 <strong>필터</strong>: ${filterDescription} (${total}개 중 ${visible}개)`;
         if (clearBtn) clearBtn.style.display = 'inline';
     } else {
-        statusText = `📂 <strong>전체 카테고리</strong> 표시 중 (${visible}개)`;
+        statusText = `📂 <strong>전체 카테고리</strong> (${visible}개)`;
         if (clearBtn) clearBtn.style.display = 'none';
     }
     

@@ -27,12 +27,20 @@ class HTMLGenerator:
     
     @staticmethod
     def generate_sub_categories_html(sub_categories: Dict, results: Dict = None, max_items: int = 10) -> str:
-        """세부 카테고리 테이블 형태 HTML 생성 - 완료율 칼럼 포함"""
+        """세부 카테고리 테이블 형태 HTML 생성 - 문의율 칼럼 포함"""
         if not sub_categories:
             return ""
         
         # 카테고리 분석 데이터 가져오기
         category_analysis = results.get('category_analysis', {}) if results else {}
+        
+        # 전체 문의 수 계산 (비율 계산용)
+        total_inquiries_for_percentage = 0
+        if results and 'overall_summary' in results:
+            total_inquiries_for_percentage = results['overall_summary'].get('total_inquiries', 1)
+        else:
+            # 전체 문의 수를 구할 수 없으면 현재 세부 카테고리들의 합으로 계산
+            total_inquiries_for_percentage = sum(sub_categories.values())
         
         html = '''<div class="sub-categories-table">
             <h5 class="sub-categories-title">📂 세부 카테고리 상세</h5>
@@ -41,7 +49,7 @@ class HTMLGenerator:
                     <div class="sub-cat-column">카테고리명</div>
                     <div class="sub-cat-column">담당팀</div>
                     <div class="sub-cat-column">유저여정</div>
-                    <div class="sub-cat-column">문의수</div>
+                    <div class="sub-cat-column">문의율</div>
                     <div class="sub-cat-column">긴급률</div>
                     <div class="sub-cat-column">완료율</div>
                     <div class="sub-cat-column">상세보기</div>
@@ -62,6 +70,9 @@ class HTMLGenerator:
             
             # 유저여정 매핑
             main_journey = get_journey_for_category(category_name)
+            
+            # 문의율 계산 (전체 대비 비율)
+            inquiry_rate = round((count / total_inquiries_for_percentage * 100), 1) if total_inquiries_for_percentage > 0 else 0
             
             # 긴급률 계산
             urgent_count = basic_info.get('urgent_count', 0)
@@ -112,7 +123,7 @@ class HTMLGenerator:
                         <div class="sub-cat-cell category-name">{category_name}</div>
                         <div class="sub-cat-cell"><span class="team-badge">{main_team}</span></div>
                         <div class="sub-cat-cell"><span class="journey-badge">{main_journey}</span></div>
-                        <div class="sub-cat-cell metric-value">{count}건</div>
+                        <div class="sub-cat-cell metric-value">{inquiry_rate}%</div>
                         <div class="sub-cat-cell urgent-rate {urgent_level}">{urgent_rate}%</div>
                         <div class="sub-cat-cell complete-rate {complete_level}">{answer_rate}%</div>
                         <div class="sub-cat-cell">
@@ -129,10 +140,11 @@ class HTMLGenerator:
         if len(sorted_categories) > max_items:
             remaining_count = len(sorted_categories) - max_items
             remaining_total = sum(count for _, count in sorted_categories[max_items:])
+            remaining_percentage = round((remaining_total / total_inquiries_for_percentage * 100), 1) if total_inquiries_for_percentage > 0 else 0
             
             html += f'''
                     <div class="sub-category-summary">
-                        기타 {remaining_count}개 카테고리 (총 {remaining_total}건)
+                        기타 {remaining_count}개 카테고리 (총 {remaining_percentage}%)
                     </div>'''
         
         html += '''

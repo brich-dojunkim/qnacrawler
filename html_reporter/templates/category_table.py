@@ -1,8 +1,8 @@
-# html_reporter/templates/category_table.py (완료율 칼럼 추가된 버전)
-"""카테고리 테이블 로우 템플릿 - 완료율 칼럼 포함"""
+# html_reporter/templates/category_table.py (문의율 칼럼 추가된 버전)
+"""카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함"""
 
 def get_category_table_row_template():
-    """개별 카테고리 테이블 로우 템플릿 - 완료율 칼럼 포함"""
+    """개별 카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함"""
     return """<div class="category-table-row" 
              data-team="{main_team}" 
              data-journey="{main_journey}" 
@@ -14,7 +14,7 @@ def get_category_table_row_template():
     <div class="category-name">{name}</div>
     <div><span class="team-badge">{main_team}</span></div>
     <div><span class="journey-badge">{main_journey}</span></div>
-    <div class="metric-value">{total_inquiries}건</div>
+    <div class="metric-value">{inquiry_rate}%</div>
     <div class="urgent-rate {urgent_level}">{urgent_rate}%</div>
     <div class="complete-rate {complete_level}">{answer_rate}%</div>
     <div>
