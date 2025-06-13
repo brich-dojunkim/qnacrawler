@@ -1,5 +1,4 @@
-# html_reporter/scripts/tabs.py (정렬 초기화 추가된 버전)
-"""분석 뷰 토글 스크립트 - 탭 제거, 뷰 전환만 + 정렬 초기화"""
+# html_reporter/scripts/tabs.py - 수정된 버전
 
 def get_tab_scripts() -> str:
     return """
@@ -46,6 +45,20 @@ function toggleAnalysisView(){
         // 컨트롤 전환
         if (accordionControls) accordionControls.classList.remove('hidden');
         if (tableControls) tableControls.classList.remove('active');
+        
+        // === 여정순서 버튼 표시/숨김 처리 ===
+        const journeyOrderBtn = document.querySelector('.accordion-sort-btn.journey-only');
+        if (journeyOrderBtn) {
+            if (view === 'journey') {
+                // 여정별 분석일 때만 여정순서 버튼 표시
+                journeyOrderBtn.style.display = 'flex';
+                console.log('여정순서 버튼 표시됨');
+            } else {
+                // 팀별 분석일 때는 여정순서 버튼 숨김
+                journeyOrderBtn.style.display = 'none';
+                console.log('여정순서 버튼 숨겨짐');
+            }
+        }
         
         // 아코디언 정렬 초기화 (뷰 전환시)
         if (typeof resetAccordionSort === 'function') {

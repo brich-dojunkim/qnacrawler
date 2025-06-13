@@ -92,6 +92,7 @@ def get_controls_bar_styles():
     color: white;
     box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
     font-weight: 600;
+    display: none; /* 초기에는 숨김 - JavaScript에서 여정별 뷰일 때만 표시 */
 }
 
 .accordion-sort-btn.journey-only:hover {
