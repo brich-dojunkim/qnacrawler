@@ -1,5 +1,5 @@
 """
-scripts 패키지 – 실제로 사용하는 JS만 포함
+scripts 패키지 – 실제로 사용하는 JS만 포함 (직접 모듈화된 accordion 사용)
 """
 
 from .accordion import get_accordion_scripts
@@ -11,7 +11,7 @@ from .category_table import get_category_table_scripts
 def get_main_scripts() -> str:
     """
     템플릿에서 호출되는 통합 스크립트.
-    실제 사용하는 것만 포함.
+    실제 사용하는 것만 포함. (모듈화된 accordion 직접 사용)
     """
     return "\n".join([
         get_accordion_scripts(),

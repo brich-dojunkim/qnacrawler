@@ -1,146 +1,12 @@
 """
-팀별·여정별 아코디언 및 전체 제어 스크립트 - 최종 완성 버전
+아코디언 정렬 기능
 """
 
-def get_accordion_scripts() -> str:
+def get_sorting_scripts():
+    """정렬 관련 스크립트"""
     return """
-console.log('🚀 아코디언 스크립트 로딩 시작 - v2.0');
-
-// ─────────── 팀별 아코디언 ───────────
-function toggleTeamAccordion(teamId) {
-    const content = document.getElementById(`content-${teamId}`);
-    const item    = content.closest('.team-accordion-item');
-
-    if (content.style.display === 'none' || !content.style.display) {
-        openAccordion(content, item);
-    } else {
-        closeAccordion(content, item);
-    }
-}
-
-// ─────────── 여정별 아코디언 ───────────
-function toggleJourneyAccordion(journeyId) {
-    const content = document.getElementById(`journey-content-${journeyId}`);
-    const item    = content.closest('.journey-accordion-item');
-
-    if (content.style.display === 'none' || !content.style.display) {
-        openAccordion(content, item);
-    } else {
-        closeAccordion(content, item);
-    }
-}
-
-// ─────────── 공통 열기/닫기 로직 ───────────
-function openAccordion(content, item) {
-    content.style.display   = 'block';
-    content.style.height    = '0px';
-    content.style.overflow  = 'hidden';
-    content.style.transition= 'height 0.3s ease';
-    item.classList.add('expanded');
-
-    const h = content.scrollHeight;
-    requestAnimationFrame(() => { content.style.height = h + 'px'; });
-
-    setTimeout(() => {
-        content.style.height = 'auto';
-        content.style.overflow = 'visible';
-    }, 300);
-}
-
-function closeAccordion(content, item) {
-    content.style.height    = content.scrollHeight + 'px';
-    content.style.overflow  = 'hidden';
-    content.style.transition= 'height 0.3s ease';
-
-    requestAnimationFrame(() => { content.style.height = '0px'; });
-
-    setTimeout(() => {
-        content.style.display   = 'none';
-        content.style.height    = '';
-        content.style.overflow  = '';
-        content.style.transition= '';
-        item.classList.remove('expanded');
-    }, 300);
-}
-
-// ─────────── 전체 펼치기/접기 ───────────
-function expandAllTeamAccordions() {
-    console.log('팀별 전체 펼치기 실행');
-    document.querySelectorAll('.team-accordion-item')
-        .forEach(item => {
-            const content = item.querySelector('.team-accordion-content');
-            if (content && !item.classList.contains('expanded')) {
-                const id = content.id.replace('content-','');
-                toggleTeamAccordion(id);
-            }
-        });
-}
-
-function collapseAllTeamAccordions() {
-    console.log('팀별 전체 접기 실행');
-    document.querySelectorAll('.team-accordion-item')
-        .forEach(item => {
-            const content = item.querySelector('.team-accordion-content');
-            if (content && item.classList.contains('expanded')) {
-                const id = content.id.replace('content-','');
-                toggleTeamAccordion(id);
-            }
-        });
-}
-
-function expandAllJourneyAccordions() {
-    console.log('여정별 전체 펼치기 실행');
-    document.querySelectorAll('.journey-accordion-item')
-        .forEach(item => {
-            const content = item.querySelector('.journey-accordion-content');
-            if (content && !item.classList.contains('expanded')) {
-                const id = content.id.replace('journey-content-','');
-                toggleJourneyAccordion(id);
-            }
-        });
-}
-
-function collapseAllJourneyAccordions() {
-    console.log('여정별 전체 접기 실행');
-    document.querySelectorAll('.journey-accordion-item')
-        .forEach(item => {
-            const content = item.querySelector('.journey-accordion-content');
-            if (content && item.classList.contains('expanded')) {
-                const id = content.id.replace('journey-content-','');
-                toggleJourneyAccordion(id);
-            }
-        });
-}
-
-// ─────────── 통합 전체 제어 ───────────
-function expandAllAccordions() {
-    const activeView = document.querySelector('.analysis-view.active');
-    if (!activeView) return;
-    
-    const viewType = activeView.id.includes('teams') ? 'team' : 'journey';
-    
-    if (viewType === 'team') {
-        expandAllTeamAccordions();
-    } else {
-        expandAllJourneyAccordions();
-    }
-}
-
-function collapseAllAccordions() {
-    const activeView = document.querySelector('.analysis-view.active');
-    if (!activeView) return;
-    
-    const viewType = activeView.id.includes('teams') ? 'team' : 'journey';
-    
-    if (viewType === 'team') {
-        collapseAllTeamAccordions();
-    } else {
-        collapseAllJourneyAccordions();
-    }
-}
-
-// ─────────── 정렬 기능 (완전 새 버전) ───────────
-console.log('🎯 정렬 시스템 v2.0 로딩 중...');
+// ─────────── 정렬 기능 (헤더 업데이트 포함) ───────────
+console.log('🎯 정렬 시스템 v2.1 로딩 중...');
 
 // 전역 정렬 상태
 window.accordionSortState = {
@@ -175,6 +41,9 @@ window.sortAccordions = function(metric) {
         // 버튼 상태 업데이트
         updateSortButtonsV2(metric, order);
         
+        // 헤더 정보 업데이트 (정렬 전)
+        updateAccordionHeaders(metric, isTeamView);
+        
         // 실제 정렬 실행
         if (isTeamView) {
             sortItemsV2('.teams-accordion-container', '.team-accordion-item', metric, order);
@@ -189,7 +58,7 @@ window.sortAccordions = function(metric) {
     }
 };
 
-// 버튼 상태 업데이트 (완전 새 버전)
+// 버튼 상태 업데이트
 function updateSortButtonsV2(activeMetric, order) {
     console.log(`🎨 버튼 업데이트 v2: ${activeMetric} ${order}`);
     
@@ -228,7 +97,7 @@ function updateSortButtonsV2(activeMetric, order) {
     }
 }
 
-// 아이템 정렬 (완전 새 버전)
+// 아이템 정렬
 function sortItemsV2(containerSelector, itemSelector, metric, order) {
     console.log(`🔄 아이템 정렬 v2: ${containerSelector} ${metric} ${order}`);
     
@@ -266,7 +135,7 @@ function sortItemsV2(containerSelector, itemSelector, metric, order) {
     }
 }
 
-// 메트릭 값 추출 (완전 새 버전)
+// 메트릭 값 추출
 function getMetricValueV2(element, metric) {
     if (!element || !element.dataset) return 0;
     
@@ -301,11 +170,18 @@ window.resetAccordionSort = function() {
             }
         });
         
-        // 원래 순서로 복원
+        // 헤더를 기본 상태(총 문의)로 복원
         const activeView = document.querySelector('.analysis-view.active');
-        if (!activeView) return;
+        if (activeView) {
+            const isTeamView = activeView.id.includes('teams');
+            updateAccordionHeaders('total', isTeamView);
+        }
         
-        const isTeamView = activeView.id.includes('teams');
+        // 원래 순서로 복원
+        const activeView2 = document.querySelector('.analysis-view.active');
+        if (!activeView2) return;
+        
+        const isTeamView = activeView2.id.includes('teams');
         const containerSelector = isTeamView ? '.teams-accordion-container' : '.journey-accordion-container';
         const itemSelector = isTeamView ? '.team-accordion-item' : '.journey-accordion-item';
         
@@ -327,24 +203,4 @@ window.resetAccordionSort = function() {
         console.error('❌ 정렬 초기화 오류:', error);
     }
 };
-
-// 뷰 변경시 호출
-window.onViewChange = function() {
-    if (window.resetAccordionSort) {
-        window.resetAccordionSort();
-    }
-};
-
-// 로딩 완료
-console.log('✅ 아코디언 정렬 시스템 v2.0 로딩 완료');
-
-// 디버깅 정보
-setTimeout(() => {
-    console.log('🔍 시스템 상태:');
-    console.log(`  - 정렬 버튼: ${document.querySelectorAll('.accordion-sort-btn').length}개`);
-    console.log(`  - 팀 아이템: ${document.querySelectorAll('.team-accordion-item').length}개`);
-    console.log(`  - 여정 아이템: ${document.querySelectorAll('.journey-accordion-item').length}개`);
-    console.log('  - sortAccordions:', typeof window.sortAccordions);
-    console.log('  - resetAccordionSort:', typeof window.resetAccordionSort);
-}, 500);
 """

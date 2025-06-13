@@ -1,5 +1,5 @@
-# html_reporter/styles/components/__init__.py (모듈화된 accordion 적용)
-"""컴포넌트 스타일 모듈 - 모든 스타일 컴포넌트 통합 (모듈화된 accordion 포함)"""
+# html_reporter/styles/components/__init__.py (모듈화된 accordion과 category_table 적용)
+"""컴포넌트 스타일 모듈 - 모든 스타일 컴포넌트 통합 (모듈화된 accordion과 category_table 포함)"""
 
 try:
     from .cards import get_card_styles
@@ -43,7 +43,7 @@ except ImportError:
     def get_ranking_styles():
         return ""
 
-# 새로운 모듈화된 accordion import
+# 모듈화된 accordion import
 try:
     from .accordion import get_accordion_styles
 except ImportError:
@@ -51,6 +51,7 @@ except ImportError:
     def get_accordion_styles():
         return ""
 
+# 모듈화된 category_table import
 try:
     from .category_table import get_category_table_styles
 except ImportError:
@@ -59,7 +60,7 @@ except ImportError:
         return ""
 
 def get_component_styles():
-    """모든 UI 컴포넌트 스타일 조합"""
+    """모든 UI 컴포넌트 스타일 조합 (모듈화된 버전)"""
     styles = [
         get_card_styles(),           # 카드 컴포넌트
         get_button_styles(),         # 버튼 컴포넌트
@@ -68,7 +69,7 @@ def get_component_styles():
         get_stats_styles(),          # 통계 컴포넌트
         get_ranking_styles(),        # 랭킹 컴포넌트
         get_accordion_styles(),      # 모듈화된 아코디언 컴포넌트
-        get_category_table_styles(), # 카테고리 테이블 컴포넌트
+        get_category_table_styles(), # 모듈화된 카테고리 테이블 컴포넌트 (스타일 통일됨)
     ]
     
     return '\n'.join(styles)
@@ -101,7 +102,7 @@ def get_overview_components():
         get_stats_styles(),          # 통계 카드용
         get_ranking_styles(),        # 순위 아이템용
         get_accordion_styles(),      # 팀별 아코디언용
-        get_category_table_styles(), # 카테고리 테이블용
+        get_category_table_styles(), # 카테고리 테이블용 (스타일 통일됨)
     ]
     
     return '\n'.join(styles)
@@ -116,7 +117,7 @@ def get_modal_components_only():
     
     return '\n'.join(styles)
 
-# 개별 accordion 기능별 접근 함수들 (새로운 모듈 구조에서)
+# 개별 accordion 기능별 접근 함수들 (모듈화된 구조에서)
 def get_accordion_base_styles():
     """기본 아코디언 구조만"""
     try:
@@ -141,6 +142,31 @@ def get_accordion_metrics_styles():
     except ImportError:
         return ""
 
+# 개별 category_table 기능별 접근 함수들 (새로 추가)
+def get_category_table_header_styles():
+    """카테고리 테이블 헤더 스타일만"""
+    try:
+        from .category_table import get_header_only
+        return get_header_only()
+    except ImportError:
+        return ""
+
+def get_category_table_body_styles():
+    """카테고리 테이블 본문 스타일만"""
+    try:
+        from .category_table import get_body_only
+        return get_body_only()
+    except ImportError:
+        return ""
+
+def get_category_table_modal_styles():
+    """카테고리 테이블 모달 스타일만"""
+    try:
+        from .category_table import get_modal_only
+        return get_modal_only()
+    except ImportError:
+        return ""
+
 __all__ = [
     # 메인 함수들
     'get_component_styles',
@@ -156,11 +182,16 @@ __all__ = [
     'get_modal_styles',
     'get_stats_styles',
     'get_ranking_styles',
-    'get_accordion_styles',          # 통합 아코디언 스타일
-    'get_category_table_styles',
+    'get_accordion_styles',          # 모듈화된 아코디언 스타일
+    'get_category_table_styles',     # 모듈화된 카테고리 테이블 스타일
     
     # 개별 accordion 기능별 함수들
     'get_accordion_base_styles',
     'get_accordion_control_styles',
     'get_accordion_metrics_styles',
+    
+    # 개별 category_table 기능별 함수들 (새로 추가)
+    'get_category_table_header_styles',
+    'get_category_table_body_styles',
+    'get_category_table_modal_styles',
 ]
