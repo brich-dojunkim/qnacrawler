@@ -1,9 +1,9 @@
 """
-카테고리 테이블 본문 스타일 (메인 테이블과 아코디언 내부 테이블 공통)
+카테고리 테이블 본문 스타일 (메인 테이블과 아코디언 내부 테이블 통일)
 """
 
 def get_table_container_styles():
-    """테이블 컨테이너 스타일"""
+    """테이블 컨테이너 스타일 - 둥근 모서리 적용"""
     return """
 /* === 카테고리 테이블 뷰 (흰색 배경) === */
 .category-table-container {
@@ -13,11 +13,12 @@ def get_table_container_styles():
 
 .category-table {
     background: white;
-    border-radius: 8px;
+    border-radius: 0 0 8px 8px; /* 하단만 둥글게 - 아코디언 테이블과 동일 */
     overflow: hidden;
     border: 1px solid #e2e8f0;
+    border-top: none; /* 상단 보더 제거하여 status와 연결 */
     margin: 0 20px;
-    border-top: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 아코디언 테이블과 동일한 그림자 */
 }
 """
 

@@ -1,9 +1,9 @@
 """
-카테고리 테이블 헤더 스타일
+카테고리 테이블 헤더 스타일 - 아코디언 내 테이블과 통일
 """
 
 def get_header_styles():
-    """테이블 헤더 관련 스타일"""
+    """테이블 헤더 관련 스타일 - 둥근 모서리 및 중앙정렬 적용"""
     return """
 /* === 텍스트 옆 아이콘 테이블 필터 헤더 (아코디언 내부 테이블과 통일) === */
 .table-filter-header {
@@ -13,6 +13,7 @@ def get_header_styles():
     gap: 0;
     padding: 12px 0;
     border-bottom: 1px solid #e2e8f0;
+    /* 헤더는 둥근 모서리 없음 - 아코디언 내부 테이블과 동일 */
 }
 
 .filter-column {
@@ -25,7 +26,7 @@ def get_header_styles():
 
 .filter-column:last-child {
     border-right: none;
-    justify-content: center;
+    justify-content: center; /* 상세보기 중앙 정렬 */
 }
 
 .column-header {
@@ -33,6 +34,12 @@ def get_header_styles():
     align-items: center;
     gap: 6px;
     min-height: 32px;
+    justify-content: flex-start; /* 기본 왼쪽 정렬 */
+}
+
+/* 마지막 칼럼(상세보기)만 중앙 정렬 */
+.filter-column:last-child .column-header {
+    justify-content: center;
 }
 
 .column-label {
@@ -42,7 +49,7 @@ def get_header_styles():
     line-height: 1.2;
 }
 
-/* === 필터 상태 표시 (세부카테고리 제목 스타일과 통일) === */
+/* === 필터 상태 표시 (아코디언 테이블 제목과 동일한 스타일) === */
 .table-filter-status {
     font-size: 1rem;
     font-weight: 700;
@@ -51,8 +58,8 @@ def get_header_styles():
     margin: 0 20px;
     background: linear-gradient(135deg, #f8fafc, #e2e8f0);
     border: 1px solid #e2e8f0;
-    border-bottom: none;
-    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid #e2e8f0; /* 하단 경계선 명확히 */
+    border-radius: 8px 8px 0 0; /* 상단만 둥글게 */
     display: flex;
     align-items: center;
     gap: 8px;
