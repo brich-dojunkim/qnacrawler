@@ -1,8 +1,8 @@
-# html_reporter/templates/overview.py (정렬 버튼 추가된 버전)
-"""개요 템플릿 - 단일 페이지, 아코디언 정렬 기능 포함"""
+# html_reporter/templates/overview.py (완료율 칼럼 추가된 버전)
+"""개요 템플릿 - 단일 페이지, 완료율 칼럼 포함"""
 
 def get_overview_template():
-    """단일 페이지 템플릿 - 아코디언 정렬 기능이 추가된 뷰"""
+    """단일 페이지 템플릿 - 완료율 칼럼이 추가된 뷰"""
     return """
     <div class="detailed-analysis-section">
         <div class="controls-bar">
@@ -63,7 +63,7 @@ def get_overview_template():
                 </div>
             </div>
             
-            <!-- 카테고리 테이블 뷰 -->
+            <!-- 카테고리 테이블 뷰 (완료율 칼럼 추가) -->
             <div id="categories-table-view" class="analysis-view">
                 <div class="category-table-container">
                     <div id="table-filter-status" class="table-filter-status">
@@ -138,6 +138,18 @@ def get_overview_template():
                                 <div class="column-header">
                                     <span class="column-label">긴급률</span>
                                     <button id="urgent-sort" class="sort-icon-btn" onclick="sortByUrgent()" title="긴급률 정렬">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                            <path d="m7 15 5 5 5-5"></path>
+                                            <path d="m7 9 5-5 5 5"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="filter-column">
+                                <div class="column-header">
+                                    <span class="column-label">완료율</span>
+                                    <button id="complete-sort" class="sort-icon-btn" onclick="sortByComplete()" title="완료율 정렬">
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                                             <path d="m7 15 5 5 5-5"></path>
                                             <path d="m7 9 5-5 5 5"></path>

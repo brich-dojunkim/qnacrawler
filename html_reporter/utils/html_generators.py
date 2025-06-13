@@ -1,10 +1,10 @@
-# html_reporter/utils/html_generators.py
-"""HTML 문자열 생성 함수들 - 세부카테고리 테이블 형태로 개선"""
+# html_reporter/utils/html_generators.py (완료율 칼럼 추가)
+"""HTML 문자열 생성 함수들 - 완료율 칼럼 포함"""
 
 from typing import Dict, List
 from .formatters import format_number
 from .mappings import get_journey_for_category
-from .calculations import calculate_urgent_rate
+from .calculations import calculate_urgent_rate, calculate_answer_rate
 
 class HTMLGenerator:
     """HTML 생성 클래스"""
@@ -27,7 +27,7 @@ class HTMLGenerator:
     
     @staticmethod
     def generate_sub_categories_html(sub_categories: Dict, results: Dict = None, max_items: int = 10) -> str:
-        """세부 카테고리 테이블 형태 HTML 생성 - 카테고리별 테이블과 동일한 구조"""
+        """세부 카테고리 테이블 형태 HTML 생성 - 완료율 칼럼 포함"""
         if not sub_categories:
             return ""
         
@@ -43,6 +43,7 @@ class HTMLGenerator:
                     <div class="sub-cat-column">유저여정</div>
                     <div class="sub-cat-column">문의수</div>
                     <div class="sub-cat-column">긴급률</div>
+                    <div class="sub-cat-column">완료율</div>
                     <div class="sub-cat-column">상세보기</div>
                 </div>
                 <div class="sub-categories-table-body">'''
@@ -66,6 +67,20 @@ class HTMLGenerator:
             urgent_count = basic_info.get('urgent_count', 0)
             urgent_rate = calculate_urgent_rate(urgent_count, count)
             
+            # 완료율 계산 (추정치)
+            answered_count = basic_info.get('answered_count', 0)
+            if not answered_count and results and 'team_analysis' in results:
+                # 팀별 평균 완료율로 추정
+                team_data = results['team_analysis'].get(main_team, {})
+                team_basic_info = team_data.get('basic_info', {})
+                team_answer_rate = calculate_answer_rate(
+                    team_basic_info.get('answered_count', 0),
+                    team_basic_info.get('total_inquiries', 1)
+                )
+                answered_count = int(count * (team_answer_rate / 100))
+            
+            answer_rate = calculate_answer_rate(answered_count, count)
+            
             # 긴급률 레벨 계산
             if urgent_rate >= 20:
                 urgent_level = 'high'
@@ -73,6 +88,14 @@ class HTMLGenerator:
                 urgent_level = 'medium'
             else:
                 urgent_level = 'low'
+            
+            # 완료율 레벨 계산
+            if answer_rate >= 80:
+                complete_level = 'high'
+            elif answer_rate >= 50:
+                complete_level = 'medium'
+            else:
+                complete_level = 'low'
             
             # 안전한 카테고리 ID 생성
             safe_category_id = category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '').replace('·', '-').replace('&', 'and')
@@ -84,12 +107,14 @@ class HTMLGenerator:
                          data-team="{main_team}" 
                          data-journey="{main_journey}" 
                          data-inquiries="{count}" 
-                         data-urgent="{urgent_rate}">
+                         data-urgent="{urgent_rate}"
+                         data-complete="{answer_rate}">
                         <div class="sub-cat-cell category-name">{category_name}</div>
                         <div class="sub-cat-cell"><span class="team-badge">{main_team}</span></div>
                         <div class="sub-cat-cell"><span class="journey-badge">{main_journey}</span></div>
                         <div class="sub-cat-cell metric-value">{count}건</div>
                         <div class="sub-cat-cell urgent-rate {urgent_level}">{urgent_rate}%</div>
+                        <div class="sub-cat-cell complete-rate {complete_level}">{answer_rate}%</div>
                         <div class="sub-cat-cell">
                             <button class="sub-cat-action-btn" onclick="openCategoryModal(this)" title="상세 문의 보기">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

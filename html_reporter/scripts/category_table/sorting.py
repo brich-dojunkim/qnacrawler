@@ -1,9 +1,9 @@
 """
-카테고리 테이블 정렬 시스템
+카테고리 테이블 정렬 시스템 - 완료율 정렬 포함
 """
 
 def get_sorting_scripts():
-    """정렬 관련 스크립트"""
+    """정렬 관련 스크립트 - 완료율 정렬 포함"""
     return """
 // ─────────── 정렬 함수들 ───────────
 function sortByInquiries() {
@@ -25,6 +25,19 @@ function sortByUrgent() {
         tableFilters.sortOrder = tableFilters.sortOrder === 'asc' ? 'desc' : 'asc';
     } else {
         tableFilters.sort = 'urgent';
+        tableFilters.sortOrder = 'desc';
+    }
+    
+    updateSortButtons(btn);
+    applyTableFilters();
+}
+
+function sortByComplete() {
+    const btn = document.getElementById('complete-sort');
+    if (tableFilters.sort === 'complete') {
+        tableFilters.sortOrder = tableFilters.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        tableFilters.sort = 'complete';
         tableFilters.sortOrder = 'desc';
     }
     
@@ -56,6 +69,9 @@ function sortTableRows(rows) {
         } else if (tableFilters.sort === 'urgent') {
             aVal = parseFloat(a.dataset.urgent || '0');
             bVal = parseFloat(b.dataset.urgent || '0');
+        } else if (tableFilters.sort === 'complete') {
+            aVal = parseFloat(a.dataset.complete || '0');
+            bVal = parseFloat(b.dataset.complete || '0');
         }
 
         if (tableFilters.sortOrder === 'asc') {

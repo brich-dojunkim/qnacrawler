@@ -1,6 +1,6 @@
-# voc_html_reporter.py (정리된 버전)
+# voc_html_reporter.py (완료율 필드 추가된 버전)
 """
-카테고리 기반 VoC HTML 보고서 생성기 - 불필요한 import 제거
+카테고리 기반 VoC HTML 보고서 생성기 - 완료율 칼럼 지원
 """
 
 import pandas as pd
@@ -19,11 +19,6 @@ from html_reporter import (
 from html_reporter.templates.category_table import get_category_table_row_template, get_team_filter_options
 from html_reporter.styles import get_main_styles
 from output_manager import get_report_filename
-
-# 제거된 import들:
-# - get_journey_section_template, get_journey_card_template (사용 안함)
-# - get_category_section_template, get_category_card_template (사용 안함)  
-# - process_journey_data (사용 안함)
 
 class CategoryVoCHTMLReporter:
     """카테고리 기반 VoC HTML 보고서 생성기 - 단일 페이지"""
@@ -64,7 +59,7 @@ class CategoryVoCHTMLReporter:
         return html_content
 
     def _generate_category_table_data(self, results: dict):
-        """카테고리 테이블 로우 데이터 생성"""
+        """카테고리 테이블 로우 데이터 생성 - 완료율 필드 포함"""
         if 'category_analysis' not in results:
             return {
                 'category_table_rows': '',
@@ -95,12 +90,21 @@ class CategoryVoCHTMLReporter:
             else:
                 urgent_level = 'low'
             
+            # 완료율 레벨 계산 (새로 추가)
+            answer_rate = float(category.get('answer_rate', 0))  # 기본값 0
+            if answer_rate >= 80:
+                complete_level = 'high'
+            elif answer_rate >= 50:
+                complete_level = 'medium'
+            else:
+                complete_level = 'low'
+            
             # 카테고리명을 소문자로 변환 (검색용)
             name_lower = category['name'].lower()
             
-            print(f"  📝 카테고리 처리: {category['name']} (모달 ID: {category['modal_id']})")
+            print(f"  📝 카테고리 처리: {category['name']} (완료율: {answer_rate}%, 모달 ID: {category['modal_id']})")
             
-            # 테이블 로우 생성
+            # 테이블 로우 생성 (완료율 필드 추가)
             table_rows_html += get_category_table_row_template().format(
                 name=category['name'],
                 name_lower=name_lower,
@@ -109,6 +113,8 @@ class CategoryVoCHTMLReporter:
                 total_inquiries=category['total_inquiries'],
                 urgent_rate=category['urgent_rate'],
                 urgent_level=urgent_level,
+                answer_rate=answer_rate,  # 완료율 추가
+                complete_level=complete_level,  # 완료율 레벨 추가
                 modal_id=category['modal_id']
             )
             

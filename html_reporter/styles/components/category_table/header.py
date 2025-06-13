@@ -5,11 +5,11 @@
 def get_header_styles():
     """테이블 헤더 관련 스타일 - 둥근 모서리 및 중앙정렬 적용"""
     return """
-/* === 텍스트 옆 아이콘 테이블 필터 헤더 (아코디언 내부 테이블과 통일) === */
+/* === 텍스트 옆 아이콘 테이블 필터 헤더 (완료율 칼럼 추가) === */
 .table-filter-header {
     background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
     display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr 0.8fr 0.8fr 0.6fr;
+    grid-template-columns: 2fr 1fr 1.2fr 0.8fr 0.8fr 0.8fr 0.6fr;
     gap: 0;
     padding: 12px 0;
     border-bottom: 1px solid #e2e8f0;

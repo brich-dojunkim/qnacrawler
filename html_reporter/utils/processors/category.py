@@ -1,5 +1,5 @@
-# html_reporter/utils/processors/category.py
-"""카테고리별 데이터 처리 - 모달 정보 포함"""
+# html_reporter/utils/processors/category.py (완료율 데이터 처리 포함)
+"""카테고리별 데이터 처리 - 완료율 정보 포함"""
 
 from typing import Dict, List
 
@@ -7,7 +7,7 @@ from ..calculations import calculate_answer_rate, calculate_urgent_rate
 from ..mappings import get_journey_for_category
 
 def process_category_data(results: Dict) -> List[Dict]:
-    """카테고리별 데이터 처리 - 답변률 데이터 및 모달 정보 포함"""
+    """카테고리별 데이터 처리 - 완료율 데이터 및 모달 정보 포함"""
     if 'category_analysis' not in results:
         return []
     
@@ -23,16 +23,19 @@ def process_category_data(results: Dict) -> List[Dict]:
         urgent_rate = calculate_urgent_rate(basic_info['urgent_count'], basic_info['total_inquiries'])
         
         # 답변률 계산 (추정)
-        answered_count = 0
-        if 'team_analysis' in results:
-            for team_data in results['team_analysis'].values():
-                if category_name in team_data.get('sub_categories', {}):
-                    team_answer_rate = calculate_answer_rate(
-                        team_data['basic_info'].get('answered_count', 0),
-                        team_data['basic_info']['total_inquiries']
-                    )
-                    category_inquiries = team_data['sub_categories'][category_name]
-                    answered_count += int(category_inquiries * (team_answer_rate / 100))
+        answered_count = basic_info.get('answered_count', 0)
+        if not answered_count and 'team_analysis' in results:
+            # 팀별 평균 완료율로 추정
+            team_distribution = category_info.get('team_distribution', {})
+            if team_distribution:
+                main_team = list(team_distribution.keys())[0]
+                team_data = results['team_analysis'].get(main_team, {})
+                team_basic_info = team_data.get('basic_info', {})
+                team_answer_rate = calculate_answer_rate(
+                    team_basic_info.get('answered_count', 0),
+                    team_basic_info.get('total_inquiries', 1)
+                )
+                answered_count = int(basic_info['total_inquiries'] * (team_answer_rate / 100))
         
         answer_rate = calculate_answer_rate(answered_count, basic_info['total_inquiries'])
         
@@ -45,19 +48,38 @@ def process_category_data(results: Dict) -> List[Dict]:
         main_team = list(category_info.get('team_distribution', {}).keys())[0] if category_info.get('team_distribution') else '기타'
         main_journey = get_journey_for_category(category_name)
         
+        # 긴급률 레벨 계산
+        if urgent_rate >= 20:
+            urgent_level = 'high'
+        elif urgent_rate >= 10:
+            urgent_level = 'medium'
+        else:
+            urgent_level = 'low'
+        
+        # 완료율 레벨 계산
+        if answer_rate >= 80:
+            complete_level = 'high'
+        elif answer_rate >= 50:
+            complete_level = 'medium'
+        else:
+            complete_level = 'low'
+        
         # 안전한 ID 생성
         safe_id = category_name.replace(' ', '-').replace('/', '-').replace('(', '').replace(')', '').replace('·', '-').replace('&', 'and')
         modal_id = f"modal-{safe_id}"
         
         # 향상된 모달 콘텐츠 생성
-        modal_content = generate_enhanced_modal_content(category_name, category_info, main_team, main_journey, urgent_rate)
+        modal_content = generate_enhanced_modal_content(category_name, category_info, main_team, main_journey, urgent_rate, answer_rate)
         
         category_cards.append({
             'name': category_name,
+            'name_lower': category_name.lower(),
             'total_inquiries': basic_info['total_inquiries'],
             'urgent_count': basic_info['urgent_count'],
             'urgent_rate': urgent_rate,
+            'urgent_level': urgent_level,
             'answer_rate': answer_rate,
+            'complete_level': complete_level,
             'avg_content_length': round(basic_info['avg_content_length']),
             'main_team': main_team,
             'main_journey': main_journey,
@@ -68,8 +90,8 @@ def process_category_data(results: Dict) -> List[Dict]:
     
     return category_cards
 
-def generate_enhanced_modal_content(category_name: str, category_info: Dict, main_team: str, main_journey: str, urgent_rate: float) -> str:
-    """향상된 모달 콘텐츠 생성"""
+def generate_enhanced_modal_content(category_name: str, category_info: Dict, main_team: str, main_journey: str, urgent_rate: float, answer_rate: float) -> str:
+    """향상된 모달 콘텐츠 생성 - 완료율 정보 포함"""
     basic_info = category_info.get('basic_info', {})
     total_inquiries = basic_info.get('total_inquiries', 0)
     
@@ -119,7 +141,7 @@ def generate_enhanced_modal_content(category_name: str, category_info: Dict, mai
             </div>
         </div>'''
     
-    # 통계 요약
+    # 통계 요약 (완료율 추가)
     stats_summary = f'''
     <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #f8fafc, #e2e8f0); border-radius: 8px;">
         <h4 style="margin: 0 0 12px 0; color: #374151;">📊 {category_name} 상세 정보</h4>
@@ -131,6 +153,10 @@ def generate_enhanced_modal_content(category_name: str, category_info: Dict, mai
             <div style="text-align: center;">
                 <div style="font-size: 1.5rem; font-weight: bold; color: #ef4444;">{urgent_rate}%</div>
                 <div style="font-size: 0.85rem; color: #6b7280;">긴급률</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: 1.5rem; font-weight: bold; color: #10b981;">{answer_rate}%</div>
+                <div style="font-size: 0.85rem; color: #6b7280;">완료율</div>
             </div>
             <div style="text-align: center;">
                 <div style="font-size: 1rem; font-weight: bold; color: #f59e0b;">{main_team}</div>
