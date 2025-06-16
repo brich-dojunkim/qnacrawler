@@ -1,9 +1,10 @@
+# html_reporter/styles/components/category_table/header.py
 """
-카테고리 테이블 헤더 스타일 - 아코디언 내 테이블과 통일 + 드로어 연동 마진 조정
+카테고리 테이블 헤더 스타일 - 극한 여백 최소화 (거의 붙도록)
 """
 
 def get_header_styles():
-    """테이블 헤더 관련 스타일 - 드로어 연동 마진 조정"""
+    """테이블 헤더 관련 스타일 - 극한 여백 최소화"""
     return """
 /* === 텍스트 옆 아이콘 테이블 필터 헤더 (완료율 칼럼 추가) === */
 .table-filter-header {
@@ -48,7 +49,7 @@ def get_header_styles():
     line-height: 1.2;
 }
 
-/* === 필터 상태 표시 (드로어 연동 마진) === */
+/* === 필터 상태 표시 (극한 여백 최소화) === */
 .table-filter-status {
     font-size: 1rem;
     font-weight: 700;
@@ -64,9 +65,14 @@ def get_header_styles():
     gap: 8px;
 }
 
-/* 드로어가 열렸을 때 우측 마진 완전 제거 */
+/* 드로어가 열렸을 때 상태바가 거의 끝까지 확장 */
 .detailed-analysis-section.drawer-open .table-filter-status {
-    margin-right: 0;
+    margin-left: 5px;     /* 30px → 5px로 극한 감소 */
+    margin-right: 0;      /* 우측 마진 완전 제거 */
+    
+    /* 상태바가 거의 끝까지 확장되도록 */
+    width: calc(100% - 5px + 55px);  /* 좌측 5px만 빼고 + 55px 확장 */
+    box-sizing: border-box;
 }
 
 .clear-table-filters {

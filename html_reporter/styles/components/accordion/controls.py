@@ -1,10 +1,10 @@
 # html_reporter/styles/components/accordion/controls.py
 """
-아코디언 컨트롤 바 및 토글 스타일 - 테이블 컨트롤 간격 포함
+아코디언 컨트롤 바 및 토글 스타일 - 극한 여백 최소화 (거의 붙도록)
 """
 
 def get_controls_bar_styles():
-    """통합된 컨트롤 바 스타일 - 테이블 컨트롤 간격 포함"""
+    """통합된 컨트롤 바 스타일 - 극한 여백 최소화"""
     return """
 /* === 통합된 컨트롤 바 (상단 여백 제거) === */
 .controls-bar {
@@ -15,6 +15,18 @@ def get_controls_bar_styles():
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+}
+
+/* 드로어 열릴 때 컨트롤 바 극한 여백 최소화 */
+.detailed-analysis-section.drawer-open .controls-bar {
+    padding-left: 5px;    /* 30px → 5px로 극한 감소 */
+    padding-right: 2px;   /* 2px만 남김 */
+    margin-right: 0;
+    margin-left: 0;
+    
+    /* 컨트롤 바가 거의 끝까지 확장 */
+    width: calc(100% + 58px);
+    box-sizing: border-box;
 }
 
 .bulk-controls {

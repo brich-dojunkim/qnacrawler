@@ -1,14 +1,14 @@
 # html_reporter/styles/components/drawer/header.py
 """
-드로어 헤더 및 검색 영역 스타일 - 밝은 테마로 수정
+드로어 헤더 및 검색 영역 스타일 - 확장된 너비에 맞춘 패딩 조정
 """
 
 def get_drawer_header_styles():
-    """드로어 헤더 스타일 - 밝은 배경으로 수정"""
+    """드로어 헤더 스타일 - 확장된 너비에 맞춘 패딩"""
     return """
 /* === 드로어 헤더 === */
 .drawer-header {
-    padding: 20px;
+    padding: 20px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
     border-bottom: 1px solid #e2e8f0;
     background: linear-gradient(135deg, #ffffff, #f8fafc);
 }
@@ -76,11 +76,11 @@ def get_drawer_header_styles():
 """
 
 def get_drawer_search_styles():
-    """드로어 검색 영역 스타일"""
+    """드로어 검색 영역 스타일 - 확장된 너비에 맞춘 패딩"""
     return """
 /* === 검색 영역 === */
 .drawer-search {
-    padding: 16px 20px;
+    padding: 16px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
     border-bottom: 1px solid #e2e8f0;
     background: white;
 }

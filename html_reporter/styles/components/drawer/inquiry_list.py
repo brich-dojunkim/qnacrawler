@@ -1,6 +1,6 @@
 # html_reporter/styles/components/drawer/inquiry_list.py
 """
-문의 목록 및 아이템 스타일 - 밝은 테마로 수정
+문의 목록 및 아이템 스타일 - 확장된 너비에 맞춘 패딩 조정
 """
 
 def get_inquiry_list_styles():
@@ -20,7 +20,7 @@ def get_inquiry_list_styles():
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 40px 20px;
+    padding: 40px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
     background: white;
 }
 
@@ -73,11 +73,11 @@ def get_inquiry_list_styles():
 """
 
 def get_inquiry_item_styles():
-    """개별 문의 아이템 스타일 - 밝은 호버 효과로 수정"""
+    """개별 문의 아이템 스타일 - 확장된 너비에 맞춘 패딩"""
     return """
 /* === 개별 문의 아이템 === */
 .inquiry-item {
-    padding: 16px 20px;
+    padding: 16px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
     border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
     transition: background 0.2s ease;

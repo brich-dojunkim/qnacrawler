@@ -1,10 +1,10 @@
 # html_reporter/styles/components/drawer/base.py
 """
-드로어 기본 구조 및 레이아웃 스타일 - 여백 완전 제거
+드로어 기본 구조 및 레이아웃 스타일 - 극한 여백 최소화 (거의 붙도록)
 """
 
 def get_drawer_base_styles():
-    """드로어 기본 구조 스타일 - 여백 완전 제거"""
+    """드로어 기본 구조 스타일 - 극한 여백 최소화"""
     return """
 /* === 메인 콘텐츠 래퍼 === */
 .main-content-wrapper {
@@ -19,7 +19,7 @@ def get_drawer_base_styles():
 }
 
 .detailed-analysis-section.drawer-open {
-    margin-right: 400px;
+    margin-right: 455px;  /* 460px → 455px로 5px 줄임 (붙도록) */
 }
 
 /* === 사이드 드로어 === */
@@ -27,7 +27,7 @@ def get_drawer_base_styles():
     position: fixed;
     top: 0;
     right: 0;
-    width: 400px;
+    width: 465px;  /* 460px → 465px로 5px 늘림 (겹치도록) */
     height: 100vh;
     z-index: 1000;
     pointer-events: none;
@@ -62,14 +62,14 @@ def get_drawer_base_styles():
 """
 
 def get_drawer_panel_styles():
-    """드로어 패널 스타일 - 그림자 제거, 테두리만 적용"""
+    """드로어 패널 스타일 - 극한 여백 최소화"""
     return """
 /* === 드로어 패널 === */
 .drawer-panel {
     position: absolute;
     top: 0;
     right: 0;
-    width: 400px;
+    width: 465px;  /* 460px → 465px로 5px 늘림 */
     height: 100vh;
     background: white;
     box-shadow: none;
@@ -81,7 +81,7 @@ def get_drawer_panel_styles():
 }
 
 .inquiry-drawer.open .drawer-panel {
-    transform: translateX(0);
+    transform: translateX(-5px);  /* 5px 왼쪽으로 이동하여 완전히 붙도록 */
 }
 
 /* === 바디 상태 === */

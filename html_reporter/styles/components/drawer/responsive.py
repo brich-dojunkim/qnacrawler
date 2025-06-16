@@ -1,10 +1,10 @@
 # html_reporter/styles/components/drawer/responsive.py
 """
-드로어 반응형 스타일 - 다크모드 제거
+드로어 반응형 스타일 - 확장된 너비 대응
 """
 
 def get_drawer_responsive_styles():
-    """드로어 반응형 스타일 - 다크모드 스타일 제거됨"""
+    """드로어 반응형 스타일 - 확장된 너비 대응"""
     return """
 /* === 태블릿 반응형 (768px 이하) === */
 @media (max-width: 768px) {
@@ -33,7 +33,7 @@ def get_drawer_responsive_styles():
     }
     
     .drawer-header {
-        padding: 16px;
+        padding: 16px 20px;  /* 모바일에서는 기본 패딩 유지 */
     }
     
     .drawer-title-section {
@@ -55,7 +55,7 @@ def get_drawer_responsive_styles():
     }
     
     .drawer-search {
-        padding: 12px 16px;
+        padding: 12px 20px;  /* 모바일에서는 기본 패딩 유지 */
     }
     
     .drawer-search-input {
@@ -63,7 +63,7 @@ def get_drawer_responsive_styles():
     }
     
     .inquiry-item {
-        padding: 12px 16px;
+        padding: 12px 20px;  /* 모바일에서는 기본 패딩 유지 */
     }
     
     .inquiry-item-header {
@@ -79,7 +79,7 @@ def get_drawer_responsive_styles():
     }
     
     .inquiry-detail-content {
-        padding: 16px;
+        padding: 16px 20px;  /* 모바일에서는 기본 패딩 유지 */
     }
     
     .inquiry-header-info {
@@ -100,12 +100,16 @@ def get_drawer_responsive_styles():
         align-items: flex-start;
         gap: 4px;
     }
+    
+    .detail-header {
+        padding: 12px 20px;  /* 모바일에서는 기본 패딩 유지 */
+    }
 }
 
 /* === 모바일 반응형 (480px 이하) === */
 @media (max-width: 480px) {
     .drawer-header {
-        padding: 12px;
+        padding: 12px 16px;
     }
     
     .drawer-category-name {
@@ -129,7 +133,7 @@ def get_drawer_responsive_styles():
     }
     
     .drawer-search {
-        padding: 10px 12px;
+        padding: 10px 16px;
     }
     
     .drawer-search-input {
@@ -147,7 +151,7 @@ def get_drawer_responsive_styles():
     }
     
     .inquiry-item {
-        padding: 10px 12px;
+        padding: 10px 16px;
     }
     
     .inquiry-id {
@@ -182,7 +186,7 @@ def get_drawer_responsive_styles():
     }
     
     .detail-header {
-        padding: 12px;
+        padding: 12px 16px;
         flex-direction: column;
         gap: 8px;
         align-items: flex-start;
@@ -202,7 +206,7 @@ def get_drawer_responsive_styles():
     }
     
     .inquiry-detail-content {
-        padding: 12px;
+        padding: 12px 16px;
         height: calc(100% - 80px);
     }
     
@@ -281,7 +285,7 @@ def get_drawer_responsive_styles():
 /* === 가로 모드 대응 (높이 480px 이하) === */
 @media (max-height: 480px) and (orientation: landscape) {
     .drawer-header {
-        padding: 8px 16px;
+        padding: 8px 30px;  /* 확장된 너비에서도 패딩 유지 */
     }
     
     .drawer-title-section {
@@ -289,15 +293,15 @@ def get_drawer_responsive_styles():
     }
     
     .drawer-search {
-        padding: 8px 16px;
+        padding: 8px 30px;  /* 확장된 너비에서도 패딩 유지 */
     }
     
     .inquiry-item {
-        padding: 8px 16px;
+        padding: 8px 30px;  /* 확장된 너비에서도 패딩 유지 */
     }
     
     .inquiry-detail-content {
-        padding: 12px 16px;
+        padding: 12px 30px;  /* 확장된 너비에서도 패딩 유지 */
     }
     
     .inquiry-detail-full {
@@ -310,6 +314,48 @@ def get_drawer_responsive_styles():
     
     .answer-item {
         padding: 10px;
+    }
+    
+    .detail-header {
+        padding: 8px 30px;  /* 확장된 너비에서도 패딩 유지 */
+    }
+}
+
+/* === 데스크톱 큰 화면 (1400px 이상) === */
+@media (min-width: 1400px) {
+    /* 큰 화면에서는 드로어를 더 넓게 확장할 수 있음 */
+    .inquiry-drawer {
+        width: 480px;  /* 460px → 480px로 추가 확장 */
+    }
+    
+    .drawer-panel {
+        width: 480px;  /* 460px → 480px로 추가 확장 */
+    }
+    
+    .detailed-analysis-section.drawer-open {
+        margin-right: 480px;  /* 460px → 480px로 추가 확장 */
+    }
+    
+    /* 큰 화면에서는 패딩도 더 넉넉하게 */
+    .drawer-header,
+    .drawer-search {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    
+    .inquiry-item {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    
+    .inquiry-detail-content {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+    
+    .detail-header {
+        padding-left: 40px;
+        padding-right: 40px;
     }
 }
 """

@@ -1,10 +1,10 @@
 # html_reporter/styles/components/drawer/inquiry_detail.py
 """
-문의 상세보기 및 답변 스타일
+문의 상세보기 및 답변 스타일 - 확장된 너비에 맞춘 패딩 조정
 """
 
 def get_inquiry_detail_styles():
-    """문의 상세보기 스타일"""
+    """문의 상세보기 스타일 - 확장된 너비에 맞춘 패딩"""
     return """
 /* === 상세보기 콘텐츠 === */
 .inquiry-detail-full {

@@ -1,11 +1,12 @@
+# html_reporter/styles/components/category_table/body.py
 """
-카테고리 테이블 본문 스타일 (메인 테이블과 아코디언 내부 테이블 통일) - 드로어 연동 마진 조정
+카테고리 테이블 본문 스타일 - 극한 여백 최소화 (거의 붙도록)
 """
 
 def get_table_container_styles():
-    """테이블 컨테이너 스타일 - 드로어 연동 마진 조정"""
+    """테이블 컨테이너 스타일 - 극한 여백 최소화"""
     return """
-/* === 카테고리 테이블 뷰 (드로어 연동 마진) === */
+/* === 카테고리 테이블 뷰 (극한 여백 최소화) === */
 .category-table-container {
     background: white;
     padding: 0;
@@ -21,9 +22,14 @@ def get_table_container_styles():
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
-/* 드로어가 열렸을 때 테이블 우측 마진 완전 제거 */
+/* 드로어가 열렸을 때 테이블이 거의 끝까지 확장 */
 .detailed-analysis-section.drawer-open .category-table {
-    margin-right: 0;
+    margin-left: 5px;     /* 30px → 5px로 극한 감소 */
+    margin-right: 0;      /* 우측 마진 완전 제거 */
+    
+    /* 테이블이 거의 끝까지 확장되도록 */
+    width: calc(100% - 5px + 55px);  /* 좌측 5px만 빼고 + 55px 확장 */
+    box-sizing: border-box;
 }
 """
 
@@ -269,6 +275,24 @@ def get_accordion_table_styles():
     border-top: 1px solid #e2e8f0;
 }
 
+/* === 세부카테고리 테이블 스크롤바 === */
+.sub-categories-table-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sub-categories-table-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+.sub-categories-table-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.sub-categories-table-body::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
 /* === 카테고리 테이블 반응형 === */
 @media (max-width: 768px) {
     .table-filter-header, 
@@ -306,13 +330,18 @@ def get_accordion_table_styles():
         padding: 10px 0;
     }
     
-    .category-table {
+    /* 모바일에서는 극한 최소화 해제 */
+    .category-table,
+    .detailed-analysis-section.drawer-open .category-table {
         margin: 0 10px;
+        width: auto;
     }
     
-    .table-filter-status {
+    .table-filter-status,
+    .detailed-analysis-section.drawer-open .table-filter-status {
         margin: 0 10px;
         padding: 8px 15px;
+        width: auto;
     }
     
     .category-table-row > div,

@@ -1,6 +1,6 @@
 # html_reporter/styles/components/drawer/content.py
 """
-드로어 콘텐츠 영역 및 뷰 전환 스타일
+드로어 콘텐츠 영역 및 뷰 전환 스타일 - 확장된 너비 대응
 """
 
 def get_drawer_content_styles():
@@ -65,7 +65,7 @@ def get_drawer_view_styles():
 
 /* === 상세보기 헤더 === */
 .detail-header {
-    padding: 16px 20px;
+    padding: 16px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
     border-bottom: 1px solid #e2e8f0;
     background: #f8fafc;
     display: flex;
@@ -106,6 +106,6 @@ def get_drawer_view_styles():
 .inquiry-detail-content {
     height: calc(100% - 60px);
     overflow-y: auto;
-    padding: 20px;
+    padding: 20px 30px;  /* 좌우 패딩 20px → 30px로 증가 */
 }
 """
