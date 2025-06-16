@@ -1,10 +1,10 @@
 # html_reporter/styles/components/drawer/responsive.py
 """
-드로어 반응형 스타일
+드로어 반응형 스타일 - 다크모드 제거
 """
 
 def get_drawer_responsive_styles():
-    """드로어 반응형 스타일"""
+    """드로어 반응형 스타일 - 다크모드 스타일 제거됨"""
     return """
 /* === 태블릿 반응형 (768px 이하) === */
 @media (max-width: 768px) {
@@ -310,75 +310,6 @@ def get_drawer_responsive_styles():
     
     .answer-item {
         padding: 10px;
-    }
-}
-
-/* === 다크모드 지원 (선택사항) === */
-@media (prefers-color-scheme: dark) {
-    .drawer-panel {
-        background: #1f2937;
-        color: #f9fafb;
-    }
-    
-    .drawer-header {
-        background: linear-gradient(135deg, #374151, #4b5563);
-        border-bottom-color: #4b5563;
-    }
-    
-    .drawer-category-name {
-        color: #f9fafb;
-    }
-    
-    .drawer-search {
-        background: #1f2937;
-        border-bottom-color: #4b5563;
-    }
-    
-    .drawer-search-input {
-        background: #374151;
-        border-color: #6b7280;
-        color: #f9fafb;
-    }
-    
-    .drawer-search-input:focus {
-        background: #4b5563;
-        border-color: #667eea;
-    }
-    
-    .inquiry-item {
-        border-bottom-color: #374151;
-    }
-    
-    .inquiry-item:hover {
-        background: #374151;
-    }
-    
-    .inquiry-preview-text {
-        color: #d1d5db;
-    }
-    
-    .inquiry-detail-content {
-        background: #1f2937;
-    }
-    
-    .inquiry-header-info {
-        background: linear-gradient(135deg, #374151, #4b5563);
-        border-color: #6b7280;
-    }
-    
-    .inquiry-content-section,
-    .answers-section {
-        background: #374151;
-        border-color: #6b7280;
-    }
-    
-    .inquiry-content {
-        background: #4b5563;
-    }
-    
-    .answer-text {
-        background: #4b5563;
-        border-left-color: #667eea;
     }
 }
 """

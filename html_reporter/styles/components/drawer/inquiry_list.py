@@ -1,6 +1,6 @@
 # html_reporter/styles/components/drawer/inquiry_list.py
 """
-문의 목록 및 아이템 스타일
+문의 목록 및 아이템 스타일 - 밝은 테마로 수정
 """
 
 def get_inquiry_list_styles():
@@ -11,6 +11,7 @@ def get_inquiry_list_styles():
     height: 100%;
     overflow-y: auto;
     padding: 0;
+    background: white;
 }
 
 /* === 빈 상태 === */
@@ -20,6 +21,7 @@ def get_inquiry_list_styles():
     justify-content: center;
     height: 100%;
     padding: 40px 20px;
+    background: white;
 }
 
 .empty-state {
@@ -52,6 +54,7 @@ def get_inquiry_list_styles():
     height: 100%;
     gap: 16px;
     color: #6b7280;
+    background: white;
 }
 
 .loading-spinner {
@@ -70,7 +73,7 @@ def get_inquiry_list_styles():
 """
 
 def get_inquiry_item_styles():
-    """개별 문의 아이템 스타일"""
+    """개별 문의 아이템 스타일 - 밝은 호버 효과로 수정"""
     return """
 /* === 개별 문의 아이템 === */
 .inquiry-item {
@@ -78,6 +81,7 @@ def get_inquiry_item_styles():
     border-bottom: 1px solid #f1f5f9;
     cursor: pointer;
     transition: background 0.2s ease;
+    background: white;
 }
 
 .inquiry-item:hover {

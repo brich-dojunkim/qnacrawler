@@ -1,16 +1,16 @@
 # html_reporter/styles/components/drawer/header.py
 """
-드로어 헤더 및 검색 영역 스타일
+드로어 헤더 및 검색 영역 스타일 - 밝은 테마로 수정
 """
 
 def get_drawer_header_styles():
-    """드로어 헤더 스타일"""
+    """드로어 헤더 스타일 - 밝은 배경으로 수정"""
     return """
 /* === 드로어 헤더 === */
 .drawer-header {
     padding: 20px;
     border-bottom: 1px solid #e2e8f0;
-    background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
 }
 
 .drawer-title-section {
