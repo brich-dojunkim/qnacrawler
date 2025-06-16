@@ -13,9 +13,6 @@ from .category import get_modal_template
 # 카테고리 테이블 템플릿 (필수)
 from .category_table import get_category_table_row_template, get_team_filter_options
 
-# 드로어 템플릿 (새로 추가)
-from .drawer import get_drawer_template
-
 __all__ = [
     'get_base_template',
     'get_header_template', 

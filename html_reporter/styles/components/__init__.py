@@ -58,13 +58,6 @@ except ImportError:
     def get_category_table_styles():
         return ""
 
-try:
-    from .drawer import get_drawer_styles
-except ImportError:
-    print("Warning: drawer 패키지에서 get_drawer_styles를 import할 수 없습니다.")
-    def get_drawer_styles():
-        return ""
-
 def get_component_styles():
     """모든 UI 컴포넌트 스타일 조합 (모듈화된 패키지들만 사용)"""
     styles = [
@@ -76,7 +69,6 @@ def get_component_styles():
         get_ranking_styles(),        # 랭킹 컴포넌트
         get_accordion_styles(),      # 모듈화된 아코디언 패키지
         get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
-        get_drawer_styles(),         # 모듈화된 드로어 패키지
     ]
     
     return '\n'.join(styles)
@@ -86,7 +78,6 @@ def get_navigation_components():
     styles = [
         get_button_styles(),         # 네비게이션 버튼들
         get_accordion_styles(),      # 아코디언 네비게이션
-        get_drawer_styles(),         # 드로어 네비게이션
     ]
     
     return '\n'.join(styles)
@@ -99,7 +90,6 @@ def get_ui_components_only():
         get_badge_styles(),
         get_accordion_styles(),      # 모듈화된 아코디언 패키지
         get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
-        get_drawer_styles()          # 모듈화된 드로어 패키지
     ]
     
     return '\n'.join(styles)
@@ -112,7 +102,6 @@ def get_overview_components():
         get_ranking_styles(),        # 순위 아이템용
         get_accordion_styles(),      # 팀별 아코디언용
         get_category_table_styles(), # 카테고리 테이블용
-        get_drawer_styles(),         # 드로어용
     ]
     
     return '\n'.join(styles)
@@ -123,7 +112,6 @@ def get_modal_components_only():
         get_button_styles(),         # modal-trigger 포함
         get_modal_styles(),          # 모달 오버레이
         get_card_styles(),           # inquiry-card 포함
-        get_drawer_styles(),         # 드로어 (모달 대체)
     ]
     
     return '\n'.join(styles)
@@ -174,30 +162,6 @@ def get_category_table_modal_styles():
     try:
         from .category_table import get_modal_only
         return get_modal_only()
-    except ImportError:
-        return ""
-
-def get_drawer_layout_styles():
-    """드로어 기본 레이아웃만"""
-    try:
-        from .drawer import get_drawer_layout_styles as _get_layout
-        return _get_layout()
-    except ImportError:
-        return ""
-
-def get_drawer_header_combined():
-    """드로어 헤더 관련 스타일만"""
-    try:
-        from .drawer import get_drawer_header_combined as _get_header
-        return _get_header()
-    except ImportError:
-        return ""
-
-def get_drawer_inquiry_styles():
-    """드로어 문의 관련 스타일만"""
-    try:
-        from .drawer import get_drawer_inquiry_styles as _get_inquiry
-        return _get_inquiry()
     except ImportError:
         return ""
 

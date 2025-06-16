@@ -1,9 +1,9 @@
 """
-카테고리 테이블 반응형 스타일
+카테고리 테이블 반응형 스타일 - 아코디언과 동일한 여백
 """
 
 def get_responsive_styles():
-    """반응형 스타일"""
+    """반응형 스타일 - 아코디언과 동일한 여백"""
     return """
 /* === 반응형 === */
 @media (max-width: 768px) {
@@ -39,15 +39,10 @@ def get_responsive_styles():
     }
     
     .category-table-container {
-        padding: 10px 0;
-    }
-    
-    .category-table {
-        margin: 0 10px;
+        padding: 0; /* 중복 여백 방지 - accordion-content-area가 패딩 제공 */
     }
     
     .table-filter-status {
-        margin: 0 10px;
         padding: 8px 15px;
     }
     

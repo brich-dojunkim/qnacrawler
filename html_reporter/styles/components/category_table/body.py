@@ -1,15 +1,15 @@
 # html_reporter/styles/components/category_table/body.py
 """
-카테고리 테이블 본문 스타일 - 극한 여백 최소화 (거의 붙도록)
+카테고리 테이블 본문 스타일 - 아코디언과 동일한 여백
 """
 
 def get_table_container_styles():
-    """테이블 컨테이너 스타일 - 극한 여백 최소화"""
+    """테이블 컨테이너 스타일 - 중복 여백 방지"""
     return """
-/* === 카테고리 테이블 뷰 (극한 여백 최소화) === */
+/* === 카테고리 테이블 뷰 (중복 여백 방지) === */
 .category-table-container {
     background: white;
-    padding: 0;
+    padding: 0; /* 패딩 제거 - accordion-content-area가 이미 패딩 제공 */
 }
 
 .category-table {
@@ -18,18 +18,8 @@ def get_table_container_styles():
     overflow: hidden;
     border: 1px solid #e2e8f0;
     border-top: none;
-    margin: 0 30px 0 30px;
+    margin: 0; /* 마진도 0 - accordion-content-area 패딩 사용 */
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
-/* 드로어가 열렸을 때 테이블이 거의 끝까지 확장 */
-.detailed-analysis-section.drawer-open .category-table {
-    margin-left: 5px;     /* 30px → 5px로 극한 감소 */
-    margin-right: 0;      /* 우측 마진 완전 제거 */
-    
-    /* 테이블이 거의 끝까지 확장되도록 */
-    width: calc(100% - 5px + 55px);  /* 좌측 5px만 빼고 + 55px 확장 */
-    box-sizing: border-box;
 }
 """
 
@@ -326,22 +316,13 @@ def get_accordion_table_styles():
         width: 100%;
     }
     
+    /* 모바일에서도 중복 여백 방지 */
     .category-table-container {
-        padding: 10px 0;
+        padding: 0; /* 패딩 제거 - accordion-content-area가 패딩 제공 */
     }
     
-    /* 모바일에서는 극한 최소화 해제 */
-    .category-table,
-    .detailed-analysis-section.drawer-open .category-table {
-        margin: 0 10px;
-        width: auto;
-    }
-    
-    .table-filter-status,
-    .detailed-analysis-section.drawer-open .table-filter-status {
-        margin: 0 10px;
+    .table-filter-status {
         padding: 8px 15px;
-        width: auto;
     }
     
     .category-table-row > div,
