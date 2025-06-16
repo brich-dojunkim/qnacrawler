@@ -1,24 +1,29 @@
 """
-카테고리 테이블 본문 스타일 (메인 테이블과 아코디언 내부 테이블 통일)
+카테고리 테이블 본문 스타일 (메인 테이블과 아코디언 내부 테이블 통일) - 드로어 연동 마진 조정
 """
 
 def get_table_container_styles():
-    """테이블 컨테이너 스타일 - 둥근 모서리 적용"""
+    """테이블 컨테이너 스타일 - 드로어 연동 마진 조정"""
     return """
-/* === 카테고리 테이블 뷰 (이중 여백 제거) === */
+/* === 카테고리 테이블 뷰 (드로어 연동 마진) === */
 .category-table-container {
     background: white;
-    padding: 0; /* 패딩 제거 - accordion-content-area에서 이미 여백 적용됨 */
+    padding: 0;
 }
 
 .category-table {
     background: white;
-    border-radius: 0 0 8px 8px; /* 하단만 둥글게 - 아코디언 테이블과 동일 */
+    border-radius: 0 0 8px 8px;
     overflow: hidden;
     border: 1px solid #e2e8f0;
-    border-top: none; /* 상단 보더 제거하여 status와 연결 */
-    margin: 0; /* 마진 제거 - accordion-content-area에서 이미 여백 적용됨 */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); /* 아코디언 테이블과 동일한 그림자 */
+    border-top: none;
+    margin: 0 30px 0 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* 드로어가 열렸을 때 테이블 우측 마진 완전 제거 */
+.detailed-analysis-section.drawer-open .category-table {
+    margin-right: 0;
 }
 """
 
@@ -49,7 +54,7 @@ def get_table_body_styles():
 .category-table-row > div:last-child,
 .sub-cat-cell:last-child {
     border-right: none;
-    justify-content: center; /* 상세보기 버튼 중앙 정렬 */
+    justify-content: center;
 }
 
 .category-table-row:hover,
@@ -119,15 +124,15 @@ def get_table_body_styles():
 }
 
 .complete-rate.high {
-    color: #059669; /* 높음(80%+): 초록색 */
+    color: #059669;
 }
 
 .complete-rate.medium {
-    color: #d97706; /* 보통(50-80%): 주황색 */
+    color: #d97706;
 }
 
 .complete-rate.low {
-    color: #dc2626; /* 낮음(50% 미만): 빨간색 */
+    color: #dc2626;
 }
 
 /* === 공통 액션 버튼 === */
@@ -298,15 +303,15 @@ def get_accordion_table_styles():
     }
     
     .category-table-container {
-        padding: 10px 0; /* 모바일에서는 약간의 패딩 추가 */
+        padding: 10px 0;
     }
     
     .category-table {
-        margin: 0 10px; /* 모바일에서는 10px 마진 추가 */
+        margin: 0 10px;
     }
     
     .table-filter-status {
-        margin: 0 10px; /* 모바일에서는 10px 마진 추가 */
+        margin: 0 10px;
         padding: 8px 15px;
     }
     

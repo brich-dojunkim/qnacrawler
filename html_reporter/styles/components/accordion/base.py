@@ -1,10 +1,10 @@
 # html_reporter/styles/components/accordion/base.py
 """
-기본 아코디언 구조 및 레이아웃 스타일
+기본 아코디언 구조 및 레이아웃 스타일 - 드로어 연동 패딩 조정
 """
 
 def get_accordion_base_layout():
-    """상세 분석 섹션 기본 레이아웃"""
+    """상세 분석 섹션 기본 레이아웃 - 드로어 패딩 조정"""
     return """
 /* === 타이트한 상세 분석 섹션 === */
 .detailed-analysis-section {
@@ -12,11 +12,16 @@ def get_accordion_base_layout():
     margin-top: 0;
 }
 
-/* === 아코디언 콘텐츠 영역 (흰색 배경) === */
+/* === 아코디언 콘텐츠 영역 (드로어 연동 패딩) === */
 .accordion-content-area {
     background: white;
     padding: 20px 30px 30px;
     min-height: 300px;
+}
+
+/* 드로어가 열렸을 때 우측 패딩 완전 제거 */
+.detailed-analysis-section.drawer-open .accordion-content-area {
+    padding-right: 0;
 }
 
 .analysis-view {

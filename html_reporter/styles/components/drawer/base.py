@@ -1,10 +1,10 @@
 # html_reporter/styles/components/drawer/base.py
 """
-드로어 기본 구조 및 레이아웃 스타일
+드로어 기본 구조 및 레이아웃 스타일 - 여백 완전 제거
 """
 
 def get_drawer_base_styles():
-    """드로어 기본 구조 스타일"""
+    """드로어 기본 구조 스타일 - 여백 완전 제거"""
     return """
 /* === 메인 콘텐츠 래퍼 === */
 .main-content-wrapper {
@@ -62,7 +62,7 @@ def get_drawer_base_styles():
 """
 
 def get_drawer_panel_styles():
-    """드로어 패널 스타일"""
+    """드로어 패널 스타일 - 그림자 제거, 테두리만 적용"""
     return """
 /* === 드로어 패널 === */
 .drawer-panel {
@@ -72,7 +72,8 @@ def get_drawer_panel_styles():
     width: 400px;
     height: 100vh;
     background: white;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: none;
+    border-left: 1px solid #e2e8f0;
     transform: translateX(100%);
     transition: transform 0.3s ease;
     display: flex;
