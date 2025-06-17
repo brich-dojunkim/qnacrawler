@@ -140,7 +140,7 @@ window.clearAllInquiryFilters = function() {
     applyAllFiltersAndRender();
 };
 
-// ─────────── 모든 필터 적용 및 렌더링 ───────────
+// ─────────── 모든 필터 적용 및 렌더링 (로딩 상태 관리 개선) ───────────
 window.applyAllFiltersAndRender = function() {
     console.log('🎯 모든 필터 적용 및 렌더링 시작');
     
@@ -162,11 +162,14 @@ window.applyAllFiltersAndRender = function() {
         window.inquiryModalState.filteredInquiries = sortedInquiries;
         window.inquiryModalState.filteredItems = sortedInquiries.length;
         
-        // 페이지네이션 적용 및 렌더링
+        // 🔧 중요: 페이지네이션 적용 및 렌더링 (여기서 로딩이 숨겨짐)
         updatePaginationAndRender();
+        
+        console.log('✅ 모든 필터 적용 및 렌더링 완료');
         
     } catch (error) {
         console.error('❌ 필터 적용 오류:', error);
+        hideInquiryLoading();
         showEmptyState();
     }
 };

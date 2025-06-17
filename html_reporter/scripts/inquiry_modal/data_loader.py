@@ -1,12 +1,12 @@
 # html_reporter/scripts/inquiry_modal/data_loader.py
 """
-문의 데이터 로딩 및 카테고리 매칭 스크립트 - 안전한 필터링 로직
+문의 데이터 로딩 및 카테고리 매칭 스크립트 - 안전한 필터링 로직 + 로딩 상태 관리
 """
 
 def get_data_loader_scripts():
-    """데이터 로딩 관련 스크립트 - 안전한 타입 체크 추가"""
+    """데이터 로딩 관련 스크립트 - 안전한 타입 체크 추가 + 로딩 상태 관리"""
     return """
-// ─────────── 데이터 로딩 및 매칭 ───────────
+// ─────────── 데이터 로딩 및 매칭 (로딩 상태 관리 개선) ───────────
 console.log('📊 데이터 로더 시스템 로딩 중...');
 
 // 카테고리별 문의 로딩 메인 함수
@@ -17,6 +17,7 @@ window.loadCategoryInquiries = function(categoryName) {
         // 원본 데이터 확인
         if (!window.rawInquiryData || !Array.isArray(window.rawInquiryData)) {
             console.error('❌ 원본 문의 데이터가 없습니다.');
+            hideInquiryLoading();
             showEmptyState();
             return;
         }
@@ -29,6 +30,7 @@ window.loadCategoryInquiries = function(categoryName) {
         
         if (categoryInquiries.length === 0) {
             console.log('📭 해당 카테고리의 문의가 없습니다.');
+            hideInquiryLoading();
             showEmptyState();
             updateInquiryStats(0, 0, 0, 0);
             return;
@@ -45,11 +47,14 @@ window.loadCategoryInquiries = function(categoryName) {
         // 팀 필터 옵션 업데이트
         updateTeamFilterOptions(categoryInquiries);
         
-        // 필터링 및 렌더링
+        // 🔧 중요: 필터링 및 렌더링 (로딩은 여기서 숨겨짐)
         applyAllFiltersAndRender();
+        
+        console.log('✅ 카테고리 데이터 로딩 완료');
         
     } catch (error) {
         console.error('❌ 카테고리 문의 로딩 오류:', error);
+        hideInquiryLoading();
         showEmptyState();
     }
 };

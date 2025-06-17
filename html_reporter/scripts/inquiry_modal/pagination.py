@@ -1,13 +1,62 @@
 # html_reporter/scripts/inquiry_modal/pagination.py (수정된 버전 - 안전한 DOM 조작)
 """
-문의 모달 페이지네이션 스크립트 - 안전한 DOM 조작
+문의 모달 페이지네이션 스크립트 - 안전한 DOM 조작 + 로딩 상태 관리
 """
 
 def get_pagination_scripts():
-    """페이지네이션 관련 스크립트 - 안전한 DOM 조작"""
+    """페이지네이션 관련 스크립트 - 안전한 DOM 조작 + 로딩 상태 관리"""
     return """
-// ─────────── 페이지네이션 시스템 (안전한 DOM 조작) ───────────
+// ─────────── 페이지네이션 시스템 (안전한 DOM 조작 + 로딩 관리) ───────────
 console.log('📄 페이지네이션 시스템 로딩 중...');
+
+// ─────────── 로딩 상태 관리 함수들 ───────────
+function showInquiryLoading() {
+    console.log('🔄 로딩 상태 표시');
+    
+    // 기존 콘텐츠 숨기기
+    const listContainer = document.getElementById('inquiry-list');
+    if (listContainer) {
+        listContainer.style.display = 'none';
+    }
+    
+    const emptyState = document.getElementById('no-inquiries');
+    if (emptyState) {
+        emptyState.style.display = 'none';
+    }
+    
+    // 로딩 표시
+    const loadingElement = document.getElementById('inquiry-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'flex';
+    } else {
+        // 로딩 요소가 없으면 동적 생성
+        const container = document.getElementById('inquiry-list-container');
+        if (container) {
+            const loadingHtml = `
+                <div id="inquiry-loading" class="inquiry-loading" style="display: flex;">
+                    <div class="loading-spinner"></div>
+                    <span>문의 목록을 불러오는 중...</span>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterbegin', loadingHtml);
+        }
+    }
+}
+
+function hideInquiryLoading() {
+    console.log('✅ 로딩 상태 숨김');
+    
+    const loadingElement = document.getElementById('inquiry-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    
+    // 리스트 컨테이너 다시 표시
+    const listContainer = document.getElementById('inquiry-list');
+    if (listContainer) {
+        listContainer.style.display = 'flex';
+    }
+}
 
 // ─────────── 페이지네이션 적용 및 렌더링 ───────────
 window.updatePaginationAndRender = function() {
@@ -49,12 +98,16 @@ window.updatePaginationAndRender = function() {
         
     } catch (error) {
         console.error('❌ 페이지네이션 업데이트 오류:', error);
+        hideInquiryLoading();
         showEmptyState();
     }
 };
 
-// ─────────── 문의 목록 렌더링 (안전한 버전) ───────────
+// ─────────── 문의 목록 렌더링 (로딩 상태 관리 개선) ───────────
 function renderInquiryListSafe(inquiries) {
+    // 🔧 중요: 먼저 로딩 상태 숨기기
+    hideInquiryLoading();
+    
     // inquiry-list 요소 확인 및 생성
     let listContainer = document.getElementById('inquiry-list');
     
@@ -147,6 +200,39 @@ function createErrorCard(inquiry) {
             </div>
         </div>
     `;
+}
+
+// ─────────── 빈 상태 표시 (로딩 상태 관리 개선) ───────────
+function showEmptyState() {
+    console.log('📭 빈 상태 표시');
+    
+    // 로딩 상태 먼저 숨기기
+    hideInquiryLoading();
+    
+    // 리스트 숨기기
+    const listContainer = document.getElementById('inquiry-list');
+    if (listContainer) {
+        listContainer.style.display = 'none';
+    }
+    
+    // 빈 상태 표시
+    const emptyState = document.getElementById('no-inquiries');
+    if (emptyState) {
+        emptyState.style.display = 'flex';
+    } else {
+        // 빈 상태 요소가 없으면 동적 생성
+        const container = document.getElementById('inquiry-list-container');
+        if (container) {
+            const emptyHtml = `
+                <div id="no-inquiries" class="no-inquiries" style="display: flex;">
+                    <div class="no-inquiries-icon">📭</div>
+                    <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
+                    <button class="clear-filters-btn" onclick="clearAllInquiryFilters()">필터 초기화</button>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', emptyHtml);
+        }
+    }
 }
 
 // ─────────── 페이지네이션 컨트롤 업데이트 ───────────
@@ -330,5 +416,5 @@ window.debugPagination = function() {
     console.log('inquiry-list-container 요소:', document.getElementById('inquiry-list-container') ? '✅ 존재' : '❌ 없음');
 };
 
-console.log('✅ 페이지네이션 시스템 로딩 완료');
+console.log('✅ 페이지네이션 시스템 로딩 완료 (로딩 상태 관리 개선)');
 """

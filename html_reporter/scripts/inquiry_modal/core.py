@@ -1,12 +1,12 @@
 # html_reporter/scripts/inquiry_modal/core.py (수정된 버전 - 안전한 DOM 조작)
 """
-문의 상세보기 모달 핵심 기능 스크립트 - 안전한 DOM 조작 + 카드 생성 함수 포함
+문의 상세보기 모달 핵심 기능 스크립트 - 안전한 DOM 조작 + 카드 생성 함수 포함 + 로딩 상태 관리
 """
 
 def get_core_scripts():
-    """모달 핵심 기능 + 안전한 DOM 조작 스크립트"""
+    """모달 핵심 기능 + 안전한 DOM 조작 스크립트 + 로딩 상태 관리"""
     return """
-// ─────────── 문의 모달 핵심 기능 (안전한 DOM 조작) ───────────
+// ─────────── 문의 모달 핵심 기능 (안전한 DOM 조작 + 로딩 관리) ───────────
 console.log('📋 문의 모달 핵심 기능 로딩 중...');
 
 // 전역 상태 관리
@@ -29,6 +29,47 @@ window.inquiryModalState = {
     filteredInquiries: [],
     currentPageInquiries: []
 };
+
+// ─────────── 로딩 상태 표시 (개선된 버전) ───────────
+function showInquiryLoading() {
+    console.log('🔄 로딩 상태 표시');
+    
+    const listContainer = document.getElementById('inquiry-list-container');
+    if (listContainer) {
+        // 기존 내용 모두 숨기기
+        const inquiryList = document.getElementById('inquiry-list');
+        const emptyState = document.getElementById('no-inquiries');
+        
+        if (inquiryList) inquiryList.style.display = 'none';
+        if (emptyState) emptyState.style.display = 'none';
+        
+        // 로딩 요소 확인 및 표시
+        let loadingElement = document.getElementById('inquiry-loading');
+        if (!loadingElement) {
+            // 로딩 요소가 없으면 생성
+            const loadingHtml = `
+                <div id="inquiry-loading" class="inquiry-loading">
+                    <div class="loading-spinner"></div>
+                    <span>문의 목록을 불러오는 중...</span>
+                </div>
+            `;
+            listContainer.insertAdjacentHTML('afterbegin', loadingHtml);
+            loadingElement = document.getElementById('inquiry-loading');
+        }
+        
+        loadingElement.style.display = 'flex';
+        console.log('✅ 로딩 상태 표시 완료');
+    }
+    
+    // 통계 초기화
+    updateInquiryStats(0, 0, 0, 0);
+    
+    // 페이지네이션 숨김
+    const paginationControls = document.getElementById('pagination-controls');
+    if (paginationControls) {
+        paginationControls.style.display = 'none';
+    }
+}
 
 // ─────────── DOM 요소 확인 및 안전한 생성 ───────────
 function ensureInquiryListElement() {
@@ -80,7 +121,7 @@ function debugInquiryModalDOM() {
     }
 }
 
-// ─────────── 모달 열기 메인 함수 (안전한 버전) ───────────
+// ─────────── 모달 열기 메인 함수 (로딩 관리 개선) ───────────
 window.openInquiryModal = function(categoryType, categoryName) {
     console.log(`🎯 문의 모달 열기: ${categoryType} - ${categoryName}`);
     
@@ -105,12 +146,18 @@ window.openInquiryModal = function(categoryType, categoryName) {
                 debugInquiryModalDOM();
             }, 100);
             
-            // 로딩 상태 표시
+            // 🔧 중요: 로딩 상태 먼저 표시
             showInquiryLoading();
             
-            // 데이터 로딩 (더 충분한 시간 여유)
+            // 데이터 로딩 (충분한 시간 여유 후)
             setTimeout(() => {
-                loadCategoryInquiries(categoryName);
+                if (typeof loadCategoryInquiries === 'function') {
+                    loadCategoryInquiries(categoryName);
+                } else {
+                    console.error('❌ loadCategoryInquiries 함수를 찾을 수 없습니다.');
+                    hideInquiryLoading();
+                    showEmptyState();
+                }
             }, 300);
             
         } else {
@@ -119,6 +166,7 @@ window.openInquiryModal = function(categoryType, categoryName) {
         
     } catch (error) {
         console.error('❌ 문의 모달 열기 오류:', error);
+        hideInquiryLoading();
         alert('문의 목록을 불러오는 중 오류가 발생했습니다.');
     }
 };
@@ -189,32 +237,6 @@ function updateModalTitle(categoryType, categoryName) {
     }
 }
 
-// ─────────── 로딩 상태 표시 ───────────
-function showInquiryLoading() {
-    const listContainer = document.getElementById('inquiry-list-container');
-    if (listContainer) {
-        listContainer.innerHTML = `
-            <div class="inquiry-loading">
-                <div class="loading-spinner"></div>
-                <span>문의 목록을 불러오는 중...</span>
-            </div>
-            <!-- 📝 inquiry-list 요소를 다시 생성 -->
-            <div id="inquiry-list" class="inquiry-list">
-                <!-- 로딩 중... -->
-            </div>
-        `;
-    }
-    
-    // 통계 초기화
-    updateInquiryStats(0, 0, 0, 0);
-    
-    // 페이지네이션 숨김
-    const paginationControls = document.getElementById('pagination-controls');
-    if (paginationControls) {
-        paginationControls.style.display = 'none';
-    }
-}
-
 // ─────────── 통계 업데이트 ───────────
 function updateInquiryStats(total, urgent, completed, avgLength) {
     const elements = {
@@ -232,23 +254,19 @@ function updateInquiryStats(total, urgent, completed, avgLength) {
     });
 }
 
-// ─────────── 빈 상태 표시 ───────────
-function showEmptyState() {
-    // inquiry-list 요소 확인 및 생성
-    const listContainer = ensureInquiryListElement();
-    if (!listContainer) {
-        console.error('❌ inquiry-list 요소를 생성할 수 없습니다.');
-        return;
-    }
+// ─────────── 새로고침 함수 ───────────
+window.refreshInquiryModal = function() {
+    console.log('🔄 문의 모달 새로고침');
     
-    listContainer.innerHTML = `
-        <div class="no-inquiries">
-            <div class="no-inquiries-icon">📭</div>
-            <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
-            <button class="clear-filters-btn" onclick="clearAllInquiryFilters()">필터 초기화</button>
-        </div>
-    `;
-}
+    if (window.inquiryModalState.currentCategory) {
+        showInquiryLoading();
+        setTimeout(() => {
+            if (typeof loadCategoryInquiries === 'function') {
+                loadCategoryInquiries(window.inquiryModalState.currentCategory);
+            }
+        }, 300);
+    }
+};
 
 // ─────────── ESC 키로 모달 닫기 ───────────
 document.addEventListener('keydown', function(event) {
@@ -263,18 +281,6 @@ document.addEventListener('click', function(event) {
         closeInquiryModal();
     }
 });
-
-// ─────────── 새로고침 함수 ───────────
-window.refreshInquiryModal = function() {
-    console.log('🔄 문의 모달 새로고침');
-    
-    if (window.inquiryModalState.currentCategory) {
-        showInquiryLoading();
-        setTimeout(() => {
-            loadCategoryInquiries(window.inquiryModalState.currentCategory);
-        }, 300);
-    }
-};
 
 // ─────────── 문의 상세보기 함수 ───────────
 window.showInquiryDetail = function(inquiryId) {
