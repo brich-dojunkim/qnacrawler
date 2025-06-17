@@ -1,12 +1,12 @@
-# html_reporter/scripts/inquiry_modal/filters.py (수정된 버전 - JSON 구조에 맞게 수정)
+# html_reporter/scripts/inquiry_modal/filters.py
 """
-문의 모달 필터링 및 검색 스크립트 - JSON 구조에 맞게 수정
+문의 모달 필터링 및 검색 스크립트
 """
 
 def get_filters_scripts():
-    """필터링 및 검색 관련 스크립트 - JSON 구조에 맞게 수정"""
+    """필터링 및 검색 관련 스크립트"""
     return """
-// ─────────── 필터링 및 검색 시스템 (JSON 구조에 맞게 수정) ───────────
+// ─────────── 필터링 및 검색 시스템 ───────────
 console.log('🔍 필터링 시스템 로딩 중...');
 
 // 검색 디바운스 타이머
@@ -185,7 +185,7 @@ function getCurrentFilterValues() {
     };
 }
 
-// ─────────── 필터링 로직 (JSON 구조에 맞게 수정) ───────────
+// ─────────── 필터링 로직 ───────────
 function applyFilters(inquiries, filters) {
     if (!inquiries || inquiries.length === 0) return [];
     
@@ -197,9 +197,8 @@ function applyFilters(inquiries, filters) {
         const searchTerm = filters.search.toLowerCase();
         filtered = filtered.filter(inquiry => {
             const content = (inquiry.question_content || '').toLowerCase();
-            const categoryData = inquiry.category || {};
-            const category = (categoryData.sub_category || inquiry.sub_category || '').toLowerCase();
-            const team = (categoryData.assigned_team || inquiry.assigned_team || '').toLowerCase();
+            const category = (inquiry.sub_category || '').toLowerCase();
+            const team = (inquiry.assigned_team || '').toLowerCase();
             const id = (inquiry.inquiry_id || '').toString().toLowerCase();
             
             return content.includes(searchTerm) || 
@@ -210,14 +209,10 @@ function applyFilters(inquiries, filters) {
         console.log(`🎯 검색 결과: ${filtered.length}건`);
     }
     
-    // 팀 필터 (JSON 구조에 맞게 수정)
+    // 팀 필터
     if (filters.team) {
         console.log(`👥 팀 필터: "${filters.team}"`);
-        filtered = filtered.filter(inquiry => {
-            const categoryData = inquiry.category || {};
-            const team = categoryData.assigned_team || inquiry.assigned_team;
-            return team === filters.team;
-        });
+        filtered = filtered.filter(inquiry => inquiry.assigned_team === filters.team);
         console.log(`🎯 팀 필터 결과: ${filtered.length}건`);
     }
     
@@ -232,20 +227,20 @@ function applyFilters(inquiries, filters) {
         console.log(`🎯 긴급도 필터 결과: ${filtered.length}건`);
     }
     
-    // 상태 필터 (JSON 구조에 맞게 수정)
+    // 상태 필터
     if (filters.status) {
         console.log(`📋 상태 필터: "${filters.status}"`);
         if (filters.status === 'answered') {
             filtered = filtered.filter(inquiry => 
                 inquiry.answer_status === '답변완료' || 
-                (inquiry.answers && Array.isArray(inquiry.answers) && inquiry.answers.length > 0)
+                (inquiry.answers && inquiry.answers.length > 0)
             );
         } else if (filters.status === 'pending') {
             filtered = filtered.filter(inquiry => 
                 !inquiry.answer_status || 
                 inquiry.answer_status === '답변대기' || 
-                inquiry.answer_status === '미답변' ||
-                (!inquiry.answers || !Array.isArray(inquiry.answers) || inquiry.answers.length === 0)
+                inquiry.answer_status === '대기중' ||
+                (!inquiry.answers || inquiry.answers.length === 0)
             );
         } else if (filters.status === 'in_progress') {
             filtered = filtered.filter(inquiry => 
@@ -259,5 +254,5 @@ function applyFilters(inquiries, filters) {
     return filtered;
 }
 
-console.log('✅ 필터링 시스템 로딩 완료 (JSON 구조 수정됨)');
+console.log('✅ 필터링 시스템 로딩 완료');
 """
