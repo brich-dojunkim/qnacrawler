@@ -1,6 +1,6 @@
-# html_reporter/scripts/inquiry_modal/core.py (수정된 버전 - 안전한 DOM 조작)
+# html_reporter/scripts/inquiry_modal/core.py (수정된 버전 - JSON 구조에 맞게 수정)
 """
-문의 상세보기 모달 핵심 기능 스크립트 - 안전한 DOM 조작 + 카드 생성 함수 포함 + 로딩 상태 관리
+문의 상세보기 모달 핵심 기능 스크립트 - JSON 구조에 맞게 수정 + 로딩 상태 관리
 """
 
 def get_core_scripts():
@@ -68,6 +68,21 @@ function showInquiryLoading() {
     const paginationControls = document.getElementById('pagination-controls');
     if (paginationControls) {
         paginationControls.style.display = 'none';
+    }
+}
+
+function hideInquiryLoading() {
+    console.log('✅ 로딩 상태 숨김');
+    
+    const loadingElement = document.getElementById('inquiry-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    
+    // 리스트 컨테이너 다시 표시
+    const listContainer = document.getElementById('inquiry-list');
+    if (listContainer) {
+        listContainer.style.display = 'flex';
     }
 }
 
@@ -294,15 +309,22 @@ window.showInquiryDetail = function(inquiryId) {
     }
 };
 
-// ─────────── 답변 보기 함수 ───────────
+// ─────────── 답변 보기 함수 (JSON 구조에 맞게 수정) ───────────
 window.showInquiryAnswers = function(inquiryId) {
     console.log(`💬 답변 보기: ${inquiryId}`);
     
     const inquiry = window.inquiryModalState.allInquiries.find(inq => inq.inquiry_id === inquiryId);
-    if (inquiry && inquiry.answers && inquiry.answers.length > 0) {
+    if (inquiry && inquiry.answers && Array.isArray(inquiry.answers) && inquiry.answers.length > 0) {
         let answersText = `문의 ID: ${inquiryId}\\n\\n`;
         inquiry.answers.forEach((answer, index) => {
-            answersText += `답변 ${index + 1}:\\n${answer.answer_content}\\n\\n`;
+            const authorInfo = answer.author_name && answer.author_department ? 
+                              `${answer.author_name} ${answer.author_department}` : 
+                              (answer.author_name || '담당자');
+            const answerDate = answer.answer_date ? 
+                              new Date(answer.answer_date).toLocaleDateString('ko-KR') : '';
+            
+            answersText += `답변 ${index + 1} (${authorInfo}, ${answerDate}):\\n`;
+            answersText += `${answer.content}\\n\\n`;
         });
         alert(answersText);
     } else {
@@ -361,7 +383,7 @@ window.toggleFullAnswer = function(button) {
 
 console.log('✅ 문의 모달 핵심 기능 로딩 완료');
 
-// ─────────── 문의 카드 생성 함수 (안전한 버전) ───────────
+// ─────────── 문의 카드 생성 함수 (JSON 구조에 맞게 수정) ───────────
 window.createInquiryCard = function(inquiry) {
     const urgencyIcon = inquiry.is_urgent ? '🚨' : '📋';
     const urgencyClass = inquiry.is_urgent ? 'urgent' : 'normal';
@@ -385,12 +407,25 @@ window.createInquiryCard = function(inquiry) {
     // 검색어 하이라이팅
     const highlightedPreview = highlightSearchTerm(preview, window.currentSearchTerm || '');
     
-    // 답변 내용 확인
-    const hasAnswer = inquiry.answers && inquiry.answers.length > 0;
-    const answerPreview = hasAnswer ? 
-        (inquiry.answers[0].answer_content || '').substring(0, 100) + 
-        (inquiry.answers[0].answer_content && inquiry.answers[0].answer_content.length > 100 ? '...' : '') 
-        : '';
+    // 🔧 수정: JSON 구조에 맞게 답변 확인
+    const hasAnswer = inquiry.answers && Array.isArray(inquiry.answers) && inquiry.answers.length > 0;
+    let answerPreview = '';
+    let answerAuthor = '';
+    let answerDate = '';
+    
+    if (hasAnswer) {
+        const firstAnswer = inquiry.answers[0];
+        answerPreview = (firstAnswer.content || '').substring(0, 100) + 
+                       (firstAnswer.content && firstAnswer.content.length > 100 ? '...' : '');
+        answerAuthor = firstAnswer.author_name || '담당자';
+        answerDate = firstAnswer.answer_date ? new Date(firstAnswer.answer_date).toLocaleDateString('ko-KR') : '';
+    }
+    
+    // 🔧 수정: category 구조에 맞게 팀과 카테고리 추출
+    const assignedTeam = inquiry.category?.assigned_team || 
+                        inquiry.assigned_team || '미분류';
+    const subCategory = inquiry.category?.sub_category || 
+                       inquiry.sub_category || '기타';
     
     return `
         <div class="inquiry-card" data-inquiry-id="${inquiry.inquiry_id || 'unknown'}">
@@ -400,8 +435,8 @@ window.createInquiryCard = function(inquiry) {
                         <span class="urgency-icon">${urgencyIcon}</span>
                         ${urgencyText}
                     </span>
-                    <span class="team-badge">${inquiry.assigned_team || '미분류'}</span>
-                    <span class="category-badge">${inquiry.sub_category || '기타'}</span>
+                    <span class="team-badge">${assignedTeam}</span>
+                    <span class="category-badge">${subCategory}</span>
                     <span class="date-badge">${formattedDate}</span>
                 </div>
                 <div class="inquiry-actions">
@@ -433,16 +468,16 @@ window.createInquiryCard = function(inquiry) {
                     <div class="answer-section">
                         <div class="answer-header">
                             <span class="answer-label">💬 답변</span>
-                            <span class="answer-meta">${inquiry.answers[0].answerer_info?.name || '담당자'} | ${new Date(inquiry.answers[0].answer_date).toLocaleDateString('ko-KR')}</span>
+                            <span class="answer-meta">${answerAuthor} | ${answerDate}</span>
                         </div>
                         <div class="answer-preview">${answerPreview}</div>
-                        ${inquiry.answers[0].answer_content && inquiry.answers[0].answer_content.length > 100 ? `
+                        ${inquiry.answers[0].content && inquiry.answers[0].content.length > 100 ? `
                             <button class="show-full-answer" onclick="toggleFullAnswer(this)">
                                 <span class="expand-text">답변 전체 보기</span>
                                 <span class="collapse-text" style="display: none;">답변 접기</span>
                             </button>
                             <div class="full-answer" style="display: none;">
-                                ${inquiry.answers[0].answer_content}
+                                ${inquiry.answers[0].content}
                             </div>
                         ` : ''}
                     </div>
@@ -468,7 +503,7 @@ window.createInquiryCard = function(inquiry) {
                         </svg>
                         ${content.length}자
                     </span>
-                    ${inquiry.answers && inquiry.answers.length > 0 ? `
+                    ${hasAnswer ? `
                         <span class="stat-item">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -500,5 +535,5 @@ window.createInquiryCard = function(inquiry) {
     `;
 };
 
-console.log('✅ 문의 모달 핵심 기능 + 카드 생성 함수 로딩 완료');
+console.log('✅ 문의 모달 핵심 기능 + 카드 생성 함수 로딩 완료 (JSON 구조 수정됨)');
 """
