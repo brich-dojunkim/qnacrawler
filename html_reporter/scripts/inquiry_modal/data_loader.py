@@ -158,9 +158,9 @@ function calculateInquiryStats(inquiries) {
             urgent++;
         }
         
-        // 완료된 문의 카운트
+        // 완료된 문의 카운트 - 실제 JSON 구조에 맞춰 수정
         if (inquiry.answer_status === '답변완료' || 
-            (inquiry.answers && inquiry.answers.length > 0)) {
+            (inquiry.answers && inquiry.answers.length > 0 && inquiry.answers[0].content)) {
             completed++;
         }
         
@@ -181,10 +181,11 @@ function updateTeamFilterOptions(inquiries) {
     const teamFilter = document.getElementById('team-filter');
     if (!teamFilter) return;
     
-    // 고유한 팀 목록 추출
+    // 고유한 팀 목록 추출 - 실제 JSON 구조에 맞춰 수정
     const teams = new Set();
     inquiries.forEach(inquiry => {
-        const team = inquiry.assigned_team || inquiry.category?.assigned_team;
+        // category.assigned_team 구조 사용
+        const team = inquiry.category?.assigned_team || inquiry.assigned_team;
         if (team && typeof team === 'string' && team.trim()) {
             teams.add(team.trim());
         }
