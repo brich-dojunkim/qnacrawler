@@ -1,8 +1,8 @@
-# html_reporter/templates/category_table.py (문의율 칼럼 추가된 버전)
-"""카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함"""
+# html_reporter/templates/category_table.py (완전 업데이트 - 문의 모달 연결)
+"""카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함 + 문의 모달 연결"""
 
 def get_category_table_row_template():
-    """개별 카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함"""
+    """개별 카테고리 테이블 로우 템플릿 - 문의율 칼럼 포함 + 문의 모달 연결"""
     return """<div class="category-table-row" 
              data-team="{main_team}" 
              data-journey="{main_journey}" 
@@ -18,7 +18,7 @@ def get_category_table_row_template():
     <div class="urgent-rate {urgent_level}">{urgent_rate}%</div>
     <div class="complete-rate {complete_level}">{answer_rate}%</div>
     <div>
-        <button class="action-btn" onclick="openCategoryModal(this)" title="상세 문의 보기">
+        <button class="action-btn" onclick="openInquiryModal('category', '{name}')" title="상세 문의 보기">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>

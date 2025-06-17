@@ -1,5 +1,5 @@
-# html_reporter/styles/components/__init__.py (모듈화된 패키지들만 사용)
-"""컴포넌트 스타일 모듈 - 모듈화된 컴포넌트들만 사용"""
+# html_reporter/styles/components/__init__.py (문의 모달 추가)
+"""컴포넌트 스타일 모듈 - 모듈화된 컴포넌트들만 사용 + 문의 모달 추가"""
 
 try:
     from .cards import get_card_styles
@@ -58,17 +58,26 @@ except ImportError:
     def get_category_table_styles():
         return ""
 
+# 새로 추가: 문의 모달 스타일
+try:
+    from .inquiry_modal import get_inquiry_modal_styles
+except ImportError:
+    print("Warning: inquiry_modal 패키지에서 get_inquiry_modal_styles를 import할 수 없습니다.")
+    def get_inquiry_modal_styles():
+        return ""
+
 def get_component_styles():
-    """모든 UI 컴포넌트 스타일 조합 (모듈화된 패키지들만 사용)"""
+    """모든 UI 컴포넌트 스타일 조합 (모듈화된 패키지들만 사용 + 문의 모달)"""
     styles = [
         get_card_styles(),           # 카드 컴포넌트
         get_button_styles(),         # 버튼 컴포넌트
         get_badge_styles(),          # 배지 컴포넌트
-        get_modal_styles(),          # 모달 컴포넌트
+        get_modal_styles(),          # 기본 모달 컴포넌트
         get_stats_styles(),          # 통계 컴포넌트
         get_ranking_styles(),        # 랭킹 컴포넌트
         get_accordion_styles(),      # 모듈화된 아코디언 패키지
         get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
+        get_inquiry_modal_styles(),  # 문의 상세보기 모달 패키지
     ]
     
     return '\n'.join(styles)
@@ -90,6 +99,7 @@ def get_ui_components_only():
         get_badge_styles(),
         get_accordion_styles(),      # 모듈화된 아코디언 패키지
         get_category_table_styles(), # 모듈화된 카테고리 테이블 패키지
+        get_inquiry_modal_styles(),  # 문의 상세보기 모달 패키지
     ]
     
     return '\n'.join(styles)
@@ -102,6 +112,7 @@ def get_overview_components():
         get_ranking_styles(),        # 순위 아이템용
         get_accordion_styles(),      # 팀별 아코디언용
         get_category_table_styles(), # 카테고리 테이블용
+        get_inquiry_modal_styles(),  # 문의 상세보기 모달용
     ]
     
     return '\n'.join(styles)
@@ -110,8 +121,9 @@ def get_modal_components_only():
     """모달 관련 컴포넌트만"""
     styles = [
         get_button_styles(),         # modal-trigger 포함
-        get_modal_styles(),          # 모달 오버레이
+        get_modal_styles(),          # 기본 모달 오버레이
         get_card_styles(),           # inquiry-card 포함
+        get_inquiry_modal_styles(),  # 문의 상세보기 모달
     ]
     
     return '\n'.join(styles)
@@ -165,6 +177,39 @@ def get_category_table_modal_styles():
     except ImportError:
         return ""
 
+# 문의 모달 개별 기능 접근 함수들
+def get_inquiry_modal_layout_styles():
+    """문의 모달 레이아웃 스타일만"""
+    try:
+        from .inquiry_modal import get_layout_only
+        return get_layout_only()
+    except ImportError:
+        return ""
+
+def get_inquiry_modal_header_styles():
+    """문의 모달 헤더 스타일만"""
+    try:
+        from .inquiry_modal import get_header_only
+        return get_header_only()
+    except ImportError:
+        return ""
+
+def get_inquiry_modal_filters_styles():
+    """문의 모달 필터 스타일만"""
+    try:
+        from .inquiry_modal import get_filters_only
+        return get_filters_only()
+    except ImportError:
+        return ""
+
+def get_inquiry_modal_content_styles():
+    """문의 모달 콘텐츠 스타일만"""
+    try:
+        from .inquiry_modal import get_content_only
+        return get_content_only()
+    except ImportError:
+        return ""
+
 __all__ = [
     # 메인 함수들
     'get_component_styles',
@@ -182,7 +227,7 @@ __all__ = [
     'get_ranking_styles',
     'get_accordion_styles',          # 모듈화된 아코디언 패키지
     'get_category_table_styles',     # 모듈화된 카테고리 테이블 패키지
-    'get_drawer_styles',             # 모듈화된 드로어 패키지
+    'get_inquiry_modal_styles',      # 문의 상세보기 모달 패키지
     
     # 개별 모듈화된 패키지 기능별 함수들
     'get_accordion_base_styles',
@@ -191,7 +236,10 @@ __all__ = [
     'get_category_table_header_styles',
     'get_category_table_body_styles',
     'get_category_table_modal_styles',
-    'get_drawer_layout_styles',
-    'get_drawer_header_combined',
-    'get_drawer_inquiry_styles',
+    
+    # 문의 모달 개별 기능 함수들
+    'get_inquiry_modal_layout_styles',
+    'get_inquiry_modal_header_styles',
+    'get_inquiry_modal_filters_styles',
+    'get_inquiry_modal_content_styles',
 ]
