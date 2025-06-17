@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/data_loader.py
 """
-문의 데이터 로딩 및 카테고리 매칭 스크립트
+문의 데이터 로딩 및 카테고리 매칭 스크립트 - 안전한 필터링 로직
 """
 
 def get_data_loader_scripts():
-    """데이터 로딩 관련 스크립트"""
+    """데이터 로딩 관련 스크립트 - 안전한 타입 체크 추가"""
     return """
 // ─────────── 데이터 로딩 및 매칭 ───────────
 console.log('📊 데이터 로더 시스템 로딩 중...');
@@ -54,34 +54,67 @@ window.loadCategoryInquiries = function(categoryName) {
     }
 };
 
-// ─────────── 카테고리별 문의 필터링 ───────────
+// ─────────── 안전한 카테고리별 문의 필터링 ───────────
 function filterInquiriesByCategory(categoryName) {
     console.log(`🔍 카테고리 필터링 시작: "${categoryName}"`);
     
     const matchedInquiries = window.rawInquiryData.filter(inquiry => {
         if (!inquiry) return false;
         
-        // 다양한 매칭 방식 시도
+        // 안전한 필드 추출 함수
+        function safeGetField(obj, path) {
+            try {
+                const keys = path.split('.');
+                let value = obj;
+                for (const key of keys) {
+                    if (value && typeof value === 'object' && key in value) {
+                        value = value[key];
+                    } else {
+                        return null;
+                    }
+                }
+                // 문자열이 아닌 경우 문자열로 변환
+                return value && typeof value === 'string' ? value : (value ? String(value) : null);
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        // 다양한 매칭 방식 시도 - 안전한 필드 추출
         const matchFields = [
-            inquiry.sub_category,
-            inquiry.category,
-            inquiry.main_category,
-            inquiry.category_name
-        ];
+            safeGetField(inquiry, 'sub_category'),
+            safeGetField(inquiry, 'category'),
+            safeGetField(inquiry, 'main_category'),
+            safeGetField(inquiry, 'category_name'),
+            safeGetField(inquiry, 'category.sub_category'),
+            safeGetField(inquiry, 'category.category'),
+            safeGetField(inquiry, 'category.full_text')
+        ].filter(field => field !== null); // null 값 제거
         
         // 정확한 매칭 먼저 시도
-        const exactMatch = matchFields.some(field => 
-            field && field.trim().toLowerCase() === categoryName.trim().toLowerCase()
-        );
+        const exactMatch = matchFields.some(field => {
+            if (!field) return false;
+            try {
+                return field.trim().toLowerCase() === categoryName.trim().toLowerCase();
+            } catch (e) {
+                console.warn('정확한 매칭 중 오류:', e, 'field:', field);
+                return false;
+            }
+        });
         
         if (exactMatch) return true;
         
         // 부분 매칭 시도 (카테고리명이 필드에 포함되거나 반대의 경우)
         const partialMatch = matchFields.some(field => {
             if (!field) return false;
-            const fieldLower = field.trim().toLowerCase();
-            const categoryLower = categoryName.trim().toLowerCase();
-            return fieldLower.includes(categoryLower) || categoryLower.includes(fieldLower);
+            try {
+                const fieldLower = field.trim().toLowerCase();
+                const categoryLower = categoryName.trim().toLowerCase();
+                return fieldLower.includes(categoryLower) || categoryLower.includes(fieldLower);
+            } catch (e) {
+                console.warn('부분 매칭 중 오류:', e, 'field:', field);
+                return false;
+            }
         });
         
         return partialMatch;
@@ -93,7 +126,10 @@ function filterInquiriesByCategory(categoryName) {
     if (matchedInquiries.length > 0) {
         console.log('📝 매칭된 문의 샘플:');
         matchedInquiries.slice(0, 3).forEach((inquiry, index) => {
-            console.log(`  ${index + 1}. ID: ${inquiry.inquiry_id}, 카테고리: ${inquiry.sub_category || inquiry.category}, 내용: ${(inquiry.question_content || '').substring(0, 50)}...`);
+            const id = inquiry.inquiry_id || 'N/A';
+            const subCat = inquiry.category?.sub_category || inquiry.sub_category || 'N/A';
+            const content = (inquiry.question_content || '').substring(0, 50) + '...';
+            console.log(`  ${index + 1}. ID: ${id}, 카테고리: ${subCat}, 내용: ${content}`);
         });
     }
     
@@ -143,8 +179,9 @@ function updateTeamFilterOptions(inquiries) {
     // 고유한 팀 목록 추출
     const teams = new Set();
     inquiries.forEach(inquiry => {
-        if (inquiry.assigned_team && inquiry.assigned_team.trim()) {
-            teams.add(inquiry.assigned_team.trim());
+        const team = inquiry.assigned_team || inquiry.category?.assigned_team;
+        if (team && typeof team === 'string' && team.trim()) {
+            teams.add(team.trim());
         }
     });
     
@@ -180,8 +217,8 @@ function ensureInquiryDataIntegrity(inquiry) {
     return {
         inquiry_id: inquiry.inquiry_id || 'unknown',
         question_content: inquiry.question_content || '',
-        sub_category: inquiry.sub_category || inquiry.category || '기타',
-        assigned_team: inquiry.assigned_team || '미분류',
+        sub_category: inquiry.sub_category || inquiry.category?.sub_category || '기타',
+        assigned_team: inquiry.assigned_team || inquiry.category?.assigned_team || '미분류',
         registration_date: inquiry.registration_date || new Date().toISOString(),
         is_urgent: Boolean(inquiry.is_urgent),
         answer_status: inquiry.answer_status || '답변대기',

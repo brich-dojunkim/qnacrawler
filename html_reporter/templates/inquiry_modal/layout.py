@@ -1,10 +1,10 @@
 # html_reporter/templates/inquiry_modal/layout.py
 """
-문의 상세보기 모달 기본 레이아웃 템플릿
+문의 상세보기 모달 기본 레이아웃 템플릿 - inquiry-list 요소 추가
 """
 
 def get_inquiry_modal_layout():
-    """문의 모달 전체 레이아웃 템플릿"""
+    """문의 모달 전체 레이아웃 템플릿 - 누락된 inquiry-list 추가"""
     return """
     <!-- 문의 상세보기 모달 -->
     <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
@@ -117,13 +117,18 @@ def get_inquiry_modal_layout():
             <!-- 문의 목록 영역 -->
             <div class="inquiry-modal-body">
                 <div id="inquiry-list-container" class="inquiry-list-container">
-                    <div id="inquiry-loading" class="inquiry-loading">
-                        <div class="loading-spinner"></div>
-                        <span>문의 목록을 불러오는 중...</span>
-                    </div>
+                    <!-- 📌 중요: inquiry-list div 추가! -->
                     <div id="inquiry-list" class="inquiry-list">
                         <!-- 문의 카드들이 여기에 동적으로 추가됩니다 -->
                     </div>
+                    
+                    <!-- 로딩 상태 -->
+                    <div id="inquiry-loading" class="inquiry-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <span>문의 목록을 불러오는 중...</span>
+                    </div>
+                    
+                    <!-- 빈 상태 -->
                     <div id="no-inquiries" class="no-inquiries" style="display: none;">
                         <div class="no-inquiries-icon">📭</div>
                         <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
