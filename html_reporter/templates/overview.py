@@ -1,8 +1,8 @@
-# html_reporter/templates/overview.py (수정된 버전)
-"""개요 템플릿 - 단일 페이지, 완료율 칼럼 포함, 문의 모달 지원 - inquiry-list 추가"""
+# html_reporter/templates/overview.py (수정된 버전 - inquiry-list 요소 확실히 포함)
+"""개요 템플릿 - 단일 페이지, 완료율 칼럼 포함, 문의 모달 지원 - inquiry-list 요소 확실히 포함"""
 
 def get_overview_template():
-    """단일 페이지 템플릿 - 완료율 칼럼이 추가된 뷰 + 문의 모달 (inquiry-list 포함)"""
+    """단일 페이지 템플릿 - 완료율 칼럼이 추가된 뷰 + 문의 모달 (inquiry-list 확실히 포함)"""
     return """
     <div class="main-content-wrapper">
         <div class="detailed-analysis-section">
@@ -179,7 +179,7 @@ def get_overview_template():
             </div>
         </div>
         
-        <!-- 📌 수정된 문의 상세보기 모달 - inquiry-list div 추가 -->
+        <!-- 🔧 수정된 문의 상세보기 모달 - inquiry-list div 확실히 포함! -->
         <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
             <div class="inquiry-modal-content">
                 <!-- 모달 헤더 -->
@@ -287,12 +287,12 @@ def get_overview_template():
                     </div>
                 </div>
                 
-                <!-- 📌 중요: 문의 목록 영역 - inquiry-list div 추가! -->
+                <!-- 🚨 핵심 수정: 문의 목록 영역 - inquiry-list div 확실히 포함! -->
                 <div class="inquiry-modal-body">
                     <div id="inquiry-list-container" class="inquiry-list-container">
-                        <!-- 🔧 핵심 수정: inquiry-list div 추가 -->
+                        <!-- ✅ 가장 중요한 부분: inquiry-list div가 반드시 있어야 함! -->
                         <div id="inquiry-list" class="inquiry-list">
-                            <!-- 문의 카드들이 여기에 동적으로 추가됩니다 -->
+                            <!-- 📝 JavaScript의 createInquiryCard() 함수로 생성된 카드들이 여기에 추가됩니다 -->
                         </div>
                         
                         <!-- 로딩 상태 -->
@@ -343,5 +343,8 @@ def get_overview_template():
                 </div>
             </div>
         </div>
+        
+        <!-- 드로어 영역 (있다면) -->
+        {drawer_html}
     </div>
     """

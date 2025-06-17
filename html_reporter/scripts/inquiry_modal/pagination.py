@@ -1,12 +1,12 @@
-# html_reporter/scripts/inquiry_modal/pagination.py
+# html_reporter/scripts/inquiry_modal/pagination.py (수정된 버전 - 안전한 DOM 조작)
 """
-문의 모달 페이지네이션 스크립트
+문의 모달 페이지네이션 스크립트 - 안전한 DOM 조작
 """
 
 def get_pagination_scripts():
-    """페이지네이션 관련 스크립트"""
+    """페이지네이션 관련 스크립트 - 안전한 DOM 조작"""
     return """
-// ─────────── 페이지네이션 시스템 ───────────
+// ─────────── 페이지네이션 시스템 (안전한 DOM 조작) ───────────
 console.log('📄 페이지네이션 시스템 로딩 중...');
 
 // ─────────── 페이지네이션 적용 및 렌더링 ───────────
@@ -38,8 +38,8 @@ window.updatePaginationAndRender = function() {
         
         console.log(`📊 페이지네이션: ${window.inquiryModalState.currentPage}/${totalPages} 페이지, ${currentPageInquiries.length}개 표시`);
         
-        // 문의 목록 렌더링
-        renderInquiryList(currentPageInquiries);
+        // 문의 목록 렌더링 (안전한 버전)
+        renderInquiryListSafe(currentPageInquiries);
         
         // 페이지네이션 컨트롤 업데이트
         updatePaginationControls(window.inquiryModalState.currentPage, totalPages, filteredInquiries.length);
@@ -53,12 +53,28 @@ window.updatePaginationAndRender = function() {
     }
 };
 
-// ─────────── 문의 목록 렌더링 ───────────
-function renderInquiryList(inquiries) {
-    const listContainer = document.getElementById('inquiry-list');
+// ─────────── 문의 목록 렌더링 (안전한 버전) ───────────
+function renderInquiryListSafe(inquiries) {
+    // inquiry-list 요소 확인 및 생성
+    let listContainer = document.getElementById('inquiry-list');
+    
     if (!listContainer) {
-        console.error('❌ inquiry-list 요소를 찾을 수 없습니다.');
-        return;
+        console.log('⚠️ inquiry-list 요소가 없어서 생성합니다.');
+        
+        const parentContainer = document.getElementById('inquiry-list-container');
+        if (!parentContainer) {
+            console.error('❌ inquiry-list-container도 찾을 수 없습니다!');
+            return;
+        }
+        
+        // inquiry-list div 생성
+        listContainer = document.createElement('div');
+        listContainer.id = 'inquiry-list';
+        listContainer.className = 'inquiry-list';
+        
+        // 기존 내용 앞에 삽입
+        parentContainer.insertBefore(listContainer, parentContainer.firstChild);
+        console.log('✅ inquiry-list 요소를 동적으로 생성했습니다.');
     }
     
     if (!inquiries || inquiries.length === 0) {
@@ -72,9 +88,16 @@ function renderInquiryList(inquiries) {
     let cardsHtml = '';
     inquiries.forEach(inquiry => {
         try {
-            cardsHtml += createInquiryCard(inquiry);
+            // createInquiryCard 함수 존재 확인
+            if (typeof window.createInquiryCard === 'function') {
+                cardsHtml += window.createInquiryCard(inquiry);
+            } else {
+                console.error('❌ createInquiryCard 함수를 찾을 수 없습니다.');
+                cardsHtml += createSimpleInquiryCard(inquiry);
+            }
         } catch (error) {
             console.error('문의 카드 생성 오류:', error, inquiry);
+            cardsHtml += createErrorCard(inquiry);
         }
     });
     
@@ -88,6 +111,42 @@ function renderInquiryList(inquiries) {
     }
     
     console.log('✅ 문의 목록 렌더링 완료');
+}
+
+// ─────────── 간단한 문의 카드 생성 (fallback) ───────────
+function createSimpleInquiryCard(inquiry) {
+    return `
+        <div class="inquiry-card" data-inquiry-id="${inquiry.inquiry_id || 'unknown'}">
+            <div class="inquiry-card-header">
+                <strong>${inquiry.inquiry_id || 'ID 없음'}</strong>
+                <span class="urgency-badge ${inquiry.is_urgent ? 'urgent' : 'normal'}">
+                    ${inquiry.is_urgent ? '🚨 긴급' : '📋 일반'}
+                </span>
+            </div>
+            <div class="inquiry-card-body">
+                <div class="inquiry-content">
+                    ${(inquiry.question_content || '내용 없음').substring(0, 200)}...
+                </div>
+            </div>
+            <div class="inquiry-card-footer">
+                <small>팀: ${inquiry.assigned_team || '미분류'} | 카테고리: ${inquiry.sub_category || '기타'}</small>
+            </div>
+        </div>
+    `;
+}
+
+// ─────────── 오류 카드 생성 ───────────
+function createErrorCard(inquiry) {
+    return `
+        <div class="inquiry-card error-card">
+            <div class="inquiry-card-body">
+                <div style="color: #dc2626; text-align: center; padding: 20px;">
+                    ❌ 문의 카드 생성 오류<br>
+                    ID: ${inquiry?.inquiry_id || '알 수 없음'}
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // ─────────── 페이지네이션 컨트롤 업데이트 ───────────
@@ -265,6 +324,10 @@ window.debugPagination = function() {
     
     const totalPages = Math.ceil(window.inquiryModalState.filteredItems / window.inquiryModalState.itemsPerPage);
     console.log('총 페이지 수:', totalPages);
+    
+    // DOM 요소 확인
+    console.log('inquiry-list 요소:', document.getElementById('inquiry-list') ? '✅ 존재' : '❌ 없음');
+    console.log('inquiry-list-container 요소:', document.getElementById('inquiry-list-container') ? '✅ 존재' : '❌ 없음');
 };
 
 console.log('✅ 페이지네이션 시스템 로딩 완료');

@@ -1,12 +1,12 @@
-# html_reporter/scripts/inquiry_modal/core.py (완전 버전)
+# html_reporter/scripts/inquiry_modal/core.py (수정된 버전 - 안전한 DOM 조작)
 """
-문의 상세보기 모달 핵심 기능 스크립트 - 카드 생성 함수 포함
+문의 상세보기 모달 핵심 기능 스크립트 - 안전한 DOM 조작 + 카드 생성 함수 포함
 """
 
 def get_core_scripts():
-    """모달 핵심 기능 + 카드 생성 스크립트"""
+    """모달 핵심 기능 + 안전한 DOM 조작 스크립트"""
     return """
-// ─────────── 문의 모달 핵심 기능 ───────────
+// ─────────── 문의 모달 핵심 기능 (안전한 DOM 조작) ───────────
 console.log('📋 문의 모달 핵심 기능 로딩 중...');
 
 // 전역 상태 관리
@@ -30,7 +30,57 @@ window.inquiryModalState = {
     currentPageInquiries: []
 };
 
-// ─────────── 모달 열기 메인 함수 ───────────
+// ─────────── DOM 요소 확인 및 안전한 생성 ───────────
+function ensureInquiryListElement() {
+    let listElement = document.getElementById('inquiry-list');
+    
+    if (!listElement) {
+        console.log('⚠️ inquiry-list 요소가 없어서 생성합니다.');
+        
+        const container = document.getElementById('inquiry-list-container');
+        if (!container) {
+            console.error('❌ inquiry-list-container도 찾을 수 없습니다!');
+            return null;
+        }
+        
+        // inquiry-list div 생성
+        listElement = document.createElement('div');
+        listElement.id = 'inquiry-list';
+        listElement.className = 'inquiry-list';
+        
+        // 기존 내용 앞에 삽입
+        container.insertBefore(listElement, container.firstChild);
+        console.log('✅ inquiry-list 요소를 동적으로 생성했습니다.');
+    }
+    
+    return listElement;
+}
+
+// ─────────── DOM 구조 디버깅 함수 ───────────
+function debugInquiryModalDOM() {
+    console.log('🔍 문의 모달 DOM 구조 확인:');
+    
+    const modal = document.getElementById('inquiry-detail-modal');
+    console.log('Modal:', modal ? '✅ 존재' : '❌ 없음');
+    
+    const container = document.getElementById('inquiry-list-container');
+    console.log('Container:', container ? '✅ 존재' : '❌ 없음');
+    
+    const list = document.getElementById('inquiry-list');
+    console.log('List:', list ? '✅ 존재' : '❌ 없음');
+    
+    if (container && !list) {
+        console.log('📋 Container 내부 HTML:');
+        console.log(container.innerHTML.substring(0, 300) + '...');
+    }
+    
+    // 자동으로 inquiry-list 생성
+    if (!list) {
+        ensureInquiryListElement();
+    }
+}
+
+// ─────────── 모달 열기 메인 함수 (안전한 버전) ───────────
 window.openInquiryModal = function(categoryType, categoryName) {
     console.log(`🎯 문의 모달 열기: ${categoryType} - ${categoryName}`);
     
@@ -50,13 +100,18 @@ window.openInquiryModal = function(categoryType, categoryName) {
             // 모달 제목 업데이트
             updateModalTitle(categoryType, categoryName);
             
+            // DOM 구조 확인 및 안전한 요소 생성
+            setTimeout(() => {
+                debugInquiryModalDOM();
+            }, 100);
+            
             // 로딩 상태 표시
             showInquiryLoading();
             
-            // 데이터 로딩
+            // 데이터 로딩 (더 충분한 시간 여유)
             setTimeout(() => {
                 loadCategoryInquiries(categoryName);
-            }, 100);
+            }, 300);
             
         } else {
             console.error('❌ 문의 모달 요소를 찾을 수 없습니다.');
@@ -143,6 +198,10 @@ function showInquiryLoading() {
                 <div class="loading-spinner"></div>
                 <span>문의 목록을 불러오는 중...</span>
             </div>
+            <!-- 📝 inquiry-list 요소를 다시 생성 -->
+            <div id="inquiry-list" class="inquiry-list">
+                <!-- 로딩 중... -->
+            </div>
         `;
     }
     
@@ -175,16 +234,20 @@ function updateInquiryStats(total, urgent, completed, avgLength) {
 
 // ─────────── 빈 상태 표시 ───────────
 function showEmptyState() {
-    const listContainer = document.getElementById('inquiry-list-container');
-    if (listContainer) {
-        listContainer.innerHTML = `
-            <div class="no-inquiries">
-                <div class="no-inquiries-icon">📭</div>
-                <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
-                <button class="clear-filters-btn" onclick="clearAllInquiryFilters()">필터 초기화</button>
-            </div>
-        `;
+    // inquiry-list 요소 확인 및 생성
+    const listContainer = ensureInquiryListElement();
+    if (!listContainer) {
+        console.error('❌ inquiry-list 요소를 생성할 수 없습니다.');
+        return;
     }
+    
+    listContainer.innerHTML = `
+        <div class="no-inquiries">
+            <div class="no-inquiries-icon">📭</div>
+            <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
+            <button class="clear-filters-btn" onclick="clearAllInquiryFilters()">필터 초기화</button>
+        </div>
+    `;
 }
 
 // ─────────── ESC 키로 모달 닫기 ───────────
@@ -292,7 +355,7 @@ window.toggleFullAnswer = function(button) {
 
 console.log('✅ 문의 모달 핵심 기능 로딩 완료');
 
-// ─────────── 문의 카드 생성 함수 ───────────
+// ─────────── 문의 카드 생성 함수 (안전한 버전) ───────────
 window.createInquiryCard = function(inquiry) {
     const urgencyIcon = inquiry.is_urgent ? '🚨' : '📋';
     const urgencyClass = inquiry.is_urgent ? 'urgent' : 'normal';
