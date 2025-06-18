@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/layout.py
 """
-문의 상세보기 모달 레이아웃 스타일
+문의 상세보기 모달 레이아웃 스타일 - 높이 제한 해제
 """
 
 def get_layout_styles():
-    """모달 레이아웃 및 오버레이 스타일"""
+    """모달 레이아웃 및 오버레이 스타일 - 높이 제한 수정"""
     return """
 /* === 문의 상세보기 모달 레이아웃 === */
 .inquiry-modal-overlay {
@@ -47,12 +47,19 @@ def get_layout_styles():
     overflow: hidden;
     background: #f8fafc;
     position: relative;
+    /* 🔧 최소 높이 설정 */
+    min-height: 400px;
 }
 
 .inquiry-list-container {
     height: 100%;
+    /* 🔧 스크롤 설정 개선 */
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 16px 20px;
+    /* 스크롤 성능 개선 */
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 /* === 로딩 및 빈 상태 === */
@@ -64,6 +71,11 @@ def get_layout_styles():
     height: 200px;
     color: #6b7280;
     font-size: 0.9rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
 }
 
 .loading-spinner {
@@ -89,6 +101,11 @@ def get_layout_styles():
     height: 300px;
     text-align: center;
     color: #6b7280;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
 }
 
 .no-inquiries-icon {
@@ -138,6 +155,19 @@ def get_layout_styles():
 
 .inquiry-list-container::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(135deg, #5a67d8, #6b46c1);
+}
+
+/* === 🔧 디버깅용 스타일 (임시) === */
+.inquiry-modal-body {
+    /* border: 3px solid red; */
+}
+
+.inquiry-list-container {
+    /* border: 2px solid blue; */
+}
+
+.inquiry-list {
+    /* border: 1px solid green; */
 }
 
 /* === 반응형 - 태블릿 === */
