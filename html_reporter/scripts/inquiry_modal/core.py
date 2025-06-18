@@ -1,13 +1,13 @@
-# html_reporter/scripts/inquiry_modal/core.py (수정된 버전 - 안전한 DOM 조작)
+# html_reporter/scripts/inquiry_modal/core.py (수정된 버전)
 """
-문의 상세보기 모달 핵심 기능 스크립트 - 안전한 DOM 조작 + 카드 생성 함수 포함 + 로딩 상태 관리
+문의 상세보기 모달 핵심 기능 스크립트 - 실제 JSON 구조에 맞게 수정
 """
 
 def get_core_scripts():
-    """모달 핵심 기능 + 안전한 DOM 조작 스크립트 + 로딩 상태 관리"""
+    """모달 핵심 기능 + 실제 JSON 구조에 맞춘 카드 생성 함수"""
     return """
-// ─────────── 문의 모달 핵심 기능 (안전한 DOM 조작 + 로딩 관리) ───────────
-console.log('📋 문의 모달 핵심 기능 로딩 중...');
+// ─────────── 문의 모달 핵심 기능 (실제 JSON 구조 반영) ───────────
+console.log('📋 문의 모달 핵심 기능 로딩 중... (JSON 구조 수정됨)');
 
 // 전역 상태 관리
 window.inquiryModalState = {
@@ -30,23 +30,20 @@ window.inquiryModalState = {
     currentPageInquiries: []
 };
 
-// ─────────── 로딩 상태 표시 (개선된 버전) ───────────
+// ─────────── 로딩 상태 표시 ───────────
 function showInquiryLoading() {
     console.log('🔄 로딩 상태 표시');
     
     const listContainer = document.getElementById('inquiry-list-container');
     if (listContainer) {
-        // 기존 내용 모두 숨기기
         const inquiryList = document.getElementById('inquiry-list');
         const emptyState = document.getElementById('no-inquiries');
         
         if (inquiryList) inquiryList.style.display = 'none';
         if (emptyState) emptyState.style.display = 'none';
         
-        // 로딩 요소 확인 및 표시
         let loadingElement = document.getElementById('inquiry-loading');
         if (!loadingElement) {
-            // 로딩 요소가 없으면 생성
             const loadingHtml = `
                 <div id="inquiry-loading" class="inquiry-loading">
                     <div class="loading-spinner"></div>
@@ -61,13 +58,25 @@ function showInquiryLoading() {
         console.log('✅ 로딩 상태 표시 완료');
     }
     
-    // 통계 초기화
     updateInquiryStats(0, 0, 0, 0);
     
-    // 페이지네이션 숨김
     const paginationControls = document.getElementById('pagination-controls');
     if (paginationControls) {
         paginationControls.style.display = 'none';
+    }
+}
+
+function hideInquiryLoading() {
+    console.log('✅ 로딩 상태 숨김');
+    
+    const loadingElement = document.getElementById('inquiry-loading');
+    if (loadingElement) {
+        loadingElement.style.display = 'none';
+    }
+    
+    const listContainer = document.getElementById('inquiry-list');
+    if (listContainer) {
+        listContainer.style.display = 'flex';
     }
 }
 
@@ -84,12 +93,10 @@ function ensureInquiryListElement() {
             return null;
         }
         
-        // inquiry-list div 생성
         listElement = document.createElement('div');
         listElement.id = 'inquiry-list';
         listElement.className = 'inquiry-list';
         
-        // 기존 내용 앞에 삽입
         container.insertBefore(listElement, container.firstChild);
         console.log('✅ inquiry-list 요소를 동적으로 생성했습니다.');
     }
@@ -97,59 +104,29 @@ function ensureInquiryListElement() {
     return listElement;
 }
 
-// ─────────── DOM 구조 디버깅 함수 ───────────
-function debugInquiryModalDOM() {
-    console.log('🔍 문의 모달 DOM 구조 확인:');
-    
-    const modal = document.getElementById('inquiry-detail-modal');
-    console.log('Modal:', modal ? '✅ 존재' : '❌ 없음');
-    
-    const container = document.getElementById('inquiry-list-container');
-    console.log('Container:', container ? '✅ 존재' : '❌ 없음');
-    
-    const list = document.getElementById('inquiry-list');
-    console.log('List:', list ? '✅ 존재' : '❌ 없음');
-    
-    if (container && !list) {
-        console.log('📋 Container 내부 HTML:');
-        console.log(container.innerHTML.substring(0, 300) + '...');
-    }
-    
-    // 자동으로 inquiry-list 생성
-    if (!list) {
-        ensureInquiryListElement();
-    }
-}
-
-// ─────────── 모달 열기 메인 함수 (로딩 관리 개선) ───────────
+// ─────────── 모달 열기 메인 함수 ───────────
 window.openInquiryModal = function(categoryType, categoryName) {
     console.log(`🎯 문의 모달 열기: ${categoryType} - ${categoryName}`);
     
     try {
-        // 상태 초기화
         window.inquiryModalState.currentCategory = categoryName;
         window.inquiryModalState.currentCategoryType = categoryType;
         window.inquiryModalState.currentPage = 1;
         
-        // 모달 표시
         const modal = document.getElementById('inquiry-detail-modal');
         if (modal) {
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
             window.inquiryModalState.isOpen = true;
             
-            // 모달 제목 업데이트
             updateModalTitle(categoryType, categoryName);
             
-            // DOM 구조 확인 및 안전한 요소 생성
             setTimeout(() => {
                 debugInquiryModalDOM();
             }, 100);
             
-            // 🔧 중요: 로딩 상태 먼저 표시
             showInquiryLoading();
             
-            // 데이터 로딩 (충분한 시간 여유 후)
             setTimeout(() => {
                 if (typeof loadCategoryInquiries === 'function') {
                     loadCategoryInquiries(categoryName);
@@ -182,7 +159,6 @@ window.closeInquiryModal = function() {
             document.body.style.overflow = 'auto';
             window.inquiryModalState.isOpen = false;
             
-            // 상태 초기화
             resetModalState();
         }
         
@@ -213,7 +189,6 @@ function resetModalState() {
         currentPageInquiries: []
     };
     
-    // UI 초기화
     const searchInput = document.getElementById('inquiry-search');
     if (searchInput) searchInput.value = '';
     
@@ -286,8 +261,6 @@ document.addEventListener('click', function(event) {
 window.showInquiryDetail = function(inquiryId) {
     console.log(`🔍 문의 상세보기: ${inquiryId}`);
     
-    // 상세 문의 정보를 별도 모달이나 확장 영역에서 표시
-    // 현재는 콘솔 로그만 출력
     const inquiry = window.inquiryModalState.allInquiries.find(inq => inq.inquiry_id === inquiryId);
     if (inquiry) {
         alert(`문의 ID: ${inquiryId}\\n내용: ${inquiry.question_content?.substring(0, 200)}...`);
@@ -302,7 +275,8 @@ window.showInquiryAnswers = function(inquiryId) {
     if (inquiry && inquiry.answers && inquiry.answers.length > 0) {
         let answersText = `문의 ID: ${inquiryId}\\n\\n`;
         inquiry.answers.forEach((answer, index) => {
-            answersText += `답변 ${index + 1}:\\n${answer.answer_content}\\n\\n`;
+            // 🔧 수정: 실제 JSON 구조에 맞춘 필드명 사용
+            answersText += `답변 ${index + 1}:\\n${answer.content || answer.answer_content || '답변 내용 없음'}\\n\\n`;
         });
         alert(answersText);
     } else {
@@ -320,14 +294,12 @@ window.toggleFullContent = function(button) {
     const expandIcon = button.querySelector('.expand-icon');
     
     if (fullContent.style.display === 'none') {
-        // 전체 내용 보기
         preview.style.display = 'none';
         fullContent.style.display = 'block';
         expandText.style.display = 'none';
         collapseText.style.display = 'inline';
         expandIcon.style.transform = 'rotate(180deg)';
     } else {
-        // 미리보기로 돌아가기
         preview.style.display = 'block';
         fullContent.style.display = 'none';
         expandText.style.display = 'inline';
@@ -345,13 +317,11 @@ window.toggleFullAnswer = function(button) {
     const collapseText = button.querySelector('.collapse-text');
     
     if (fullAnswer.style.display === 'none') {
-        // 전체 답변 보기
         preview.style.display = 'none';
         fullAnswer.style.display = 'block';
         expandText.style.display = 'none';
         collapseText.style.display = 'inline';
     } else {
-        // 미리보기로 돌아가기
         preview.style.display = 'block';
         fullAnswer.style.display = 'none';
         expandText.style.display = 'inline';
@@ -361,12 +331,16 @@ window.toggleFullAnswer = function(button) {
 
 console.log('✅ 문의 모달 핵심 기능 로딩 완료');
 
-// ─────────── 문의 카드 생성 함수 (안전한 버전) ───────────
+// ─────────── 🔧 수정된 문의 카드 생성 함수 (실제 JSON 구조 반영) ───────────
 window.createInquiryCard = function(inquiry) {
+    console.log('🎨 문의 카드 생성:', inquiry);
+    
+    // 🔧 수정: 실제 JSON 구조에 맞춘 데이터 추출
     const urgencyIcon = inquiry.is_urgent ? '🚨' : '📋';
     const urgencyClass = inquiry.is_urgent ? 'urgent' : 'normal';
     const urgencyText = inquiry.is_urgent ? '긴급' : '일반';
     
+    // 🔧 수정: answer_status 필드 직접 사용
     const statusIcon = inquiry.answer_status === '답변완료' ? '✅' : 
                       inquiry.answer_status === '진행중' ? '🔄' : '⏳';
     const statusClass = inquiry.answer_status === '답변완료' ? 'completed' : 
@@ -385,12 +359,42 @@ window.createInquiryCard = function(inquiry) {
     // 검색어 하이라이팅
     const highlightedPreview = highlightSearchTerm(preview, window.currentSearchTerm || '');
     
-    // 답변 내용 확인
+    // 🔧 수정: 실제 JSON 구조에 맞춘 팀/카테고리 정보 추출
+    let assignedTeam = '미분류';
+    let subCategory = '기타';
+    
+    if (inquiry.category) {
+        assignedTeam = inquiry.category.assigned_team || '미분류';
+        subCategory = inquiry.category.sub_category || '기타';
+    } else {
+        // category 객체가 없는 경우 직접 필드에서 추출 시도
+        assignedTeam = inquiry.assigned_team || '미분류';
+        subCategory = inquiry.sub_category || '기타';
+    }
+    
+    console.log('📋 추출된 정보:', { assignedTeam, subCategory, answers: inquiry.answers?.length || 0 });
+    
+    // 🔧 수정: 실제 JSON 구조에 맞춘 답변 내용 확인
     const hasAnswer = inquiry.answers && inquiry.answers.length > 0;
-    const answerPreview = hasAnswer ? 
-        (inquiry.answers[0].answer_content || '').substring(0, 100) + 
-        (inquiry.answers[0].answer_content && inquiry.answers[0].answer_content.length > 100 ? '...' : '') 
-        : '';
+    let answerPreview = '';
+    let answerAuthor = '담당자';
+    let answerDate = '';
+    
+    if (hasAnswer) {
+        const firstAnswer = inquiry.answers[0];
+        // 🔧 수정: 실제 JSON 필드명 사용
+        const answerContent = firstAnswer.content || firstAnswer.answer_content || '';
+        answerPreview = answerContent.length > 100 ? 
+            answerContent.substring(0, 100) + '...' : answerContent;
+        
+        // 🔧 수정: 실제 JSON 필드명 사용
+        answerAuthor = firstAnswer.author_name || firstAnswer.answerer_info?.name || '담당자';
+        answerDate = firstAnswer.answer_date || '';
+        
+        if (answerDate) {
+            answerDate = new Date(answerDate).toLocaleDateString('ko-KR');
+        }
+    }
     
     return `
         <div class="inquiry-card" data-inquiry-id="${inquiry.inquiry_id || 'unknown'}">
@@ -400,8 +404,8 @@ window.createInquiryCard = function(inquiry) {
                         <span class="urgency-icon">${urgencyIcon}</span>
                         ${urgencyText}
                     </span>
-                    <span class="team-badge">${inquiry.assigned_team || '미분류'}</span>
-                    <span class="category-badge">${inquiry.sub_category || '기타'}</span>
+                    <span class="team-badge">${assignedTeam}</span>
+                    <span class="category-badge">${subCategory}</span>
                     <span class="date-badge">${formattedDate}</span>
                 </div>
                 <div class="inquiry-actions">
@@ -433,16 +437,16 @@ window.createInquiryCard = function(inquiry) {
                     <div class="answer-section">
                         <div class="answer-header">
                             <span class="answer-label">💬 답변</span>
-                            <span class="answer-meta">${inquiry.answers[0].answerer_info?.name || '담당자'} | ${new Date(inquiry.answers[0].answer_date).toLocaleDateString('ko-KR')}</span>
+                            <span class="answer-meta">${answerAuthor}${answerDate ? ' | ' + answerDate : ''}</span>
                         </div>
                         <div class="answer-preview">${answerPreview}</div>
-                        ${inquiry.answers[0].answer_content && inquiry.answers[0].answer_content.length > 100 ? `
+                        ${inquiry.answers[0].content && inquiry.answers[0].content.length > 100 ? `
                             <button class="show-full-answer" onclick="toggleFullAnswer(this)">
                                 <span class="expand-text">답변 전체 보기</span>
                                 <span class="collapse-text" style="display: none;">답변 접기</span>
                             </button>
                             <div class="full-answer" style="display: none;">
-                                ${inquiry.answers[0].answer_content}
+                                ${inquiry.answers[0].content || inquiry.answers[0].answer_content || ''}
                             </div>
                         ` : ''}
                     </div>
@@ -500,5 +504,28 @@ window.createInquiryCard = function(inquiry) {
     `;
 };
 
-console.log('✅ 문의 모달 핵심 기능 + 카드 생성 함수 로딩 완료');
+// ─────────── DOM 구조 디버깅 함수 ───────────
+function debugInquiryModalDOM() {
+    console.log('🔍 문의 모달 DOM 구조 확인:');
+    
+    const modal = document.getElementById('inquiry-detail-modal');
+    console.log('Modal:', modal ? '✅ 존재' : '❌ 없음');
+    
+    const container = document.getElementById('inquiry-list-container');
+    console.log('Container:', container ? '✅ 존재' : '❌ 없음');
+    
+    const list = document.getElementById('inquiry-list');
+    console.log('List:', list ? '✅ 존재' : '❌ 없음');
+    
+    if (container && !list) {
+        console.log('📋 Container 내부 HTML:');
+        console.log(container.innerHTML.substring(0, 300) + '...');
+    }
+    
+    if (!list) {
+        ensureInquiryListElement();
+    }
+}
+
+console.log('✅ 문의 모달 핵심 기능 + 수정된 카드 생성 함수 로딩 완료');
 """
