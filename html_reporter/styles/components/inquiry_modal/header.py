@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/header.py
 """
-문의 상세보기 모달 헤더 및 통계 스타일
+문의 상세보기 모달 헤더 및 통계 스타일 - 헤더 통계만 흰색 적용
 """
 
 def get_header_styles():
-    """모달 헤더 및 통계 영역 스타일"""
+    """모달 헤더 및 통계 영역 스타일 - 헤더 통계만 흰색 적용"""
     return """
 /* === 모달 헤더 === */
 .inquiry-modal-header {
@@ -63,18 +63,23 @@ def get_header_styles():
 
 .stat-icon {
     font-size: 1rem;
-    opacity: 0.9;
+    opacity: 1;
+    color: #ffffff;
 }
 
-.stat-label {
-    color: rgba(255, 255, 255, 0.9);
+/* 헤더 통계 영역만 흰색 적용 */
+.inquiry-modal-header .stat-label {
+    color: #ffffff !important;
     font-weight: 400;
 }
 
-.stat-value {
+.inquiry-modal-header .stat-value {
     font-weight: 700;
-    color: white;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    color: #ffffff !important;
+}
+
+.inquiry-modal-header .stat-item {
+    color: #ffffff !important;
 }
 
 /* === 닫기 버튼 === */
@@ -192,31 +197,6 @@ def get_header_styles():
         width: 16px;
         height: 16px;
         stroke-width: 3;
-    }
-}
-
-/* === 다크 모드 대응 === */
-@media (prefers-color-scheme: dark) {
-    .inquiry-modal-header {
-        background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
-    }
-    
-    .stat-item {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    
-    .stat-item:hover {
-        background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .inquiry-modal-close {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.15);
-    }
-    
-    .inquiry-modal-close:hover {
-        background: rgba(255, 255, 255, 0.2);
     }
 }
 

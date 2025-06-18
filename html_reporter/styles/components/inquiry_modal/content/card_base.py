@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/content/card_base.py
 """
-문의 카드 기본 구조 및 레이아웃 스타일 - 여백 및 간격 수정
+문의 카드 기본 구조 및 레이아웃 스타일 - 다크모드 제거
 """
 
 def get_card_base_styles():
-    """문의 카드 기본 구조 스타일 - 여백 수정"""
+    """문의 카드 기본 구조 스타일 - 다크모드 제거"""
     return """
 /* === 문의 카드 기본 구조 === */
 .inquiry-card {
@@ -120,25 +120,4 @@ def get_card_base_styles():
         box-shadow: none;
     }
 }
-
-/* === 🔧 디버깅용 스타일 (필요시 주석 해제) === */
-/*
-.inquiry-card {
-    border: 2px solid orange !important;
-    background: rgba(255, 165, 0, 0.1) !important;
-}
-
-.inquiry-card::before {
-    content: 'CARD';
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    background: orange;
-    color: white;
-    padding: 2px 4px;
-    font-size: 10px;
-    border-radius: 2px;
-    z-index: 1000;
-}
-*/
 """

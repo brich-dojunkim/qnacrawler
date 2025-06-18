@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/modal_actions.py
 """
-문의 모달 열기/닫기 및 액션 처리
+문의 모달 열기/닫기 및 액션 처리 - 답변 관련 함수 제거
 """
 
 def get_modal_actions_scripts():
-    """모달 액션 스크립트"""
+    """모달 액션 스크립트 - 답변 관련 함수 제거"""
     return """
 // ─────────── 모달 액션 시스템 ───────────
 console.log('🎬 모달 액션 시스템 로딩 중...');
@@ -94,23 +94,6 @@ window.showInquiryDetail = function(inquiryId) {
     const inquiry = state.allInquiries.find(inq => inq.inquiry_id === inquiryId);
     if (inquiry) {
         alert(`문의 ID: ${inquiryId}\\n내용: ${inquiry.question_content?.substring(0, 200)}...`);
-    }
-};
-
-// ─────────── 답변 보기 함수 ───────────
-window.showInquiryAnswers = function(inquiryId) {
-    console.log(`💬 답변 보기: ${inquiryId}`);
-    
-    const state = getCurrentState();
-    const inquiry = state.allInquiries.find(inq => inq.inquiry_id === inquiryId);
-    if (inquiry && inquiry.answers && inquiry.answers.length > 0) {
-        let answersText = `문의 ID: ${inquiryId}\\n\\n`;
-        inquiry.answers.forEach((answer, index) => {
-            answersText += `답변 ${index + 1}:\\n${answer.content || answer.answer_content || '답변 내용 없음'}\\n\\n`;
-        });
-        alert(answersText);
-    } else {
-        alert('답변이 없습니다.');
     }
 };
 

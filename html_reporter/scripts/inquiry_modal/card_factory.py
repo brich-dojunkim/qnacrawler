@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/card_factory.py
 """
-문의 카드 생성 팩토리 모듈
+문의 카드 생성 팩토리 모듈 - 답변 관련 요소 제거
 """
 
 def get_card_factory_scripts():
-    """카드 생성 팩토리 스크립트"""
+    """카드 생성 팩토리 스크립트 - 답변 관련 요소 제거"""
     return """
 // ─────────── 문의 카드 생성 팩토리 ───────────
 console.log('🏭 문의 카드 생성 팩토리 로딩 중...');
@@ -192,7 +192,7 @@ function generateAnswerExpandButton(data) {
     `;
 }
 
-// ─────────── 카드 푸터 생성 ───────────
+// ─────────── 카드 푸터 생성 (답변 관련 요소 제거) ───────────
 function generateCardFooter(data) {
     return `
         <div class="inquiry-card-footer">
@@ -214,51 +214,8 @@ function generateCardFooter(data) {
                     </svg>
                     ${data.content.length}자
                 </span>
-                ${data.hasAnswer ? generateAnswerStat() : ''}
-            </div>
-            
-            <div class="inquiry-actions-footer">
-                ${data.hasAnswer ? generateAnswerButton(data.id) : ''}
-                ${generateDetailButton(data.id)}
             </div>
         </div>
-    `;
-}
-
-// ─────────── 답변 통계 생성 ───────────
-function generateAnswerStat() {
-    return `
-        <span class="stat-item">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            답변 있음
-        </span>
-    `;
-}
-
-// ─────────── 답변 버튼 생성 ───────────
-function generateAnswerButton(inquiryId) {
-    return `
-        <button class="action-btn secondary" onclick="showInquiryAnswers('${inquiryId}')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            전체 답변
-        </button>
-    `;
-}
-
-// ─────────── 상세보기 버튼 생성 ───────────
-function generateDetailButton(inquiryId) {
-    return `
-        <button class="action-btn primary" onclick="showInquiryDetail('${inquiryId}')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-            </svg>
-            상세보기
-        </button>
     `;
 }
 
@@ -303,7 +260,7 @@ window.highlightSearchTerm = function(text, searchTerm) {
     if (!searchTerm || !text) return text;
     
     try {
-        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\                <span class="date-badge">${data.formatt')})`, 'gi');
+        const regex = new RegExp(`(${searchTerm.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')})`, 'gi');
         return text.replace(regex, '<mark class="search-highlight">$1</mark>');
     } catch (error) {
         console.warn('⚠️ 검색어 하이라이팅 오류:', error);

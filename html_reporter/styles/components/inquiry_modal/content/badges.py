@@ -1,10 +1,10 @@
-# styles/components/inquiry_modal/content/badges.py
+# html_reporter/styles/components/inquiry_modal/content/badges.py
 """
-문의 카드 배지 스타일 (긴급도, 상태, 팀, 카테고리 등)
+문의 카드 배지 스타일 (긴급도, 상태, 팀, 카테고리 등) - 다크모드 제거
 """
 
 def get_badges_styles():
-    """모든 배지 스타일"""
+    """모든 배지 스타일 - 다크모드 제거"""
     return """
 /* === 배지 공통 스타일 === */
 .urgency-badge, 
@@ -186,45 +186,6 @@ def get_badges_styles():
     cursor: help;
 }
 
-/* === 다크 모드 대응 === */
-@media (prefers-color-scheme: dark) {
-    .urgency-badge.urgent {
-        background: linear-gradient(135deg, #7f1d1d, #991b1b);
-        color: #fca5a5;
-        border-color: #dc2626;
-    }
-    
-    .urgency-badge.normal {
-        background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
-        color: #93c5fd;
-        border-color: #3b82f6;
-    }
-    
-    .status-badge.completed {
-        background: linear-gradient(135deg, #14532d, #166534);
-        color: #86efac;
-        border-color: #22c55e;
-    }
-    
-    .status-badge.pending {
-        background: linear-gradient(135deg, #92400e, #b45309);
-        color: #fcd34d;
-        border-color: #f59e0b;
-    }
-    
-    .team-badge {
-        background: linear-gradient(135deg, #581c87, #6b21a8);
-        color: #c4b5fd;
-        border-color: #8b5cf6;
-    }
-    
-    .category-badge {
-        background: linear-gradient(135deg, #14532d, #166534);
-        color: #86efac;
-        border-color: #22c55e;
-    }
-}
-
 /* === 배지 반응형 === */
 @media (max-width: 480px) {
     .urgency-badge, 
@@ -243,4 +204,5 @@ def get_badges_styles():
     .status-icon {
         font-size: 0.7rem;
     }
-}"""
+}
+"""

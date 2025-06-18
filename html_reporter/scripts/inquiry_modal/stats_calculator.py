@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/stats_calculator.py
 """
-문의 통계 계산 시스템
+문의 통계 계산 시스템 - 헤더 통계만 흰색 적용
 """
 
 def get_stats_calculator_scripts():
-    """통계 계산 시스템 스크립트"""
+    """통계 계산 시스템 스크립트 - 헤더 통계만 흰색 적용"""
     return """
 // ─────────── 통계 계산 시스템 ───────────
 console.log('📊 통계 계산 시스템 로딩 중...');
@@ -117,6 +117,41 @@ function logCalculationResults(finalStats, totalProcessed) {
         totalProcessed
     });
 }
+
+// ─────────── 🔧 통계 업데이트 함수 수정 (헤더만 적용) ───────────
+window.updateInquiryStats = function(total, urgent, completed, avgLength) {
+    console.log('📊 통계 업데이트:', { total, urgent, completed, avgLength });
+    
+    // 🚨 중요: HTML 구조에 맞게 올바른 요소 업데이트
+    const elements = {
+        'total-inquiries-count': total,
+        'urgent-inquiries-count': urgent, 
+        'completed-inquiries-count': completed,
+        'avg-length': avgLength
+    };
+    
+    Object.entries(elements).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element) {
+            // 🔧 숫자 포맷팅 및 텍스트 업데이트
+            const formattedValue = typeof value === 'number' ? value.toLocaleString() : value;
+            element.textContent = formattedValue;
+            
+            console.log(`✅ 통계 업데이트: ${id} = ${formattedValue}`);
+        } else {
+            console.warn(`⚠️ 요소를 찾을 수 없습니다: ${id}`);
+        }
+    });
+    
+    // 🔧 헤더 통계 부분만 흰색으로 설정 (카드 푸터는 제외)
+    setTimeout(() => {
+        const headerStatValues = document.querySelectorAll('.inquiry-modal-header #total-inquiries-count, .inquiry-modal-header #urgent-inquiries-count, .inquiry-modal-header #completed-inquiries-count, .inquiry-modal-header #avg-length');
+        headerStatValues.forEach(element => {
+            element.style.setProperty('color', '#ffffff', 'important');
+            element.style.fontWeight = '700';
+        });
+    }, 100);
+};
 
 // ─────────── 팀 필터 옵션 업데이트 ───────────
 function updateTeamFilterOptions(inquiries) {

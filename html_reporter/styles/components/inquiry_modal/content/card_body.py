@@ -1,10 +1,10 @@
-# styles/components/inquiry_modal/content/card_body.py
+# html_reporter/styles/components/inquiry_modal/content/card_body.py
 """
-문의 카드 본문 (내용 및 답변 섹션) 스타일
+문의 카드 본문 (내용 및 답변 섹션) 스타일 - 다크모드 제거
 """
 
 def get_card_body_styles():
-    """카드 본문 영역 스타일"""
+    """카드 본문 영역 스타일 - 다크모드 제거"""
     return """
 /* === 카드 본문 === */
 .inquiry-card-body {

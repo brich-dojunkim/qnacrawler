@@ -1,10 +1,10 @@
-# styles/components/inquiry_modal/content/responsive.py
+# html_reporter/styles/components/inquiry_modal/content/responsive.py
 """
-문의 모달 콘텐츠 반응형 스타일
+문의 모달 콘텐츠 반응형 스타일 - 다크모드 제거
 """
 
 def get_responsive_styles():
-    """반응형 스타일 (모든 화면 크기 대응)"""
+    """반응형 스타일 (모든 화면 크기 대응) - 다크모드 제거"""
     return """
 /* === 반응형 - 태블릿 (768px 이하) === */
 @media (max-width: 768px) {
@@ -336,60 +336,6 @@ def get_responsive_styles():
         width: 24px;
         height: 24px;
         border-width: 2px;
-    }
-}
-
-/* === 다크 모드 반응형 === */
-@media (prefers-color-scheme: dark) {
-    .inquiry-card {
-        background: #1f2937;
-        border-color: #374151;
-        color: #f9fafb;
-    }
-    
-    .inquiry-card:hover {
-        background: #111827;
-        border-color: #667eea;
-    }
-    
-    .content-preview, 
-    .full-content {
-        color: #e5e7eb;
-    }
-    
-    .full-content {
-        background: #374151;
-        border-left-color: #667eea;
-    }
-    
-    .answer-section {
-        background: #374151;
-        border-color: #4b5563;
-    }
-    
-    .full-answer {
-        background: #1f2937;
-        border-left-color: #10b981;
-        color: #e5e7eb;
-    }
-    
-    .inquiry-card-footer {
-        border-top-color: #4b5563;
-    }
-    
-    .stat-item {
-        color: #9ca3af;
-    }
-    
-    .action-btn.secondary {
-        background: #374151;
-        color: #e5e7eb;
-        border-color: #4b5563;
-    }
-    
-    .action-btn.secondary:hover {
-        background: #4b5563;
-        color: #f9fafb;
     }
 }
 

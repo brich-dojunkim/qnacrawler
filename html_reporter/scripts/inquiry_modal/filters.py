@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/filters.py
 """
-문의 모달 필터링 및 검색 스크립트
+문의 모달 필터링 및 검색 스크립트 - 필터 초기화 문제 해결
 """
 
 def get_filters_scripts():
-    """필터링 및 검색 관련 스크립트"""
+    """필터링 및 검색 관련 스크립트 - 필터 초기화 문제 해결"""
     return """
 // ─────────── 필터링 및 검색 시스템 ───────────
 console.log('🔍 필터링 시스템 로딩 중...');
@@ -40,6 +40,7 @@ function setupFilterEventListeners() {
         const filter = document.getElementById(filterId);
         if (filter) {
             filter.addEventListener('change', function() {
+                console.log(`🔄 필터 변경: ${filterId} = ${this.value}`);
                 applyAllFiltersAndRender();
             });
         }
@@ -95,9 +96,9 @@ window.clearInquirySearch = function() {
     applyAllFiltersAndRender();
 };
 
-// ─────────── 모든 필터 초기화 ───────────
+// ─────────── 🔧 수정된 모든 필터 초기화 ───────────
 window.clearAllInquiryFilters = function() {
-    console.log('🧹 모든 필터 초기화');
+    console.log('🧹 모든 필터 초기화 시작');
     
     // 검색어 초기화
     const searchInput = document.getElementById('inquiry-search');
@@ -116,6 +117,7 @@ window.clearAllInquiryFilters = function() {
         const select = document.getElementById(selectId);
         if (select) {
             select.selectedIndex = 0;
+            console.log(`🔄 ${selectId} 초기화: ${select.value}`);
         }
     });
     
@@ -136,7 +138,20 @@ window.clearAllInquiryFilters = function() {
         sort: 'latest'
     };
     
+    // 🔧 중요: 빈 상태 요소들 숨기기
+    const emptyState = document.getElementById('no-inquiries');
+    if (emptyState) {
+        emptyState.style.display = 'none';
+    }
+    
+    // 🔧 중요: 문의 리스트 다시 표시
+    const inquiryList = document.getElementById('inquiry-list');
+    if (inquiryList) {
+        inquiryList.style.display = 'flex';
+    }
+    
     // 필터 적용
+    console.log('🎯 필터 초기화 후 재적용 시작');
     applyAllFiltersAndRender();
 };
 
@@ -147,13 +162,21 @@ window.applyAllFiltersAndRender = function() {
     try {
         // 현재 필터 값들 가져오기
         const filters = getCurrentFilterValues();
+        console.log('🔍 현재 필터 값들:', filters);
         
         // 상태 업데이트
         window.inquiryModalState.currentFilters = filters;
         
+        // 🔧 원본 데이터가 있는지 확인
+        if (!window.inquiryModalState.allInquiries || window.inquiryModalState.allInquiries.length === 0) {
+            console.warn('⚠️ 원본 데이터가 없습니다. 새로고침이 필요할 수 있습니다.');
+            showEmptyState();
+            return;
+        }
+        
         // 필터링 실행
         const filteredInquiries = applyFilters(window.inquiryModalState.allInquiries, filters);
-        console.log(`📊 필터링 결과: ${filteredInquiries.length}건`);
+        console.log(`📊 필터링 결과: ${filteredInquiries.length}건 (원본: ${window.inquiryModalState.allInquiries.length}건)`);
         
         // 정렬 적용
         const sortedInquiries = applySorting(filteredInquiries, filters.sort);
@@ -176,20 +199,24 @@ window.applyAllFiltersAndRender = function() {
 
 // ─────────── 현재 필터 값들 가져오기 ───────────
 function getCurrentFilterValues() {
-    return {
+    const filters = {
         search: window.currentSearchTerm || '',
         team: document.getElementById('team-filter')?.value || '',
         urgency: document.getElementById('urgency-filter')?.value || '',
         status: document.getElementById('status-filter')?.value || '',
         sort: document.getElementById('sort-filter')?.value || 'latest'
     };
+    
+    console.log('🔍 추출된 필터 값들:', filters);
+    return filters;
 }
 
-// ─────────── 필터링 로직 ───────────
+// ─────────── 🔧 수정된 필터링 로직 ───────────
 function applyFilters(inquiries, filters) {
     if (!inquiries || inquiries.length === 0) return [];
     
     let filtered = [...inquiries];
+    console.log(`🔄 필터링 시작: ${filtered.length}건`);
     
     // 검색어 필터
     if (filters.search) {
@@ -209,11 +236,42 @@ function applyFilters(inquiries, filters) {
         console.log(`🎯 검색 결과: ${filtered.length}건`);
     }
     
-    // 팀 필터
+    // 🔧 수정된 팀 필터
     if (filters.team) {
         console.log(`👥 팀 필터: "${filters.team}"`);
-        filtered = filtered.filter(inquiry => inquiry.assigned_team === filters.team);
-        console.log(`🎯 팀 필터 결과: ${filtered.length}건`);
+        const beforeCount = filtered.length;
+        
+        filtered = filtered.filter(inquiry => {
+            // category 객체에서 팀 정보 추출
+            let inquiryTeam = '';
+            if (inquiry.category && inquiry.category.assigned_team) {
+                inquiryTeam = inquiry.category.assigned_team;
+            } else if (inquiry.assigned_team) {
+                inquiryTeam = inquiry.assigned_team;
+            }
+            
+            const matches = inquiryTeam === filters.team;
+            
+            // 디버깅 로그 (첫 5개만)
+            if (beforeCount <= 5) {
+                console.log(`🔍 문의 ${inquiry.inquiry_id}: 팀="${inquiryTeam}" vs 필터="${filters.team}" = ${matches}`);
+            }
+            
+            return matches;
+        });
+        
+        console.log(`🎯 팀 필터 결과: ${filtered.length}건 (${beforeCount}건에서)`);
+        
+        // 팀 필터 결과가 0이면 팀 분포 확인
+        if (filtered.length === 0 && beforeCount > 0) {
+            console.log('🔍 팀 분포 확인:');
+            const teamCounts = {};
+            inquiries.slice(0, 10).forEach(inq => {
+                const team = inq.category?.assigned_team || inq.assigned_team || '미분류';
+                teamCounts[team] = (teamCounts[team] || 0) + 1;
+            });
+            console.log('📊 상위 10개 문의의 팀 분포:', teamCounts);
+        }
     }
     
     // 긴급도 필터
@@ -250,8 +308,29 @@ function applyFilters(inquiries, filters) {
         console.log(`🎯 상태 필터 결과: ${filtered.length}건`);
     }
     
+    console.log(`✅ 최종 필터링 결과: ${filtered.length}건`);
     return filtered;
 }
+
+// ─────────── 필터 디버깅 함수 ───────────
+window.debugFilters = function() {
+    console.log('🔍 필터 디버깅 정보:');
+    
+    const filters = getCurrentFilterValues();
+    const state = window.inquiryModalState;
+    
+    console.log('현재 필터:', filters);
+    console.log('전체 문의:', state.allInquiries?.length || 0);
+    console.log('필터링된 문의:', state.filteredInquiries?.length || 0);
+    
+    if (state.allInquiries && state.allInquiries.length > 0) {
+        console.log('📊 팀 분포 (상위 5개 문의):');
+        state.allInquiries.slice(0, 5).forEach(inq => {
+            const team = inq.category?.assigned_team || inq.assigned_team || '미분류';
+            console.log(`  - 문의 ${inq.inquiry_id}: ${team}`);
+        });
+    }
+};
 
 console.log('✅ 필터링 시스템 로딩 완료');
 """
