@@ -1,10 +1,10 @@
-# styles/components/inquiry_modal/content/card_base.py
+# html_reporter/styles/components/inquiry_modal/content/card_base.py
 """
-문의 카드 기본 구조 및 레이아웃 스타일
+문의 카드 기본 구조 및 레이아웃 스타일 - 여백 및 간격 수정
 """
 
 def get_card_base_styles():
-    """문의 카드 기본 구조 스타일"""
+    """문의 카드 기본 구조 스타일 - 여백 수정"""
     return """
 /* === 문의 카드 기본 구조 === */
 .inquiry-card {
@@ -16,7 +16,12 @@ def get_card_base_styles():
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     position: relative;
     overflow: hidden;
-    margin-bottom: 0; /* gap으로 간격 제어 */
+    /* 🚨 핵심 수정: 카드 간격을 gap으로만 제어 */
+    margin: 0;
+    margin-bottom: 0;
+    /* 🔧 카드 너비 및 박스 사이징 */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* 호버 효과 */
@@ -56,12 +61,12 @@ def get_card_base_styles():
     pointer-events: none;
 }
 
-/* 카드 내부 기본 간격 */
+/* 🔧 카드 내부 기본 간격 최적화 */
 .inquiry-card > * + * {
     margin-top: 16px;
 }
 
-/* 카드 데이터 속성 지원 */
+/* 🔧 카드 데이터 속성 지원 - 왼쪽 보더 색상 */
 .inquiry-card[data-urgency="urgent"] {
     border-left: 4px solid #ef4444;
 }
@@ -77,4 +82,63 @@ def get_card_base_styles():
 .inquiry-card[data-status="pending"] {
     border-left-color: #f59e0b;
 }
+
+/* === 🔧 카드 반응형 여백 === */
+@media (max-width: 768px) {
+    .inquiry-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .inquiry-card {
+        padding: 12px;
+        border-radius: 10px;
+    }
+}
+
+/* === 카드 애니메이션 최적화 === */
+.inquiry-card {
+    /* GPU 가속 활용 */
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+/* === 인쇄용 카드 스타일 === */
+@media print {
+    .inquiry-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+        margin-bottom: 1rem;
+        transform: none;
+    }
+    
+    .inquiry-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+}
+
+/* === 🔧 디버깅용 스타일 (필요시 주석 해제) === */
+/*
+.inquiry-card {
+    border: 2px solid orange !important;
+    background: rgba(255, 165, 0, 0.1) !important;
+}
+
+.inquiry-card::before {
+    content: 'CARD';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: orange;
+    color: white;
+    padding: 2px 4px;
+    font-size: 10px;
+    border-radius: 2px;
+    z-index: 1000;
+}
+*/
 """
