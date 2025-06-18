@@ -9,7 +9,7 @@ def get_modal_actions_scripts():
 // ─────────── 모달 액션 시스템 ───────────
 console.log('🎬 모달 액션 시스템 로딩 중...');
 
-// ─────────── 모달 열기 메인 함수 ───────────
+// ─────────── 모달 열기 메인 함수 (헤더 정보 업데이트 추가) ───────────
 window.openInquiryModal = function(categoryType, categoryName) {
     console.log(`🎯 문의 모달 열기: ${categoryType} - ${categoryName}`);
     
@@ -23,7 +23,8 @@ window.openInquiryModal = function(categoryType, categoryName) {
             document.body.style.overflow = 'hidden';
             updateModalState({ isOpen: true });
             
-            updateModalTitle(categoryType, categoryName);
+            // 🚨 중요: 모달 제목과 헤더 정보 업데이트
+            updateModalHeaderInfo(categoryType, categoryName);
             
             setTimeout(() => {
                 debugInquiryModalDOM();
@@ -51,6 +52,108 @@ window.openInquiryModal = function(categoryType, categoryName) {
         alert('문의 목록을 불러오는 중 오류가 발생했습니다.');
     }
 };
+
+// ─────────── 모달 헤더 정보 업데이트 ───────────
+function updateModalHeaderInfo(categoryType, categoryName) {
+    console.log(`🔄 모달 헤더 정보 업데이트: ${categoryType} - ${categoryName}`);
+    
+    // 제목 업데이트
+    const titleElement = document.getElementById('inquiry-modal-title');
+    if (titleElement) {
+        const typeText = categoryType === 'category' ? '카테고리' : '세부카테고리';
+        titleElement.innerHTML = `📂 ${categoryName} 문의 목록`;
+        titleElement.setAttribute('title', `${typeText}: ${categoryName}`);
+    }
+    
+    // 팀/여정 정보 가져오기 및 추가
+    const categoryInfo = getCategoryInfo(categoryName);
+    if (categoryInfo) {
+        addTeamJourneyToHeader(categoryInfo);
+    }
+}
+
+// ─────────── 카테고리 정보 가져오기 ───────────
+function getCategoryInfo(categoryName) {
+    // 전역 결과 데이터에서 카테고리 정보 검색
+    if (window.categoryAnalysisData && window.categoryAnalysisData[categoryName]) {
+        return window.categoryAnalysisData[categoryName];
+    }
+    
+    // 매핑 함수로 기본 정보 생성
+    return {
+        main_team: getMainTeamForCategory(categoryName),
+        main_journey: getMainJourneyForCategory(categoryName)
+    };
+}
+
+// ─────────── 팀/여정 정보를 헤더에 추가 ───────────
+function addTeamJourneyToHeader(categoryInfo) {
+    const statsContainer = document.getElementById('inquiry-modal-stats');
+    if (!statsContainer) return;
+    
+    // 기존 팀/여정 배지 제거
+    const existingBadges = statsContainer.querySelectorAll('.team-journey-badge');
+    existingBadges.forEach(badge => badge.remove());
+    
+    // 새로운 팀/여정 배지 추가
+    const teamBadgeHtml = `
+        <span class="stat-item team-journey-badge">
+            <span class="stat-icon">👥</span>
+            <span class="stat-label">담당팀:</span>
+            <span class="stat-value">${categoryInfo.main_team || '미분류'}</span>
+        </span>
+    `;
+    
+    const journeyBadgeHtml = `
+        <span class="stat-item team-journey-badge">
+            <span class="stat-icon">🎯</span>
+            <span class="stat-label">여정:</span>
+            <span class="stat-value">${categoryInfo.main_journey || '기타'}</span>
+        </span>
+    `;
+    
+    // 기존 통계 뒤에 추가
+    statsContainer.insertAdjacentHTML('beforeend', teamBadgeHtml);
+    statsContainer.insertAdjacentHTML('beforeend', journeyBadgeHtml);
+}
+
+// ─────────── 카테고리별 팀/여정 매핑 함수들 ───────────
+function getMainTeamForCategory(categoryName) {
+    // 유저 여정 매핑에서 팀 정보 추출
+    const teamMapping = {
+        '입점관리': 'MD팀',
+        '스토어관리': 'MD팀', 
+        '상품등록': '상품팀',
+        '상품등록 실패': '상품팀',
+        '발주/발송관리': '주문팀',
+        '배송현황관리': '주문팀',
+        '취소관리': 'CS팀',
+        '반품관리/환불보류': 'CS팀',
+        '정산통합': '정산팀'
+        // 더 많은 매핑 추가...
+    };
+    
+    return teamMapping[categoryName] || '미분류';
+}
+
+function getMainJourneyForCategory(categoryName) {
+    // 기존 유저 여정 매핑 사용
+    const journeyMapping = {
+        '계정·입점': ['입점관리', '스토어관리', '플랜관리', '신규회원가입', '사업자정보/양도양수', '탈퇴/재가입', '브랜드권한신청'],
+        '상품·콘텐츠': ['상품등록', '상품등록 실패', '상품 조회 및 수정', '채널상품연동', '브리치 기획전신청', '채널딜 진행관리', '상품문의(브리치)', '상품문의(채널)'],
+        '주문·배송': ['발주/발송관리', '배송현황관리', '배송지연 관리 (결품취소)', '송장등록 실패/ 송장번호 수정', '주문조회', '긴급문의', '배송정책 관리'],
+        '반품·취소': ['취소관리', '교환관리/교환철회', '반품관리/환불보류'],
+        '정산': ['구매확정관리', '정산통합', '특약매입정산', '판매대행정산']
+    };
+    
+    for (const [journey, categories] of Object.entries(journeyMapping)) {
+        if (categories.includes(categoryName)) {
+            return journey;
+        }
+    }
+    
+    return '기타';
+}
 
 // ─────────── 모달 닫기 ───────────
 window.closeInquiryModal = function() {

@@ -46,17 +46,7 @@ function extractCardData(inquiry) {
     const preview = content.length > 200 ? content.substring(0, 200) + '...' : content;
     const highlightedPreview = highlightSearchTerm(preview, window.currentSearchTerm || '');
     
-    // 팀/카테고리 정보 추출
-    let assignedTeam = '미분류';
-    let subCategory = '기타';
-
-    if (inquiry.category) {
-        assignedTeam = inquiry.category.assigned_team || '미분류';
-        subCategory = inquiry.category.sub_category || '기타';
-    } else {
-        assignedTeam = inquiry.assigned_team || '미분류';
-        subCategory = inquiry.sub_category || '기타';
-    }
+    // 🚨 중요: 팀/카테고리 정보 제거 - 이제 모달 헤더에 표시
     
     // 판매자와 작성자 정보
     const sellerName = inquiry.seller || '판매자';
@@ -72,11 +62,11 @@ function extractCardData(inquiry) {
     let answerPreview = '';
     let answerAuthor = '담당자';
     let answerDate = '';
-    let answerContent = '';  // 전체 답변 내용 추가
+    let answerContent = '';
     
     if (hasAnswer) {
         const firstAnswer = inquiry.answers[0];
-        answerContent = firstAnswer.content || '';  // 전체 답변 내용
+        answerContent = firstAnswer.content || '';
         answerPreview = answerContent.length > 100 ? 
             answerContent.substring(0, 100) + '...' : answerContent;
         
@@ -92,10 +82,9 @@ function extractCardData(inquiry) {
         id: inquiry.inquiry_id || 'unknown',
         urgencyIcon, urgencyClass, urgencyText,
         statusIcon, statusClass, statusText,
-        assignedTeam, subCategory, sellerName,
-        authorName, authorEmail, authorPhone,
+        sellerName, authorName, authorEmail, authorPhone,
         formattedDate, content, preview, highlightedPreview,
-        hasAnswer, answerPreview, answerAuthor, answerDate, answerContent  // answerContent 추가
+        hasAnswer, answerPreview, answerAuthor, answerDate, answerContent
     };
 }
 
@@ -110,7 +99,7 @@ function generateCardHTML(data) {
     `;
 }
 
-// ─────────── 카드 헤더 생성 ───────────
+// ─────────── 카드 헤더 생성 (팀/카테고리 배지 제거) ───────────
 function generateCardHeader(data) {
     return `
         <div class="inquiry-card-header">
@@ -119,8 +108,6 @@ function generateCardHeader(data) {
                     <span class="urgency-icon">${data.urgencyIcon}</span>
                     ${data.urgencyText}
                 </span>
-                <span class="team-badge">${data.assignedTeam}</span>
-                <span class="category-badge">${data.subCategory}</span>
                 <span class="seller-badge">🏢${data.sellerName}</span>
                 <span class="author-badge" onclick="showAuthorInfo('${data.authorEmail}', '${data.authorPhone}', '${data.authorName}')" 
                     title="클릭하여 연락처 보기" style="cursor: pointer;">✍️${data.authorName}</span>

@@ -182,7 +182,7 @@ def get_overview_template():
         <!-- 🔧 수정된 문의 상세보기 모달 - inquiry-list div 확실히 포함! -->
         <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
             <div class="inquiry-modal-content">
-                <!-- 모달 헤더 -->
+                <!-- 모달 헤더 (팀/여정 정보 추가 공간 확보) -->
                 <div class="inquiry-modal-header">
                     <div class="inquiry-modal-title-section">
                         <h3 id="inquiry-modal-title" class="inquiry-modal-title">
@@ -209,6 +209,7 @@ def get_overview_template():
                                 <span class="stat-label">평균길이:</span>
                                 <span id="avg-length" class="stat-value">0</span>자
                             </span>
+                            <!-- 🚨 여기에 JavaScript로 팀/여정 배지가 동적으로 추가됩니다 -->
                         </div>
                     </div>
                     <button class="inquiry-modal-close" onclick="closeInquiryModal()">
@@ -218,7 +219,7 @@ def get_overview_template():
                         </svg>
                     </button>
                 </div>
-                
+                                
                 <!-- 필터 바 -->
                 <div class="inquiry-modal-filters">
                     <div class="filter-group">

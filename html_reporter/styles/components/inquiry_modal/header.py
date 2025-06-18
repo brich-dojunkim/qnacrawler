@@ -6,7 +6,7 @@
 def get_header_styles():
     """모달 헤더 및 통계 영역 스타일 - 헤더 통계만 흰색 적용"""
     return """
-/* === 모달 헤더 === */
+/* === 모달 헤더 (확장된 통계 지원) === */
 .inquiry-modal-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -34,12 +34,14 @@ def get_header_styles():
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* === 통계 영역 === */
+/* === 확장된 통계 영역 (2줄 지원) === */
 .inquiry-modal-stats {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 12px;
     margin-top: 8px;
+    /* 2줄까지 허용 */
+    max-width: 100%;
 }
 
 .stat-item {
@@ -54,6 +56,9 @@ def get_header_styles():
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.3s ease;
+    white-space: nowrap;
+    /* 줄바꿈 허용 */
+    flex: 0 0 auto;
 }
 
 .stat-item:hover {
@@ -65,6 +70,18 @@ def get_header_styles():
     font-size: 1rem;
     opacity: 1;
     color: #ffffff;
+}
+
+/* 팀/여정 배지 특별 스타일 */
+.stat-item.team-journey-badge {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    font-weight: 600;
+}
+
+.stat-item.team-journey-badge:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 /* 헤더 통계 영역만 흰색 적용 */
