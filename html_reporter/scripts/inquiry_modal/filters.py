@@ -238,8 +238,7 @@ function applyFilters(inquiries, filters) {
         } else if (filters.status === 'pending') {
             filtered = filtered.filter(inquiry => 
                 !inquiry.answer_status || 
-                inquiry.answer_status === '답변대기' || 
-                inquiry.answer_status === '대기중' ||
+                inquiry.answer_status === '미답변' ||
                 (!inquiry.answers || inquiry.answers.length === 0)
             );
         } else if (filters.status === 'in_progress') {

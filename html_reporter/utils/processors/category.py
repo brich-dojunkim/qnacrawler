@@ -44,8 +44,8 @@ def process_category_data(results: Dict) -> List[Dict]:
         if category_info.get('team_distribution'):
             for team, count in list(category_info['team_distribution'].items())[:3]:
                 team_badges_html += f'<span class="team-badge">{team}</span>'
-        
-        main_team = list(category_info.get('team_distribution', {}).keys())[0] if category_info.get('team_distribution') else '기타'
+
+        main_team = list(category_info.get('team_distribution', {}).keys())[0] if category_info.get('team_distribution') else '미분류'
         main_journey = get_journey_for_category(category_name)
         
         # 긴급률 레벨 계산

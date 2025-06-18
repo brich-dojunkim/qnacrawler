@@ -573,4 +573,34 @@ def get_content_styles():
         color: #f9fafb;
     }
 }
+
+.seller-badge, .author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.seller-badge {
+    background: linear-gradient(135deg, #e0f2fe, #bae6fd);
+    color: #0369a1;
+    border: 1px solid #38bdf8;
+}
+
+.author-badge {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    color: #15803d;
+    border: 1px solid #4ade80;
+    transition: all 0.2s ease;
+}
+
+.author-badge:hover {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(21, 128, 61, 0.2);
+}
 """

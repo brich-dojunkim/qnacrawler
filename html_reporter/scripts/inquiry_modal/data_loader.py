@@ -272,17 +272,20 @@ function updateTeamFilterOptions(inquiries) {
         try {
             let team = null;
             
-            // category 객체에서 추출
-            if (inquiry.category && inquiry.category.assigned_team) {
+            // category 객체에서 추출 (null 체크 추가)
+            if (inquiry.category && inquiry.category.assigned_team && inquiry.category.assigned_team !== null) {
                 team = inquiry.category.assigned_team;
             }
             // 직접 필드에서 추출
-            else if (inquiry.assigned_team) {
+            else if (inquiry.assigned_team && inquiry.assigned_team !== null) {
                 team = inquiry.assigned_team;
             }
-            
+
             if (team && typeof team === 'string' && team.trim()) {
                 teams.add(team.trim());
+            } else {
+                // null인 경우 '미분류'로 처리
+                teams.add('미분류');
             }
             
             // 디버깅용 로그 (첫 5개만)

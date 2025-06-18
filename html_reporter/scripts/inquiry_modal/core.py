@@ -362,7 +362,7 @@ window.createInquiryCard = function(inquiry) {
     // 🔧 수정: 실제 JSON 구조에 맞춘 팀/카테고리 정보 추출
     let assignedTeam = '미분류';
     let subCategory = '기타';
-    
+
     if (inquiry.category) {
         assignedTeam = inquiry.category.assigned_team || '미분류';
         subCategory = inquiry.category.sub_category || '기타';
@@ -372,6 +372,15 @@ window.createInquiryCard = function(inquiry) {
         subCategory = inquiry.sub_category || '기타';
     }
     
+    // 판매자와 작성자 정보 추출
+    const sellerName = inquiry.seller || '판매자';
+    const authorFull = inquiry.author_info?.author || '';
+    const authorName = authorFull.includes('(') 
+        ? authorFull.split('(')[0].trim() 
+        : authorFull || '작성자';
+    const authorEmail = inquiry.author_info?.email || '';
+    const authorPhone = inquiry.author_info?.phone || '';
+
     console.log('📋 추출된 정보:', { assignedTeam, subCategory, answers: inquiry.answers?.length || 0 });
     
     // 🔧 수정: 실제 JSON 구조에 맞춘 답변 내용 확인
@@ -383,14 +392,14 @@ window.createInquiryCard = function(inquiry) {
     if (hasAnswer) {
         const firstAnswer = inquiry.answers[0];
         // 🔧 수정: 실제 JSON 필드명 사용
-        const answerContent = firstAnswer.content || firstAnswer.answer_content || '';
+        const answerContent = firstAnswer.content || '';
         answerPreview = answerContent.length > 100 ? 
             answerContent.substring(0, 100) + '...' : answerContent;
         
         // 🔧 수정: 실제 JSON 필드명 사용
-        answerAuthor = firstAnswer.author_name || firstAnswer.answerer_info?.name || '담당자';
+        answerAuthor = firstAnswer.author_name || '담당자';
         answerDate = firstAnswer.answer_date || '';
-        
+
         if (answerDate) {
             answerDate = new Date(answerDate).toLocaleDateString('ko-KR');
         }
@@ -406,6 +415,9 @@ window.createInquiryCard = function(inquiry) {
                     </span>
                     <span class="team-badge">${assignedTeam}</span>
                     <span class="category-badge">${subCategory}</span>
+                    <span class="seller-badge">🏢${sellerName}</span>
+                    <span class="author-badge" onclick="showAuthorInfo('${authorEmail}', '${authorPhone}', '${authorName}')" 
+                        title="클릭하여 연락처 보기" style="cursor: pointer;">✍️${authorName}</span>
                     <span class="date-badge">${formattedDate}</span>
                 </div>
                 <div class="inquiry-actions">
@@ -446,7 +458,7 @@ window.createInquiryCard = function(inquiry) {
                                 <span class="collapse-text" style="display: none;">답변 접기</span>
                             </button>
                             <div class="full-answer" style="display: none;">
-                                ${inquiry.answers[0].content || inquiry.answers[0].answer_content || ''}
+                                ${inquiry.answers[0].content || ''}
                             </div>
                         ` : ''}
                     </div>
@@ -526,6 +538,11 @@ function debugInquiryModalDOM() {
         ensureInquiryListElement();
     }
 }
+
+window.showAuthorInfo = function(email, phone, name) {
+    const info = `📞 ${name} 연락처\n\n📧 이메일: ${email}\n📱 전화: ${phone}`;
+    alert(info);
+};
 
 console.log('✅ 문의 모달 핵심 기능 + 수정된 카드 생성 함수 로딩 완료');
 """
