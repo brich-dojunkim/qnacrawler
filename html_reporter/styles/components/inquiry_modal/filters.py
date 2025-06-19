@@ -1,12 +1,12 @@
 # html_reporter/styles/components/inquiry_modal/filters.py
 """
-문의 상세보기 모달 필터 바 스타일 - 개선된 토글 및 정렬 버튼
+문의 상세보기 모달 필터 바 스타일 - 아코디언 스타일 적용
 """
 
 def get_filters_styles():
-    """개선된 필터 바 스타일 - 토글 및 정렬 버튼"""
+    """아코디언 스타일이 적용된 필터 바 스타일"""
     return """
-/* === 개선된 필터 바 === */
+/* === 아코디언 스타일 필터 바 === */
 .inquiry-modal-filters {
     background: white;
     border-bottom: 1px solid #e5e7eb;
@@ -93,66 +93,86 @@ def get_filters_styles():
     transform: translateY(-50%) scale(1.1);
 }
 
-/* === 토글 버튼 스타일 === */
-.filter-toggle {
+/* === 아코디언 스타일 토글 버튼 (긴급/일반, 답변완료/미답변) === */
+.accordion-filter-toggle {
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 8px 16px;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
     color: #6b7280;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
 }
 
-.filter-toggle:hover {
-    border-color: #d1d5db;
-    background: white;
+.accordion-filter-toggle:hover {
+    border-color: #9ca3af;
     color: #374151;
+    background: #f9fafb;
 }
 
-/* 긴급도 토글 활성화 */
-.filter-toggle.active#urgency-toggle {
+/* 긴급도 토글 - 긴급 상태 */
+.accordion-filter-toggle.urgent-active {
     background: linear-gradient(135deg, #ef4444, #dc2626);
     border-color: #dc2626;
     color: white;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 }
 
-.filter-toggle.active#urgency-toggle:hover {
+.accordion-filter-toggle.urgent-active:hover {
     background: linear-gradient(135deg, #dc2626, #b91c1c);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    box-shadow: 0 3px 6px rgba(239, 68, 68, 0.4);
 }
 
-/* 상태 토글 활성화 */
-.filter-toggle.active#status-toggle {
+/* 긴급도 토글 - 일반 상태 */
+.accordion-filter-toggle.normal-active {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border-color: #2563eb;
+    color: white;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+}
+
+.accordion-filter-toggle.normal-active:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(59, 130, 246, 0.4);
+}
+
+/* 상태 토글 - 답변완료 상태 */
+.accordion-filter-toggle.completed-active {
     background: linear-gradient(135deg, #10b981, #059669);
     border-color: #059669;
     color: white;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
 }
 
-.filter-toggle.active#status-toggle:hover {
+.accordion-filter-toggle.completed-active:hover {
     background: linear-gradient(135deg, #059669, #047857);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 3px 6px rgba(16, 185, 129, 0.4);
 }
 
-.toggle-icon {
-    font-size: 1rem;
+/* 상태 토글 - 미답변 상태 */
+.accordion-filter-toggle.pending-active {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    border-color: #d97706;
+    color: white;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
 }
 
-.toggle-text {
-    font-weight: 600;
+.accordion-filter-toggle.pending-active:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
 }
 
-/* === 정렬 버튼 그룹 === */
+/* === 아코디언 스타일 정렬 버튼 === */
 .sort-group {
     display: flex;
     gap: 4px;
@@ -162,45 +182,56 @@ def get_filters_styles():
     border: 1px solid #e5e7eb;
 }
 
-.filter-sort {
+.accordion-filter-sort {
     display: flex;
     align-items: center;
     gap: 6px;
     padding: 8px 12px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
     color: #6b7280;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
 }
 
-.filter-sort:hover {
-    background: #e5e7eb;
+.accordion-filter-sort:hover {
+    border-color: #9ca3af;
     color: #374151;
+    background: #f9fafb;
 }
 
-.filter-sort.active {
+.accordion-filter-sort.active {
     background: linear-gradient(135deg, #667eea, #764ba2);
+    border-color: #667eea;
     color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
 }
 
-.filter-sort.active:hover {
+.accordion-filter-sort.active:hover {
     background: linear-gradient(135deg, #5b67d8, #6b46c1);
+    border-color: #5b67d8;
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 3px 6px rgba(102, 126, 234, 0.4);
 }
 
-.sort-icon {
-    font-size: 1rem;
+/* 정렬 방향 아이콘 */
+.sort-direction {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 2px;
+    transition: transform 0.2s ease;
 }
 
-.sort-text {
-    font-weight: 600;
+.sort-direction.asc {
+    transform: rotate(180deg);
+}
+
+.sort-direction.desc {
+    transform: rotate(0deg);
 }
 
 /* === 액션 버튼 === */
@@ -386,7 +417,7 @@ def get_filters_styles():
         justify-content: center;
     }
     
-    .filter-toggle {
+    .accordion-filter-toggle {
         flex: 1;
         justify-content: center;
         min-height: 44px;
@@ -397,7 +428,7 @@ def get_filters_styles():
         justify-content: center;
     }
     
-    .filter-sort {
+    .accordion-filter-sort {
         flex: 1;
         justify-content: center;
         min-height: 40px;
@@ -455,19 +486,14 @@ def get_filters_styles():
         height: 20px;
     }
     
-    .filter-toggle {
+    .accordion-filter-toggle {
         padding: 6px 12px;
         font-size: 0.8rem;
         gap: 4px;
         min-height: 40px;
     }
     
-    .toggle-icon,
-    .sort-icon {
-        font-size: 0.9rem;
-    }
-    
-    .filter-sort {
+    .accordion-filter-sort {
         padding: 6px 10px;
         font-size: 0.8rem;
         gap: 4px;

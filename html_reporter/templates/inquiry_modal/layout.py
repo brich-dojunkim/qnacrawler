@@ -1,10 +1,10 @@
 # html_reporter/templates/inquiry_modal/layout.py
 """
-문의 상세보기 모달 기본 레이아웃 템플릿 - 개선된 필터 바 포함
+문의 상세보기 모달 기본 레이아웃 템플릿 - 아코디언 스타일 필터 바
 """
 
 def get_inquiry_modal_layout():
-    """문의 모달 전체 레이아웃 템플릿 - 개선된 필터 바"""
+    """문의 모달 전체 레이아웃 템플릿 - 아코디언 스타일 필터 바"""
     return """
     <!-- 문의 상세보기 모달 -->
     <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
@@ -46,7 +46,7 @@ def get_inquiry_modal_layout():
                 </button>
             </div>
             
-            <!-- 개선된 필터 바 -->
+            <!-- 아코디언 스타일 필터 바 -->
             <div class="inquiry-modal-filters">
                 <!-- 검색 영역 -->
                 <div class="filter-group search-group">
@@ -65,31 +65,28 @@ def get_inquiry_modal_layout():
                     </div>
                 </div>
                 
-                <!-- 긴급도 토글 -->
+                <!-- 아코디언 스타일 토글 버튼들 -->
                 <div class="filter-group toggle-group">
-                    <button id="urgency-toggle" class="filter-toggle" onclick="toggleUrgencyFilter()">
-                        <span class="toggle-icon">🚨</span>
-                        <span class="toggle-text">긴급만</span>
+                    <button id="urgency-toggle" class="accordion-filter-toggle" onclick="toggleUrgencyFilter()">
+                        <span class="toggle-text">긴급/일반</span>
                     </button>
                 </div>
                 
-                <!-- 상태 토글 -->
                 <div class="filter-group toggle-group">
-                    <button id="status-toggle" class="filter-toggle" onclick="toggleStatusFilter()">
-                        <span class="toggle-icon">✅</span>
-                        <span class="toggle-text">답변완료만</span>
+                    <button id="status-toggle" class="accordion-filter-toggle" onclick="toggleStatusFilter()">
+                        <span class="toggle-text">답변완료/미답변</span>
                     </button>
                 </div>
                 
-                <!-- 정렬 버튼들 -->
+                <!-- 아코디언 스타일 정렬 버튼들 -->
                 <div class="filter-group sort-group">
-                    <button id="sort-latest" class="filter-sort active" onclick="setSortOrder('latest')">
-                        <span class="sort-icon">📅</span>
+                    <button id="sort-latest" class="accordion-filter-sort active" onclick="setSortOrder('latest')">
                         <span class="sort-text">최신순</span>
+                        <span class="sort-direction">▼</span>
                     </button>
-                    <button id="sort-length" class="filter-sort" onclick="setSortOrder('length_desc')">
-                        <span class="sort-icon">📏</span>
+                    <button id="sort-length_desc" class="accordion-filter-sort" onclick="setSortOrder('length_desc')">
                         <span class="sort-text">문의길이순</span>
+                        <span class="sort-direction">▼</span>
                     </button>
                 </div>
                 

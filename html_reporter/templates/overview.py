@@ -181,8 +181,5 @@ def get_overview_template():
         
         <!-- 🚨 중요: 하드코딩 제거 - inquiry_modal_template으로 대체 -->
         {inquiry_modal_template}
-        
-        <!-- 드로어 영역 (있다면) -->
-        {drawer_html}
     </div>
     """
