@@ -1,12 +1,12 @@
 # html_reporter/styles/components/inquiry_modal/filters.py
 """
-문의 상세보기 모달 필터 바 스타일
+문의 상세보기 모달 필터 바 스타일 - 개선된 토글 및 정렬 버튼
 """
 
 def get_filters_styles():
-    """필터 바 스타일"""
+    """개선된 필터 바 스타일 - 토글 및 정렬 버튼"""
     return """
-/* === 필터 바 === */
+/* === 개선된 필터 바 === */
 .inquiry-modal-filters {
     background: white;
     border-bottom: 1px solid #e5e7eb;
@@ -24,12 +24,16 @@ def get_filters_styles():
     gap: 8px;
 }
 
-/* === 검색 입력 === */
+/* === 검색 영역 === */
+.search-group {
+    flex: 1;
+    min-width: 250px;
+    max-width: 350px;
+}
+
 .search-wrapper {
     position: relative;
-    min-width: 250px;
-    flex: 1;
-    max-width: 350px;
+    width: 100%;
 }
 
 .search-icon {
@@ -89,38 +93,117 @@ def get_filters_styles():
     transform: translateY(-50%) scale(1.1);
 }
 
-/* === 필터 드롭다운 === */
-.filter-select {
-    padding: 8px 32px 8px 12px;
+/* === 토글 버튼 스타일 === */
+.filter-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
     border: 2px solid #e5e7eb;
-    border-radius: 10px;
+    border-radius: 12px;
     background: #f9fafb;
+    color: #6b7280;
     font-size: 0.875rem;
-    font-weight: 500;
-    color: #374151;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    background-position: right 8px center;
-    background-repeat: no-repeat;
-    background-size: 16px;
-    min-width: 120px;
+    white-space: nowrap;
 }
 
-.filter-select:hover {
+.filter-toggle:hover {
     border-color: #d1d5db;
-    background-color: white;
+    background: white;
+    color: #374151;
 }
 
-.filter-select:focus {
-    outline: none;
-    border-color: #667eea;
-    background-color: white;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+/* 긴급도 토글 활성화 */
+.filter-toggle.active#urgency-toggle {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border-color: #dc2626;
+    color: white;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
 }
 
-/* === 필터 액션 버튼들 === */
+.filter-toggle.active#urgency-toggle:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* 상태 토글 활성화 */
+.filter-toggle.active#status-toggle {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #059669;
+    color: white;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.filter-toggle.active#status-toggle:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.toggle-icon {
+    font-size: 1rem;
+}
+
+.toggle-text {
+    font-weight: 600;
+}
+
+/* === 정렬 버튼 그룹 === */
+.sort-group {
+    display: flex;
+    gap: 4px;
+    background: #f3f4f6;
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+.filter-sort {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: #6b7280;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.filter-sort:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.filter-sort.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.filter-sort.active:hover {
+    background: linear-gradient(135deg, #5b67d8, #6b46c1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.sort-icon {
+    font-size: 1rem;
+}
+
+.sort-text {
+    font-weight: 600;
+}
+
+/* === 액션 버튼 === */
 .filter-actions {
     display: flex;
     gap: 8px;
@@ -130,9 +213,9 @@ def get_filters_styles():
 .filter-action-btn {
     background: #f3f4f6;
     border: 2px solid #e5e7eb;
-    border-radius: 10px;
-    width: 36px;
-    height: 36px;
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -282,22 +365,47 @@ def get_filters_styles():
     .inquiry-modal-filters {
         padding: 12px 16px;
         gap: 10px;
+        flex-direction: column;
+        align-items: stretch;
     }
     
-    .search-wrapper {
-        min-width: 200px;
+    .search-group {
+        min-width: auto;
         max-width: 100%;
+        order: 1;
     }
     
-    .filter-select {
-        min-width: 100px;
-        font-size: 0.8rem;
-        padding: 7px 28px 7px 10px;
+    .filter-group:not(.search-group):not(.filter-actions) {
+        order: 2;
+        justify-content: center;
+    }
+    
+    .filter-actions {
+        order: 3;
+        margin-left: 0;
+        justify-content: center;
+    }
+    
+    .filter-toggle {
+        flex: 1;
+        justify-content: center;
+        min-height: 44px;
+    }
+    
+    .sort-group {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filter-sort {
+        flex: 1;
+        justify-content: center;
+        min-height: 40px;
     }
     
     .filter-action-btn {
-        width: 32px;
-        height: 32px;
+        width: 50px;
+        height: 50px;
     }
     
     .inquiry-modal-footer {
@@ -328,17 +436,6 @@ def get_filters_styles():
     .inquiry-modal-filters {
         padding: 10px 12px;
         gap: 8px;
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .filter-group {
-        width: 100%;
-    }
-    
-    .search-wrapper {
-        min-width: auto;
-        width: 100%;
     }
     
     .search-input {
@@ -358,21 +455,32 @@ def get_filters_styles():
         height: 20px;
     }
     
-    .filter-select {
-        width: 100%;
-        min-width: auto;
-        padding: 8px 28px 8px 10px;
+    .filter-toggle {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        gap: 4px;
+        min-height: 40px;
     }
     
-    .filter-actions {
-        margin-left: 0;
-        justify-content: center;
-        width: 100%;
+    .toggle-icon,
+    .sort-icon {
+        font-size: 0.9rem;
+    }
+    
+    .filter-sort {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        gap: 4px;
+        min-height: 36px;
+    }
+    
+    .sort-group {
+        padding: 3px;
     }
     
     .filter-action-btn {
-        width: 30px;
-        height: 30px;
+        width: 44px;
+        height: 44px;
     }
     
     .inquiry-modal-footer {

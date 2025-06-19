@@ -1,10 +1,10 @@
 # html_reporter/templates/inquiry_modal/layout.py
 """
-문의 상세보기 모달 기본 레이아웃 템플릿 - inquiry-list 요소 추가
+문의 상세보기 모달 기본 레이아웃 템플릿 - 개선된 필터 바 포함
 """
 
 def get_inquiry_modal_layout():
-    """문의 모달 전체 레이아웃 템플릿 - 누락된 inquiry-list 추가"""
+    """문의 모달 전체 레이아웃 템플릿 - 개선된 필터 바"""
     return """
     <!-- 문의 상세보기 모달 -->
     <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
@@ -46,9 +46,10 @@ def get_inquiry_modal_layout():
                 </button>
             </div>
             
-            <!-- 필터 바 -->
+            <!-- 개선된 필터 바 -->
             <div class="inquiry-modal-filters">
-                <div class="filter-group">
+                <!-- 검색 영역 -->
+                <div class="filter-group search-group">
                     <div class="search-wrapper">
                         <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="11" cy="11" r="8"></circle>
@@ -64,51 +65,41 @@ def get_inquiry_modal_layout():
                     </div>
                 </div>
                 
-                <div class="filter-group">
-                    <select id="team-filter" class="filter-select">
-                        <option value="">👥 모든 팀</option>
-                    </select>
+                <!-- 긴급도 토글 -->
+                <div class="filter-group toggle-group">
+                    <button id="urgency-toggle" class="filter-toggle" onclick="toggleUrgencyFilter()">
+                        <span class="toggle-icon">🚨</span>
+                        <span class="toggle-text">긴급만</span>
+                    </button>
                 </div>
                 
-                <div class="filter-group">
-                    <select id="urgency-filter" class="filter-select">
-                        <option value="">🚨 모든 긴급도</option>
-                        <option value="urgent">긴급</option>
-                        <option value="normal">일반</option>
-                    </select>
+                <!-- 상태 토글 -->
+                <div class="filter-group toggle-group">
+                    <button id="status-toggle" class="filter-toggle" onclick="toggleStatusFilter()">
+                        <span class="toggle-icon">✅</span>
+                        <span class="toggle-text">답변완료만</span>
+                    </button>
                 </div>
                 
-                <div class="filter-group">
-                    <select id="status-filter" class="filter-select">
-                        <option value="">📋 모든 상태</option>
-                        <option value="answered">답변완료</option>
-                        <option value="pending">답변대기</option>
-                        <option value="in_progress">진행중</option>
-                    </select>
+                <!-- 정렬 버튼들 -->
+                <div class="filter-group sort-group">
+                    <button id="sort-latest" class="filter-sort active" onclick="setSortOrder('latest')">
+                        <span class="sort-icon">📅</span>
+                        <span class="sort-text">최신순</span>
+                    </button>
+                    <button id="sort-length" class="filter-sort" onclick="setSortOrder('length_desc')">
+                        <span class="sort-icon">📏</span>
+                        <span class="sort-text">문의길이순</span>
+                    </button>
                 </div>
                 
-                <div class="filter-group">
-                    <select id="sort-filter" class="filter-select">
-                        <option value="latest">📅 최신순</option>
-                        <option value="urgent">🚨 긴급순</option>
-                        <option value="length_desc">📏 긴 문의순</option>
-                        <option value="length_asc">📏 짧은 문의순</option>
-                        <option value="team">👥 팀별순</option>
-                    </select>
-                </div>
-                
+                <!-- 새로고침 버튼 -->
                 <div class="filter-actions">
-                    <button id="refresh-inquiries" class="filter-action-btn" onclick="refreshInquiryModal()" title="새로고침">
+                    <button id="refresh-inquiries" class="filter-action-btn" onclick="refreshAndResetFilters()" title="필터 초기화 및 새로고침">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <polyline points="23 4 23 10 17 10"></polyline>
                             <polyline points="1 20 1 14 7 14"></polyline>
                             <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
-                        </svg>
-                    </button>
-                    <button id="clear-filters" class="filter-action-btn" onclick="clearAllInquiryFilters()" title="필터 초기화">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
                     </button>
                 </div>
@@ -132,7 +123,7 @@ def get_inquiry_modal_layout():
                     <div id="no-inquiries" class="no-inquiries" style="display: none;">
                         <div class="no-inquiries-icon">📭</div>
                         <div class="no-inquiries-text">조건에 맞는 문의가 없습니다.</div>
-                        <button class="clear-filters-btn" onclick="clearAllInquiryFilters()">필터 초기화</button>
+                        <button class="clear-filters-btn" onclick="refreshAndResetFilters()">필터 초기화</button>
                     </div>
                 </div>
             </div>

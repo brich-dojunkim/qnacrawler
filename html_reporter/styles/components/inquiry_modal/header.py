@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/header.py
 """
-문의 상세보기 모달 헤더 및 통계 스타일 - 모든 배지 스타일 통일
+문의 상세보기 모달 헤더 및 통계 스타일 - 헤더 영역만 흰색 적용
 """
 
 def get_header_styles():
-    """모달 헤더 및 통계 영역 스타일 - 모든 배지 스타일 통일"""
+    """모달 헤더 및 통계 영역 스타일 - 헤더 영역만 흰색 적용"""
     return """
 /* === 모달 헤더 (확장된 통계 지원) === */
 .inquiry-modal-header {
@@ -44,9 +44,9 @@ def get_header_styles():
     max-width: 100%;
 }
 
-/* === 통일된 배지 스타일 (모든 stat-item 포함) === */
-.stat-item,
-.stat-item.team-journey-badge {
+/* === 🔧 수정: 헤더 내부의 stat-item만 흰색 적용 === */
+.inquiry-modal-header .inquiry-modal-stats .stat-item,
+.inquiry-modal-header .inquiry-modal-stats .stat-item.team-journey-badge {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -63,34 +63,30 @@ def get_header_styles():
     color: #ffffff !important;
 }
 
-/* === 통일된 호버 효과 === */
-.stat-item:hover,
-.stat-item.team-journey-badge:hover {
+/* === 🔧 수정: 헤더 내부 호버 효과도 구체적으로 적용 === */
+.inquiry-modal-header .inquiry-modal-stats .stat-item:hover,
+.inquiry-modal-header .inquiry-modal-stats .stat-item.team-journey-badge:hover {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
-.stat-icon {
+/* === 🔧 수정: 헤더 내부 아이콘도 구체적으로 적용 === */
+.inquiry-modal-header .inquiry-modal-stats .stat-icon {
     font-size: 1rem !important;
     opacity: 1;
     color: #ffffff;
 }
 
-/* === 통일된 텍스트 스타일 === */
-.inquiry-modal-header .stat-label {
+/* === 🔧 수정: 헤더 내부 텍스트 스타일도 구체적으로 적용 === */
+.inquiry-modal-header .inquiry-modal-stats .stat-label {
     color: #ffffff !important;
     font-weight: 400;
     font-size: 0.875rem !important;
 }
 
-.inquiry-modal-header .stat-value {
+.inquiry-modal-header .inquiry-modal-stats .stat-value {
     font-weight: 700;
-    color: #ffffff !important;
-    font-size: 0.875rem !important;
-}
-
-.inquiry-modal-header .stat-item {
     color: #ffffff !important;
     font-size: 0.875rem !important;
 }
@@ -150,13 +146,13 @@ def get_header_styles():
         justify-content: flex-start;
     }
     
-    .stat-item,
-    .stat-item.team-journey-badge {
+    .inquiry-modal-header .inquiry-modal-stats .stat-item,
+    .inquiry-modal-header .inquiry-modal-stats .stat-item.team-journey-badge {
         padding: 6px 10px;
         font-size: 0.875rem !important;
     }
     
-    .stat-icon {
+    .inquiry-modal-header .inquiry-modal-stats .stat-icon {
         font-size: 1rem !important;
     }
     
@@ -192,8 +188,8 @@ def get_header_styles():
         flex-wrap: wrap;
     }
     
-    .stat-item,
-    .stat-item.team-journey-badge {
+    .inquiry-modal-header .inquiry-modal-stats .stat-item,
+    .inquiry-modal-header .inquiry-modal-stats .stat-item.team-journey-badge {
         padding: 5px 8px;
         font-size: 0.875rem !important;
         border-radius: 8px;
@@ -201,7 +197,7 @@ def get_header_styles():
         min-width: 120px;
     }
     
-    .stat-icon {
+    .inquiry-modal-header .inquiry-modal-stats .stat-icon {
         font-size: 1rem !important;
     }
     
@@ -231,14 +227,14 @@ def get_header_styles():
     }
 }
 
-.stat-item {
+.inquiry-modal-header .inquiry-modal-stats .stat-item {
     animation: statsSlideIn 0.3s ease-out;
 }
 
-.stat-item:nth-child(1) { animation-delay: 0.1s; }
-.stat-item:nth-child(2) { animation-delay: 0.2s; }
-.stat-item:nth-child(3) { animation-delay: 0.3s; }
-.stat-item:nth-child(4) { animation-delay: 0.4s; }
+.inquiry-modal-header .inquiry-modal-stats .stat-item:nth-child(1) { animation-delay: 0.1s; }
+.inquiry-modal-header .inquiry-modal-stats .stat-item:nth-child(2) { animation-delay: 0.2s; }
+.inquiry-modal-header .inquiry-modal-stats .stat-item:nth-child(3) { animation-delay: 0.3s; }
+.inquiry-modal-header .inquiry-modal-stats .stat-item:nth-child(4) { animation-delay: 0.4s; }
 
 /* === 접근성 개선 === */
 .inquiry-modal-close:focus {
@@ -246,7 +242,7 @@ def get_header_styles():
     outline-offset: 2px;
 }
 
-.stat-item:focus-within {
+.inquiry-modal-header .inquiry-modal-stats .stat-item:focus-within {
     background: rgba(255, 255, 255, 0.25);
     outline: 2px solid rgba(255, 255, 255, 0.3);
     outline-offset: 1px;

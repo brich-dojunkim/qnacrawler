@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/stats_calculator.py
 """
-문의 통계 계산 시스템 - 헤더 통계만 흰색 적용
+문의 통계 계산 시스템 - 헤더 통계만 흰색 적용 (수정됨)
 """
 
 def get_stats_calculator_scripts():
-    """통계 계산 시스템 스크립트 - 헤더 통계만 흰색 적용"""
+    """통계 계산 시스템 스크립트 - 헤더 통계만 흰색 적용 (수정됨)"""
     return """
 // ─────────── 통계 계산 시스템 ───────────
 console.log('📊 통계 계산 시스템 로딩 중...');
@@ -118,7 +118,7 @@ function logCalculationResults(finalStats, totalProcessed) {
     });
 }
 
-// ─────────── 🔧 통계 업데이트 함수 수정 (헤더만 적용) ───────────
+// ─────────── 🔧 수정된 통계 업데이트 함수 ───────────
 window.updateInquiryStats = function(total, urgent, completed, avgLength) {
     console.log('📊 통계 업데이트:', { total, urgent, completed, avgLength });
     
@@ -143,91 +143,22 @@ window.updateInquiryStats = function(total, urgent, completed, avgLength) {
         }
     });
     
-    // 🔧 헤더 통계 부분만 흰색으로 설정 (카드 푸터는 제외)
+    // 🔧 수정: 헤더 통계만 흰색으로 설정 (구체적인 선택자 사용)
     setTimeout(() => {
-        const headerStatValues = document.querySelectorAll('.inquiry-modal-header #total-inquiries-count, .inquiry-modal-header #urgent-inquiries-count, .inquiry-modal-header #completed-inquiries-count, .inquiry-modal-header #avg-length');
+        const headerStatValues = document.querySelectorAll('.inquiry-modal-header .inquiry-modal-stats #total-inquiries-count, .inquiry-modal-header .inquiry-modal-stats #urgent-inquiries-count, .inquiry-modal-header .inquiry-modal-stats #completed-inquiries-count, .inquiry-modal-header .inquiry-modal-stats #avg-length');
         headerStatValues.forEach(element => {
             element.style.setProperty('color', '#ffffff', 'important');
             element.style.fontWeight = '700';
         });
+        console.log('🎨 헤더 통계 흰색 스타일 적용 완료');
     }, 100);
 };
 
-// ─────────── 팀 필터 옵션 업데이트 ───────────
+// ─────────── 팀 필터 옵션 업데이트 (레거시 호환성) ───────────
 function updateTeamFilterOptions(inquiries) {
-    const teamFilter = document.getElementById('team-filter');
-    if (!teamFilter) {
-        console.warn('⚠️ team-filter 요소를 찾을 수 없습니다.');
-        return;
-    }
-    
-    console.log(`👥 팀 필터 옵션 업데이트: ${inquiries.length}개 문의`);
-    
-    const teams = extractTeamsFromInquiries(inquiries);
-    const sortedTeams = Array.from(teams).sort();
-    
-    generateTeamFilterHTML(teamFilter, sortedTeams);
-    
-    console.log(`👥 팀 필터 업데이트 완료: ${sortedTeams.length}개 팀`);
-    console.log(`📋 발견된 팀 목록:`, sortedTeams);
-}
-
-// ─────────── 문의에서 팀 목록 추출 ───────────
-function extractTeamsFromInquiries(inquiries) {
-    const teams = new Set();
-    
-    inquiries.forEach((inquiry, index) => {
-        try {
-            const team = getTeamFromInquiry(inquiry);
-            
-            if (team && typeof team === 'string' && team.trim()) {
-                teams.add(team.trim());
-            } else {
-                teams.add('미분류');
-            }
-            
-            // 디버깅용 로그 (첫 5개만)
-            if (index < 5) {
-                console.log(`👤 문의 ${inquiry.inquiry_id} 팀:`, {
-                    category_team: inquiry.category?.assigned_team,
-                    direct_team: inquiry.assigned_team,
-                    selected_team: team
-                });
-            }
-        } catch (error) {
-            console.warn(`⚠️ 문의 ${inquiry.inquiry_id} 팀 추출 중 오류:`, error);
-            teams.add('미분류');
-        }
-    });
-    
-    return teams;
-}
-
-// ─────────── 개별 문의에서 팀 정보 추출 ───────────
-function getTeamFromInquiry(inquiry) {
-    let team = null;
-    
-    // category 객체에서 추출 (null 체크 추가)
-    if (inquiry.category && inquiry.category.assigned_team && inquiry.category.assigned_team !== null) {
-        team = inquiry.category.assigned_team;
-    }
-    // 직접 필드에서 추출
-    else if (inquiry.assigned_team && inquiry.assigned_team !== null) {
-        team = inquiry.assigned_team;
-    }
-    
-    return team;
-}
-
-// ─────────── 팀 필터 HTML 생성 ───────────
-function generateTeamFilterHTML(teamFilter, sortedTeams) {
-    let optionsHtml = '<option value="">👥 모든 팀</option>';
-    
-    sortedTeams.forEach(team => {
-        optionsHtml += `<option value="${team}">${team}</option>`;
-    });
-    
-    teamFilter.innerHTML = optionsHtml;
+    // 개선된 필터에서는 팀 필터가 제거되었지만 레거시 호환성을 위해 유지
+    console.log('👥 팀 필터 옵션 업데이트 (레거시 호환성)');
+    console.log(`📋 ${inquiries.length}개 문의 처리됨`);
 }
 
 // ─────────── 통계 비교 분석 ───────────
@@ -284,7 +215,6 @@ window.debugInquiryStats = function(inquiries) {
     // 상세 분석
     const urgentInquiries = inquiries.filter(isUrgentInquiry);
     const completedInquiries = inquiries.filter(isCompletedInquiry);
-    const teams = extractTeamsFromInquiries(inquiries);
     
     const debugInfo = {
         basicStats: stats,
@@ -299,13 +229,7 @@ window.debugInquiryStats = function(inquiries) {
                 id: inq.inquiry_id,
                 answer_status: inq.answer_status,
                 answers_count: inq.answers?.length || 0
-            })),
-            teamDistribution: Object.fromEntries(
-                Array.from(teams).map(team => [
-                    team, 
-                    inquiries.filter(inq => getTeamFromInquiry(inq) === team).length
-                ])
-            )
+            }))
         }
     };
     

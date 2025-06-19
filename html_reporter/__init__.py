@@ -29,13 +29,6 @@ except ImportError as e:
     def get_category_table_row_template(): return ""
     def get_team_filter_options(teams): return ""
 
-# === 모듈화된 드로어 템플릿 ===
-try:
-    from .templates.drawer import get_drawer_template
-except ImportError as e:
-    print(f"Warning: drawer template import 오류: {e}")
-    def get_drawer_template(): return ""
-
 # === 모듈화된 스크립트 함수들 ===
 try:
     from .scripts import get_main_scripts

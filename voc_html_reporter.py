@@ -1,4 +1,4 @@
-# voc_html_reporter.py (완료율 필드 추가된 버전 + 드로어 지원 + 강화된 디버깅)
+# voc_html_reporter.py (문의 모달 템플릿 import 방식)
 """
 카테고리 기반 VoC HTML 보고서 생성기 - 완료율 칼럼 지원 + 드로어 통합 + 데이터 변환 개선
 """
@@ -10,28 +10,38 @@ import json
 import traceback
 from datetime import datetime
 
-# 실제로 사용하는 것만 import + 드로어 추가
+# 실제로 사용하는 것만 import (드로어와 문의 모달은 직접 import)
 from html_reporter import (
     get_base_template, get_header_template, get_overview_template,
-    get_modal_template, get_footer_template, get_drawer_template,  # 드로어 추가
+    get_modal_template, get_footer_template,
     get_main_scripts,
     process_overview_data, process_category_data,
     generate_team_options  
 )
 from html_reporter.templates.category_table import get_category_table_row_template, get_team_filter_options
+
+# 🚨 직접 import 방식으로 변경
+try:
+    from html_reporter.templates.inquiry_modal import get_inquiry_modal_template
+    print("✅ 문의 모달 템플릿 import 성공")
+except ImportError as e:
+    print(f"❌ 문의 모달 템플릿 import 실패: {e}")
+    def get_inquiry_modal_template():
+        return ""
+
 from html_reporter.styles import get_main_styles
 from output_manager import get_report_filename
 
 class CategoryVoCHTMLReporter:
-    """카테고리 기반 VoC HTML 보고서 생성기 - 단일 페이지 + 드로어"""
+    """카테고리 기반 VoC HTML 보고서 생성기 - 단일 페이지 + 드로어 + 문의 모달"""
     
     def __init__(self, df: pd.DataFrame, json_path: str = None):
         self.df = df
         self.json_path = json_path  # 원본 JSON 파일 경로
 
     def generate_html_report(self, results: dict) -> str:
-        """HTML 보고서 생성 - 단일 페이지 + 드로어"""
-        print("🌐 단일 페이지 HTML 보고서 생성 중... (드로어 포함)")
+        """HTML 보고서 생성 - 단일 페이지 + 드로어 + 문의 모달"""
+        print("🌐 단일 페이지 HTML 보고서 생성 중... (드로어 + 문의 모달 포함)")
         
         # 데이터 처리 (사용하는 것만)
         overview_data = process_overview_data(results)
@@ -45,7 +55,10 @@ class CategoryVoCHTMLReporter:
         # 원본 문의 데이터를 JSON으로 변환 (드로어에서 사용)
         raw_data_json = self._prepare_raw_data_json()
         
-        # 단일 페이지 HTML 구조 + 드로어
+        # 🔧 문의 모달 템플릿 가져오기 (이미 import에서 처리됨)
+        inquiry_modal_template = get_inquiry_modal_template()
+                
+        # 단일 페이지 HTML 구조 + 드로어 + 문의 모달
         html_content = get_base_template().format(
             styles=get_main_styles(),
             header=get_header_template().format(**overview_data),
@@ -53,12 +66,12 @@ class CategoryVoCHTMLReporter:
                 **overview_data,
                 team_filter_options=category_table_data['team_filter_options'],
                 category_table_rows=category_table_data['category_table_rows'],
-                drawer_html=get_drawer_template()  # 드로어 HTML 추가
+                inquiry_modal_template=inquiry_modal_template  # 🚨 문의 모달 템플릿
             ) + category_table_data['modals_html'],
             footer=get_footer_template().format(generated_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
             scripts=f"""
             <script>
-                // 원본 문의 데이터를 전역 변수로 저장 (드로어에서 사용)
+                // 원본 문의 데이터를 전역 변수로 저장 (드로어 + 문의 모달에서 사용)
                 window.rawInquiryData = {raw_data_json};
                 
                 {get_main_scripts()}
@@ -66,10 +79,11 @@ class CategoryVoCHTMLReporter:
             """
         )
         
+        print("🎉 HTML 보고서 생성 완료 (드로어 + 문의 모달 통합)")
         return html_content
 
     def _prepare_raw_data_json(self):
-        """원본 문의 데이터를 드로어에서 사용할 수 있도록 JSON으로 변환 (강화된 디버깅)"""
+        """원본 문의 데이터를 드로어 + 문의 모달에서 사용할 수 있도록 JSON으로 변환 (강화된 디버깅)"""
         try:
             # 원본 JSON 파일 직접 사용 시도
             if self.json_path and os.path.exists(self.json_path):
@@ -153,6 +167,9 @@ class CategoryVoCHTMLReporter:
                         elif key == 'author_info' and isinstance(value, dict):
                             # author_info 필드 특별 처리
                             safe_record[key] = value
+                        elif key == 'category' and isinstance(value, dict):
+                            # category 필드 특별 처리 
+                            safe_record[key] = value
                         else:
                             # JSON 직렬화 테스트
                             json.dumps(value, default=str)
@@ -176,6 +193,9 @@ class CategoryVoCHTMLReporter:
                                 safe_record[key] = None
                             elif isinstance(value, pd.Timestamp):
                                 safe_record[key] = str(value)
+                            elif key in ['answers', 'author_info', 'category'] and isinstance(value, (list, dict)):
+                                # 복합 필드 특별 처리
+                                safe_record[key] = value
                             else:
                                 json.dumps(value, default=str)
                                 safe_record[key] = value
@@ -253,7 +273,7 @@ class CategoryVoCHTMLReporter:
             
             print(f"  📝 카테고리 처리: {category['name']} (문의율: {inquiry_rate}%, 완료율: {answer_rate}%, 모달 ID: {category['modal_id']})")
             
-            # 테이블 로우 생성 (문의율 필드 추가)
+            # 🔧 테이블 로우 생성 - 이제 openInquiryModal 함수 사용
             table_rows_html += get_category_table_row_template().format(
                 name=category['name'],
                 name_lower=name_lower,
@@ -268,7 +288,7 @@ class CategoryVoCHTMLReporter:
                 modal_id=category['modal_id']
             )
             
-            # 개별 모달 생성
+            # 🔧 기존 모달은 레거시 호환성을 위해 유지 (일부 기능에서 아직 사용할 수 있음)
             modal_content = category.get('modal_content', '<div>문의 내용이 없습니다.</div>')
             modals_html += get_modal_template().format(
                 modal_id=category['modal_id'],
@@ -282,7 +302,7 @@ class CategoryVoCHTMLReporter:
         # 팀 필터 옵션 생성
         team_filter_options = get_team_filter_options(teams)
         
-        print(f"✅ 생성 완료: {len(category_cards)}개 테이블 로우, {len(category_cards)}개 모달")
+        print(f"✅ 생성 완료: {len(category_cards)}개 테이블 로우, {len(category_cards)}개 기존 모달 + 1개 문의 모달")
         
         return {
             'category_table_rows': table_rows_html,
@@ -301,7 +321,7 @@ class CategoryVoCHTMLReporter:
             f.write(html_content)
         
         file_path = os.path.abspath(filename)
-        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename} (드로어 포함)")
+        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename} (드로어 + 문의 모달 포함)")
         
         try:
             webbrowser.open(f'file://{file_path}')
@@ -321,5 +341,5 @@ class CategoryVoCHTMLReporter:
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(html_content)
         
-        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename} (드로어 포함)")
+        print(f"✅ 단일 페이지 HTML 보고서 저장: {filename} (드로어 + 문의 모달 포함)")
         return filename
