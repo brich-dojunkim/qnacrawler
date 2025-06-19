@@ -24,6 +24,45 @@ def get_filters_styles():
     gap: 8px;
 }
 
+/* === 드롭다운 필터 공통 === */
+.filter-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 120px;
+    padding: 8px;
+}
+
+.dropdown-menu.hidden {
+    display: none;
+}
+
+.dropdown-filter-select {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    background: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.dropdown-filter-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
+}
+
 /* === 검색 영역 === */
 .search-group {
     flex: 1;
@@ -176,10 +215,10 @@ def get_filters_styles():
 .sort-group {
     display: flex;
     gap: 4px;
-    background: #f3f4f6;
+    background: none;
     border-radius: 12px;
-    padding: 4px;
-    border: 1px solid #e5e7eb;
+    padding: 0;
+    border: none;
 }
 
 .accordion-filter-sort {
@@ -399,63 +438,63 @@ def get_filters_styles():
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .search-group {
         min-width: auto;
         max-width: 100%;
         order: 1;
     }
-    
+
     .filter-group:not(.search-group):not(.filter-actions) {
         order: 2;
         justify-content: center;
     }
-    
+
     .filter-actions {
         order: 3;
         margin-left: 0;
         justify-content: center;
     }
-    
+
     .accordion-filter-toggle {
         flex: 1;
         justify-content: center;
         min-height: 44px;
     }
-    
+
     .sort-group {
         width: 100%;
         justify-content: center;
     }
-    
+
     .accordion-filter-sort {
         flex: 1;
         justify-content: center;
         min-height: 40px;
     }
-    
+
     .filter-action-btn {
         width: 50px;
         height: 50px;
     }
-    
+
     .inquiry-modal-footer {
         padding: 12px 16px;
         flex-direction: column;
         align-items: stretch;
         gap: 10px;
     }
-    
+
     .pagination-info {
         text-align: center;
         order: 2;
     }
-    
+
     .pagination-controls {
         order: 1;
         justify-content: center;
     }
-    
+
     .results-per-page {
         order: 3;
         text-align: center;
@@ -468,62 +507,62 @@ def get_filters_styles():
         padding: 10px 12px;
         gap: 8px;
     }
-    
+
     .search-input {
         padding: 8px 14px 8px 36px;
         font-size: 0.85rem;
     }
-    
+
     .search-icon {
         left: 10px;
         width: 14px;
         height: 14px;
     }
-    
+
     .clear-search-btn {
         right: 6px;
         width: 20px;
         height: 20px;
     }
-    
+
     .accordion-filter-toggle {
         padding: 6px 12px;
         font-size: 0.8rem;
         gap: 4px;
         min-height: 40px;
     }
-    
+
     .accordion-filter-sort {
         padding: 6px 10px;
         font-size: 0.8rem;
         gap: 4px;
         min-height: 36px;
     }
-    
+
     .sort-group {
         padding: 3px;
     }
-    
+
     .filter-action-btn {
         width: 44px;
         height: 44px;
     }
-    
+
     .inquiry-modal-footer {
         padding: 10px 12px;
     }
-    
+
     .pagination-btn {
         padding: 6px 10px;
         font-size: 0.8rem;
     }
-    
+
     .page-number-btn {
         width: 32px;
         height: 32px;
         font-size: 0.8rem;
     }
-    
+
     .items-per-page-select {
         font-size: 0.75rem;
         padding: 5px 24px 5px 8px;

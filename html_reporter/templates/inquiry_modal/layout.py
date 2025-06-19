@@ -45,7 +45,7 @@ def get_inquiry_modal_layout():
                     </svg>
                 </button>
             </div>
-            
+
             <!-- 아코디언 스타일 필터 바 -->
             <div class="inquiry-modal-filters">
                 <!-- 검색 영역 -->
@@ -64,22 +64,36 @@ def get_inquiry_modal_layout():
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- 아코디언 스타일 토글 버튼들 -->
-                <div class="filter-group toggle-group">
+                <div class="filter-group toggle-group filter-dropdown-wrapper">
                     <button id="urgency-toggle" class="accordion-filter-toggle" onclick="toggleUrgencyFilter()">
                         <span class="toggle-text">긴급/일반</span>
                     </button>
+                    <div id="urgency-dropdown" class="dropdown-menu hidden">
+                        <select id="urgency-filter-select" class="dropdown-filter-select" onchange="selectUrgencyFilter(this.value)">
+                            <option value="all">전체</option>
+                            <option value="urgent">긴급</option>
+                            <option value="normal">일반</option>
+                        </select>
+                    </div>
                 </div>
-                
-                <div class="filter-group toggle-group">
+
+                <div class="filter-group toggle-group filter-dropdown-wrapper">
                     <button id="status-toggle" class="accordion-filter-toggle" onclick="toggleStatusFilter()">
                         <span class="toggle-text">답변완료/미답변</span>
                     </button>
+                    <div id="status-dropdown" class="dropdown-menu hidden">
+                        <select id="status-filter-select" class="dropdown-filter-select" onchange="selectStatusFilter(this.value)">
+                            <option value="all">전체</option>
+                            <option value="completed">답변완료</option>
+                            <option value="pending">미답변</option>
+                        </select>
+                    </div>
                 </div>
-                
+
                 <!-- 아코디언 스타일 정렬 버튼들 -->
-                <div class="filter-group sort-group">
+                <div class="filter-group">
                     <button id="sort-latest" class="accordion-filter-sort active" onclick="setSortOrder('latest')">
                         <span class="sort-text">최신순</span>
                         <span class="sort-direction">▼</span>
@@ -89,7 +103,7 @@ def get_inquiry_modal_layout():
                         <span class="sort-direction">▼</span>
                     </button>
                 </div>
-                
+
                 <!-- 새로고침 버튼 -->
                 <div class="filter-actions">
                     <button id="refresh-inquiries" class="filter-action-btn" onclick="refreshAndResetFilters()" title="필터 초기화 및 새로고침">
@@ -101,7 +115,7 @@ def get_inquiry_modal_layout():
                     </button>
                 </div>
             </div>
-            
+
             <!-- 문의 목록 영역 -->
             <div class="inquiry-modal-body">
                 <div id="inquiry-list-container" class="inquiry-list-container">
@@ -109,13 +123,13 @@ def get_inquiry_modal_layout():
                     <div id="inquiry-list" class="inquiry-list">
                         <!-- 문의 카드들이 여기에 동적으로 추가됩니다 -->
                     </div>
-                    
+
                     <!-- 로딩 상태 -->
                     <div id="inquiry-loading" class="inquiry-loading" style="display: none;">
                         <div class="loading-spinner"></div>
                         <span>문의 목록을 불러오는 중...</span>
                     </div>
-                    
+
                     <!-- 빈 상태 -->
                     <div id="no-inquiries" class="no-inquiries" style="display: none;">
                         <div class="no-inquiries-icon">📭</div>
@@ -124,7 +138,7 @@ def get_inquiry_modal_layout():
                     </div>
                 </div>
             </div>
-            
+
             <!-- 페이지네이션 푸터 -->
             <div class="inquiry-modal-footer">
                 <div class="pagination-info">

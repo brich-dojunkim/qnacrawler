@@ -9,11 +9,11 @@ def get_filters_scripts():
 // ─────────── 아코디언 스타일 필터링 시스템 ───────────
 console.log('🔍 아코디언 스타일 필터링 시스템 로딩 중...');
 
-// 필터 상태 관리 (3단계 순환)
+// 필터 상태 관리
 let filterState = {
     search: '',
     urgency: 'all',      // 'all', 'urgent', 'normal'
-    status: 'all',       // 'all', 'completed', 'pending'  
+    status: 'all',       // 'all', 'completed', 'pending'
     sort: 'latest'       // 'latest' | 'length_desc'
 };
 
@@ -33,7 +33,7 @@ function setupAccordionStyleFilterEventListeners() {
         searchInput.addEventListener('input', function(e) {
             handleSearchInput(e.target.value);
         });
-        
+
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -41,6 +41,14 @@ function setupAccordionStyleFilterEventListeners() {
             }
         });
     }
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.filter-dropdown-wrapper')) {
+            closeUrgencyDropdown();
+            closeStatusDropdown();
+        }
+    });
 }
 
 // ─────────── 검색 입력 처리 (디바운스) ───────────
@@ -49,17 +57,17 @@ function handleSearchInput(searchTerm) {
     if (searchDebounceTimer) {
         clearTimeout(searchDebounceTimer);
     }
-    
+
     // 검색어 상태 업데이트
     window.currentSearchTerm = searchTerm.trim();
     filterState.search = window.currentSearchTerm;
-    
+
     // Clear 버튼 표시/숨김
     const clearBtn = document.getElementById('clear-search');
     if (clearBtn) {
         clearBtn.style.display = searchTerm.length > 0 ? 'block' : 'none';
     }
-    
+
     // 500ms 후 실제 검색 실행
     searchDebounceTimer = setTimeout(() => {
         console.log(`🔍 검색 실행: "${window.currentSearchTerm}"`);
@@ -71,47 +79,49 @@ function handleSearchInput(searchTerm) {
 window.clearInquirySearch = function() {
     const searchInput = document.getElementById('inquiry-search');
     const clearBtn = document.getElementById('clear-search');
-    
+
     if (searchInput) {
         searchInput.value = '';
         searchInput.focus();
     }
-    
+
     if (clearBtn) {
         clearBtn.style.display = 'none';
     }
-    
+
     window.currentSearchTerm = '';
     filterState.search = '';
     applyAllFiltersAndRender();
 };
 
-// ─────────── 긴급/일반 토글 (3단계 순환) ───────────
+// ─────────── 긴급/일반 필터 드롭다운 ───────────
 window.toggleUrgencyFilter = function() {
-    // 3단계 순환: all → urgent → normal → all
-    switch(filterState.urgency) {
-        case 'all':
-            filterState.urgency = 'urgent';
-            break;
-        case 'urgent':
-            filterState.urgency = 'normal';
-            break;
-        case 'normal':
-            filterState.urgency = 'all';
-            break;
+    closeStatusDropdown();
+    const dropdown = document.getElementById('urgency-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
     }
-    
+};
+
+window.selectUrgencyFilter = function(value) {
+    filterState.urgency = value;
     updateUrgencyButtonState();
     console.log(`🚨 긴급도 필터: ${filterState.urgency}`);
     applyAllFiltersAndRender();
+    closeUrgencyDropdown();
 };
+
+function closeUrgencyDropdown() {
+    const dropdown = document.getElementById('urgency-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+}
 
 function updateUrgencyButtonState() {
     const toggleBtn = document.getElementById('urgency-toggle');
     if (toggleBtn) {
         // 기존 클래스 제거
         toggleBtn.classList.remove('active', 'urgent-active', 'normal-active');
-        
+
         switch(filterState.urgency) {
             case 'urgent':
                 toggleBtn.classList.add('active', 'urgent-active');
@@ -127,32 +137,34 @@ function updateUrgencyButtonState() {
     }
 }
 
-// ─────────── 답변완료/미답변 토글 (3단계 순환) ───────────
+// ─────────── 답변완료/미답변 필터 드롭다운 ───────────
 window.toggleStatusFilter = function() {
-    // 3단계 순환: all → completed → pending → all
-    switch(filterState.status) {
-        case 'all':
-            filterState.status = 'completed';
-            break;
-        case 'completed':
-            filterState.status = 'pending';
-            break;
-        case 'pending':
-            filterState.status = 'all';
-            break;
+    closeUrgencyDropdown();
+    const dropdown = document.getElementById('status-dropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
     }
-    
+};
+
+window.selectStatusFilter = function(value) {
+    filterState.status = value;
     updateStatusButtonState();
     console.log(`✅ 상태 필터: ${filterState.status}`);
     applyAllFiltersAndRender();
+    closeStatusDropdown();
 };
+
+function closeStatusDropdown() {
+    const dropdown = document.getElementById('status-dropdown');
+    if (dropdown) dropdown.classList.add('hidden');
+}
 
 function updateStatusButtonState() {
     const toggleBtn = document.getElementById('status-toggle');
     if (toggleBtn) {
         // 기존 클래스 제거
         toggleBtn.classList.remove('active', 'completed-active', 'pending-active');
-        
+
         switch(filterState.status) {
             case 'completed':
                 toggleBtn.classList.add('active', 'completed-active');
@@ -172,7 +184,7 @@ function updateStatusButtonState() {
 window.setSortOrder = function(sortType) {
     const previousSort = filterState.sort;
     filterState.sort = sortType;
-    
+
     // 모든 정렬 버튼 비활성화
     document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
         btn.classList.remove('active');
@@ -182,12 +194,12 @@ window.setSortOrder = function(sortType) {
             direction.classList.remove('asc');
         }
     });
-    
+
     // 선택된 정렬 버튼 활성화
     const sortBtn = document.getElementById(`sort-${sortType}`);
     if (sortBtn) {
         sortBtn.classList.add('active');
-        
+
         // 정렬 방향 표시 (같은 정렬을 다시 클릭하면 방향 변경)
         const direction = sortBtn.querySelector('.sort-direction');
         if (direction) {
@@ -204,9 +216,9 @@ window.setSortOrder = function(sortType) {
             }
         }
     }
-    
+
     console.log(`📊 정렬 변경: ${filterState.sort}`);
-    
+
     // 첫 페이지로 이동
     window.inquiryModalState.currentPage = 1;
     applyAllFiltersAndRender();
@@ -215,7 +227,7 @@ window.setSortOrder = function(sortType) {
 // ─────────── 새로고침 및 필터 초기화 ───────────
 window.refreshAndResetFilters = function() {
     console.log('🔄 필터 초기화 및 새로고침 시작');
-    
+
     // 필터 상태 초기화
     filterState = {
         search: '',
@@ -223,10 +235,10 @@ window.refreshAndResetFilters = function() {
         status: 'all',
         sort: 'latest'
     };
-    
+
     // UI 초기화
     resetFilterUI();
-    
+
     // 상태 초기화
     window.currentSearchTerm = '';
     window.inquiryModalState.currentPage = 1;
@@ -237,7 +249,7 @@ window.refreshAndResetFilters = function() {
         status: '',
         sort: 'latest'
     };
-    
+
     // 데이터 새로고침
     const state = getCurrentState();
     if (state.currentCategory) {
@@ -257,18 +269,24 @@ function resetFilterUI() {
     if (searchInput) {
         searchInput.value = '';
     }
-    
+
     const clearBtn = document.getElementById('clear-search');
     if (clearBtn) {
         clearBtn.style.display = 'none';
     }
-    
-    // 토글 버튼 초기화
+
+    // 토글 버튼 및 드롭다운 초기화
     filterState.urgency = 'all';
     filterState.status = 'all';
     updateUrgencyButtonState();
     updateStatusButtonState();
-    
+    const urgencySelect = document.getElementById('urgency-filter-select');
+    if (urgencySelect) urgencySelect.value = 'all';
+    const statusSelect = document.getElementById('status-filter-select');
+    if (statusSelect) statusSelect.value = 'all';
+    closeUrgencyDropdown();
+    closeStatusDropdown();
+
     // 정렬 버튼 초기화
     document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
         btn.classList.remove('active');
@@ -278,19 +296,19 @@ function resetFilterUI() {
             direction.classList.remove('asc');
         }
     });
-    
+
     const latestSortBtn = document.getElementById('sort-latest');
     if (latestSortBtn) {
         latestSortBtn.classList.add('active');
     }
-    
+
     console.log('✅ 필터 UI 초기화 완료');
 }
 
 // ─────────── 아코디언 스타일 필터 적용 및 렌더링 ───────────
 window.applyAllFiltersAndRender = function() {
     console.log('🎯 아코디언 스타일 필터 적용 및 렌더링 시작');
-    
+
     try {
         // 🔧 원본 데이터가 있는지 확인
         if (!window.inquiryModalState.allInquiries || window.inquiryModalState.allInquiries.length === 0) {
@@ -298,23 +316,23 @@ window.applyAllFiltersAndRender = function() {
             showEmptyState();
             return;
         }
-        
+
         // 필터링 실행
         const filteredInquiries = applyAccordionStyleFilters(window.inquiryModalState.allInquiries, filterState);
         console.log(`📊 필터링 결과: ${filteredInquiries.length}건 (원본: ${window.inquiryModalState.allInquiries.length}건)`);
-        
+
         // 정렬 적용
         const sortedInquiries = applySorting(filteredInquiries, filterState.sort);
-        
+
         // 상태 업데이트
         window.inquiryModalState.filteredInquiries = sortedInquiries;
         window.inquiryModalState.filteredItems = sortedInquiries.length;
-        
+
         // 페이지네이션 적용 및 렌더링
         updatePaginationAndRender();
-        
+
         console.log('✅ 아코디언 스타일 필터 적용 및 렌더링 완료');
-        
+
     } catch (error) {
         console.error('❌ 필터 적용 오류:', error);
         hideInquiryLoading();
@@ -325,10 +343,10 @@ window.applyAllFiltersAndRender = function() {
 // ─────────── 아코디언 스타일 필터링 로직 ───────────
 function applyAccordionStyleFilters(inquiries, filters) {
     if (!inquiries || inquiries.length === 0) return [];
-    
+
     let filtered = [...inquiries];
     console.log(`🔄 필터링 시작: ${filtered.length}건`);
-    
+
     // 검색어 필터
     if (filters.search) {
         console.log(`🔍 검색어 필터: "${filters.search}"`);
@@ -338,52 +356,52 @@ function applyAccordionStyleFilters(inquiries, filters) {
             const category = (inquiry.sub_category || '').toLowerCase();
             const team = (inquiry.assigned_team || '').toLowerCase();
             const id = (inquiry.inquiry_id || '').toString().toLowerCase();
-            
-            return content.includes(searchTerm) || 
-                   category.includes(searchTerm) || 
-                   team.includes(searchTerm) || 
+
+            return content.includes(searchTerm) ||
+                   category.includes(searchTerm) ||
+                   team.includes(searchTerm) ||
                    id.includes(searchTerm);
         });
         console.log(`🎯 검색 결과: ${filtered.length}건`);
     }
-    
-    // 긴급도 필터 (3단계)
+
+    // 긴급도 필터
     if (filters.urgency !== 'all') {
         console.log(`🚨 긴급도 필터: ${filters.urgency}`);
         if (filters.urgency === 'urgent') {
-            filtered = filtered.filter(inquiry => 
-                inquiry.is_urgent === true || 
-                inquiry.is_urgent === 'true' || 
+            filtered = filtered.filter(inquiry =>
+                inquiry.is_urgent === true ||
+                inquiry.is_urgent === 'true' ||
                 inquiry.is_urgent === 1
             );
         } else if (filters.urgency === 'normal') {
-            filtered = filtered.filter(inquiry => 
-                !inquiry.is_urgent || 
-                inquiry.is_urgent === false || 
-                inquiry.is_urgent === 'false' || 
+            filtered = filtered.filter(inquiry =>
+                !inquiry.is_urgent ||
+                inquiry.is_urgent === false ||
+                inquiry.is_urgent === 'false' ||
                 inquiry.is_urgent === 0
             );
         }
         console.log(`🎯 긴급도 필터 결과: ${filtered.length}건`);
     }
-    
-    // 상태 필터 (3단계)
+
+    // 상태 필터
     if (filters.status !== 'all') {
         console.log(`📋 상태 필터: ${filters.status}`);
         if (filters.status === 'completed') {
-            filtered = filtered.filter(inquiry => 
-                inquiry.answer_status === '답변완료' || 
+            filtered = filtered.filter(inquiry =>
+                inquiry.answer_status === '답변완료' ||
                 (inquiry.answers && inquiry.answers.length > 0)
             );
         } else if (filters.status === 'pending') {
-            filtered = filtered.filter(inquiry => 
-                inquiry.answer_status !== '답변완료' && 
+            filtered = filtered.filter(inquiry =>
+                inquiry.answer_status !== '답변완료' &&
                 (!inquiry.answers || inquiry.answers.length === 0)
             );
         }
         console.log(`🎯 상태 필터 결과: ${filtered.length}건`);
     }
-    
+
     console.log(`✅ 최종 필터링 결과: ${filtered.length}건`);
     return filtered;
 }
@@ -397,22 +415,22 @@ window.clearAllInquiryFilters = function() {
 // ─────────── 필터 디버깅 함수 ───────────
 window.debugAccordionFilters = function() {
     console.log('🔍 아코디언 스타일 필터 디버깅 정보:');
-    
+
     console.log('현재 필터 상태:', filterState);
     console.log('전체 문의:', window.inquiryModalState.allInquiries?.length || 0);
     console.log('필터링된 문의:', window.inquiryModalState.filteredInquiries?.length || 0);
-    
+
     if (window.inquiryModalState.allInquiries && window.inquiryModalState.allInquiries.length > 0) {
         console.log('📊 긴급도 분포:', {
             urgent: window.inquiryModalState.allInquiries.filter(inq => inq.is_urgent).length,
             normal: window.inquiryModalState.allInquiries.filter(inq => !inq.is_urgent).length
         });
-        
+
         console.log('📊 상태 분포:', {
-            completed: window.inquiryModalState.allInquiries.filter(inq => 
+            completed: window.inquiryModalState.allInquiries.filter(inq =>
                 inq.answer_status === '답변완료' || (inq.answers && inq.answers.length > 0)
             ).length,
-            pending: window.inquiryModalState.allInquiries.filter(inq => 
+            pending: window.inquiryModalState.allInquiries.filter(inq =>
                 inq.answer_status !== '답변완료' && (!inq.answers || inq.answers.length === 0)
             ).length
         });
