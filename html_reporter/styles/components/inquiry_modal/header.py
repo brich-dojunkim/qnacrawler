@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/header.py
 """
-문의 상세보기 모달 헤더 및 통계 스타일 - 헤더 통계만 흰색 적용
+문의 상세보기 모달 헤더 및 통계 스타일 - 모든 배지 스타일 통일
 """
 
 def get_header_styles():
-    """모달 헤더 및 통계 영역 스타일 - 헤더 통계만 흰색 적용"""
+    """모달 헤더 및 통계 영역 스타일 - 모든 배지 스타일 통일"""
     return """
 /* === 모달 헤더 (확장된 통계 지원) === */
 .inquiry-modal-header {
@@ -44,7 +44,9 @@ def get_header_styles():
     max-width: 100%;
 }
 
-.stat-item {
+/* === 통일된 배지 스타일 (모든 stat-item 포함) === */
+.stat-item,
+.stat-item.team-journey-badge {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -53,50 +55,44 @@ def get_header_styles():
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     padding: 8px 12px;
-    font-size: 0.875rem;
+    font-size: 0.875rem !important;
     font-weight: 500;
     transition: all 0.3s ease;
     white-space: nowrap;
-    /* 줄바꿈 허용 */
     flex: 0 0 auto;
+    color: #ffffff !important;
 }
 
-.stat-item:hover {
+/* === 통일된 호버 효과 === */
+.stat-item:hover,
+.stat-item.team-journey-badge:hover {
     background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
 .stat-icon {
-    font-size: 1rem;
+    font-size: 1rem !important;
     opacity: 1;
     color: #ffffff;
 }
 
-/* 팀/여정 배지 특별 스타일 */
-.stat-item.team-journey-badge {
-    background: rgba(255, 255, 255, 0.2);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    font-weight: 600;
-}
-
-.stat-item.team-journey-badge:hover {
-    background: rgba(255, 255, 255, 0.3);
-    border-color: rgba(255, 255, 255, 0.5);
-}
-
-/* 헤더 통계 영역만 흰색 적용 */
+/* === 통일된 텍스트 스타일 === */
 .inquiry-modal-header .stat-label {
     color: #ffffff !important;
     font-weight: 400;
+    font-size: 0.875rem !important;
 }
 
 .inquiry-modal-header .stat-value {
     font-weight: 700;
     color: #ffffff !important;
+    font-size: 0.875rem !important;
 }
 
 .inquiry-modal-header .stat-item {
     color: #ffffff !important;
+    font-size: 0.875rem !important;
 }
 
 /* === 닫기 버튼 === */
@@ -154,9 +150,14 @@ def get_header_styles():
         justify-content: flex-start;
     }
     
-    .stat-item {
+    .stat-item,
+    .stat-item.team-journey-badge {
         padding: 6px 10px;
-        font-size: 0.8rem;
+        font-size: 0.875rem !important;
+    }
+    
+    .stat-icon {
+        font-size: 1rem !important;
     }
     
     .inquiry-modal-close {
@@ -191,16 +192,17 @@ def get_header_styles():
         flex-wrap: wrap;
     }
     
-    .stat-item {
+    .stat-item,
+    .stat-item.team-journey-badge {
         padding: 5px 8px;
-        font-size: 0.75rem;
+        font-size: 0.875rem !important;
         border-radius: 8px;
         flex: 1 1 calc(50% - 4px);
         min-width: 120px;
     }
     
     .stat-icon {
-        font-size: 0.9rem;
+        font-size: 1rem !important;
     }
     
     .inquiry-modal-close {
