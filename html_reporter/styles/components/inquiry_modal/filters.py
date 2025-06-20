@@ -24,6 +24,14 @@ def get_filters_styles():
     gap: 8px;
 }
 
+/* === 정렬 그룹 컨테이너 === */
+.filter-group.sort-group {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 12px;
+    align-items: center;
+}
+
 /* === 검색 영역 === */
 .search-group {
     flex: 1;
@@ -157,9 +165,9 @@ def get_filters_styles():
 
 /* === 정렬 버튼 (기존 스타일 유지) === */
 .accordion-filter-sort {
-    display: flex;
+    display: inline-flex !important; /* inline-flex로 강제 적용 */
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     padding: 8px 12px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
@@ -170,6 +178,7 @@ def get_filters_styles():
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
+    margin: 0; /* 기본 마진 제거 */
 }
 
 .accordion-filter-sort:hover {

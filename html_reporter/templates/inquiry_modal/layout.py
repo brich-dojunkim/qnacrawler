@@ -84,7 +84,7 @@ def get_inquiry_modal_layout():
                 </div>
 
                 <!-- 정렬 버튼들 -->
-                <div class="filter-group">
+                <div class="filter-group sort-group">
                     <button id="sort-latest" class="accordion-filter-sort active" onclick="setSortOrder('latest')">
                         <span class="sort-text">최신순</span>
                         <span class="sort-direction">▼</span>

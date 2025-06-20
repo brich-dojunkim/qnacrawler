@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/filters.py
 """
-문의 모달 필터링 및 검색 스크립트 - 3-Way 탭 스위치
+문의 모달 필터링 및 검색 스크립트 - 3-Way 탭 스위치 - 화살표 수정
 """
 
 def get_filters_scripts():
-    """3-Way 탭 스위치가 적용된 필터링 및 검색 관련 스크립트"""
+    """3-Way 탭 스위치가 적용된 필터링 및 검색 관련 스크립트 - 화살표 수정"""
     return """
 // ─────────── 3-Way 탭 스위치 필터링 시스템 ───────────
 console.log('🔍 3-Way 탭 스위치 필터링 시스템 로딩 중...');
@@ -130,8 +130,10 @@ window.selectStatusTab = function(value) {
     applyAllFiltersAndRender();
 };
 
-// ─────────── 정렬 설정 ───────────
+// ─────────── 정렬 설정 (화살표 수정) ───────────
 window.setSortOrder = function(sortType) {
+    console.log(`📊 정렬 버튼 클릭: ${sortType}`);
+    
     const currentSortBtn = document.getElementById(`sort-${sortType}`);
     if (!currentSortBtn) {
         console.error(`❌ 정렬 버튼을 찾을 수 없습니다: sort-${sortType}`);
@@ -139,10 +141,17 @@ window.setSortOrder = function(sortType) {
     }
     
     const direction = currentSortBtn.querySelector('.sort-direction');
+    if (!direction) {
+        console.error(`❌ 정렬 방향 요소를 찾을 수 없습니다`);
+        return;
+    }
+    
     const isCurrentlyActive = currentSortBtn.classList.contains('active');
     
-    // 현재 방향 확인
-    const isCurrentlyAsc = direction && direction.classList.contains('asc');
+    // 현재 방향 확인 - asc 클래스가 있으면 오름차순
+    const isCurrentlyAsc = direction.classList.contains('asc');
+    
+    console.log(`현재 상태: active=${isCurrentlyActive}, asc=${isCurrentlyAsc}`);
     
     // 모든 정렬 버튼 비활성화
     document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
@@ -167,23 +176,26 @@ window.setSortOrder = function(sortType) {
             direction.classList.remove('asc');
             direction.textContent = '▼';
             finalSortType = sortType; // 기본 (내림차순)
+            console.log(`${sortType}: 오름차순 → 내림차순`);
         } else {
             // 현재 내림차순 → 오름차순으로 변경
             direction.classList.add('asc');
             direction.textContent = '▲';
             finalSortType = sortType + '_asc'; // 오름차순
+            console.log(`${sortType}: 내림차순 → 오름차순`);
         }
     } else {
         // 다른 버튼에서 새로 클릭한 경우 기본 내림차순
         direction.classList.remove('asc');
         direction.textContent = '▼';
         finalSortType = sortType; // 기본 (내림차순)
+        console.log(`${sortType}: 새 버튼 - 내림차순으로 시작`);
     }
 
     // 필터 상태 업데이트
     filterState.sort = finalSortType;
     
-    console.log(`📊 정렬 변경: ${finalSortType}`);
+    console.log(`📊 최종 정렬: ${finalSortType}, 화살표: ${direction.textContent}`);
 
     // 첫 페이지로 이동
     window.inquiryModalState.currentPage = 1;
