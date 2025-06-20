@@ -1,10 +1,10 @@
 # html_reporter/templates/inquiry_modal/layout.py
 """
-문의 상세보기 모달 기본 레이아웃 템플릿 - 아코디언 스타일 필터 바
+문의 상세보기 모달 기본 레이아웃 템플릿 - 3-Way 탭 스위치
 """
 
 def get_inquiry_modal_layout():
-    """문의 모달 전체 레이아웃 템플릿 - 아코디언 스타일 필터 바"""
+    """문의 모달 전체 레이아웃 템플릿 - 3-Way 탭 스위치"""
     return """
     <!-- 문의 상세보기 모달 -->
     <div id="inquiry-detail-modal" class="inquiry-modal-overlay">
@@ -46,7 +46,7 @@ def get_inquiry_modal_layout():
                 </button>
             </div>
 
-            <!-- 아코디언 스타일 필터 바 -->
+            <!-- 3-Way 탭 스위치 필터 바 -->
             <div class="inquiry-modal-filters">
                 <!-- 검색 영역 -->
                 <div class="filter-group search-group">
@@ -65,34 +65,25 @@ def get_inquiry_modal_layout():
                     </div>
                 </div>
 
-                <!-- 아코디언 스타일 토글 버튼들 -->
-                <div class="filter-group toggle-group filter-dropdown-wrapper">
-                    <button id="urgency-toggle" class="accordion-filter-toggle" onclick="toggleUrgencyFilter()">
-                        <span class="toggle-text">긴급/일반</span>
-                    </button>
-                    <div id="urgency-dropdown" class="dropdown-menu hidden">
-                        <select id="urgency-filter-select" class="dropdown-filter-select" onchange="selectUrgencyFilter(this.value)">
-                            <option value="all">전체</option>
-                            <option value="urgent">긴급</option>
-                            <option value="normal">일반</option>
-                        </select>
+                <!-- 긴급도 3-Way 탭 -->
+                <div class="filter-group">
+                    <div class="bordered-tab-group urgency-tabs">
+                        <button class="bordered-tab-btn active all" data-value="all" onclick="selectUrgencyTab('all')">전체</button>
+                        <button class="bordered-tab-btn urgent" data-value="urgent" onclick="selectUrgencyTab('urgent')">긴급</button>
+                        <button class="bordered-tab-btn normal" data-value="normal" onclick="selectUrgencyTab('normal')">일반</button>
                     </div>
                 </div>
 
-                <div class="filter-group toggle-group filter-dropdown-wrapper">
-                    <button id="status-toggle" class="accordion-filter-toggle" onclick="toggleStatusFilter()">
-                        <span class="toggle-text">답변완료/미답변</span>
-                    </button>
-                    <div id="status-dropdown" class="dropdown-menu hidden">
-                        <select id="status-filter-select" class="dropdown-filter-select" onchange="selectStatusFilter(this.value)">
-                            <option value="all">전체</option>
-                            <option value="completed">답변완료</option>
-                            <option value="pending">미답변</option>
-                        </select>
+                <!-- 상태 3-Way 탭 -->
+                <div class="filter-group">
+                    <div class="bordered-tab-group status-tabs">
+                        <button class="bordered-tab-btn active all" data-value="all" onclick="selectStatusTab('all')">전체</button>
+                        <button class="bordered-tab-btn completed" data-value="completed" onclick="selectStatusTab('completed')">완료</button>
+                        <button class="bordered-tab-btn pending" data-value="pending" onclick="selectStatusTab('pending')">미답변</button>
                     </div>
                 </div>
 
-                <!-- 아코디언 스타일 정렬 버튼들 -->
+                <!-- 정렬 버튼들 -->
                 <div class="filter-group">
                     <button id="sort-latest" class="accordion-filter-sort active" onclick="setSortOrder('latest')">
                         <span class="sort-text">최신순</span>
@@ -119,7 +110,6 @@ def get_inquiry_modal_layout():
             <!-- 문의 목록 영역 -->
             <div class="inquiry-modal-body">
                 <div id="inquiry-list-container" class="inquiry-list-container">
-                    <!-- 📌 중요: inquiry-list div 추가! -->
                     <div id="inquiry-list" class="inquiry-list">
                         <!-- 문의 카드들이 여기에 동적으로 추가됩니다 -->
                     </div>

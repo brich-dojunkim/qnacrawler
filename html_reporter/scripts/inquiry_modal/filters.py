@@ -1,13 +1,13 @@
 # html_reporter/scripts/inquiry_modal/filters.py
 """
-문의 모달 필터링 및 검색 스크립트 - 아코디언 스타일 적용
+문의 모달 필터링 및 검색 스크립트 - 3-Way 탭 스위치
 """
 
 def get_filters_scripts():
-    """아코디언 스타일이 적용된 필터링 및 검색 관련 스크립트"""
+    """3-Way 탭 스위치가 적용된 필터링 및 검색 관련 스크립트"""
     return """
-// ─────────── 아코디언 스타일 필터링 시스템 ───────────
-console.log('🔍 아코디언 스타일 필터링 시스템 로딩 중...');
+// ─────────── 3-Way 탭 스위치 필터링 시스템 ───────────
+console.log('🔍 3-Way 탭 스위치 필터링 시스템 로딩 중...');
 
 // 필터 상태 관리
 let filterState = {
@@ -23,10 +23,10 @@ window.currentSearchTerm = '';
 
 // ─────────── 이벤트 리스너 설정 ───────────
 document.addEventListener('DOMContentLoaded', function() {
-    setupAccordionStyleFilterEventListeners();
+    setupTabSwitchEventListeners();
 });
 
-function setupAccordionStyleFilterEventListeners() {
+function setupTabSwitchEventListeners() {
     // 검색 입력 이벤트
     const searchInput = document.getElementById('inquiry-search');
     if (searchInput) {
@@ -41,14 +41,6 @@ function setupAccordionStyleFilterEventListeners() {
             }
         });
     }
-
-    // 외부 클릭 시 드롭다운 닫기
-    document.addEventListener('click', function(e) {
-        if (!e.target.closest('.filter-dropdown-wrapper')) {
-            closeUrgencyDropdown();
-            closeStatusDropdown();
-        }
-    });
 }
 
 // ─────────── 검색 입력 처리 (디바운스) ───────────
@@ -94,130 +86,104 @@ window.clearInquirySearch = function() {
     applyAllFiltersAndRender();
 };
 
-// ─────────── 긴급/일반 필터 드롭다운 ───────────
-window.toggleUrgencyFilter = function() {
-    closeStatusDropdown();
-    const dropdown = document.getElementById('urgency-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
+// ─────────── 긴급도 탭 선택 ───────────
+window.selectUrgencyTab = function(value) {
+    console.log(`🚨 긴급도 탭 선택: ${value}`);
+    
+    // 이전 활성화된 탭 제거
+    document.querySelectorAll('.urgency-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 새로운 탭 활성화
+    const selectedTab = document.querySelector(`.urgency-tabs .bordered-tab-btn[data-value="${value}"]`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
     }
-};
-
-window.selectUrgencyFilter = function(value) {
+    
+    // 필터 상태 업데이트
     filterState.urgency = value;
-    updateUrgencyButtonState();
-    console.log(`🚨 긴급도 필터: ${filterState.urgency}`);
+    
+    // 필터 적용
     applyAllFiltersAndRender();
-    closeUrgencyDropdown();
 };
 
-function closeUrgencyDropdown() {
-    const dropdown = document.getElementById('urgency-dropdown');
-    if (dropdown) dropdown.classList.add('hidden');
-}
-
-function updateUrgencyButtonState() {
-    const toggleBtn = document.getElementById('urgency-toggle');
-    if (toggleBtn) {
-        // 기존 클래스 제거
-        toggleBtn.classList.remove('active', 'urgent-active', 'normal-active');
-
-        switch(filterState.urgency) {
-            case 'urgent':
-                toggleBtn.classList.add('active', 'urgent-active');
-                break;
-            case 'normal':
-                toggleBtn.classList.add('active', 'normal-active');
-                break;
-            case 'all':
-            default:
-                // 기본 상태 (필터 없음)
-                break;
-        }
+// ─────────── 상태 탭 선택 ───────────
+window.selectStatusTab = function(value) {
+    console.log(`✅ 상태 탭 선택: ${value}`);
+    
+    // 이전 활성화된 탭 제거
+    document.querySelectorAll('.status-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 새로운 탭 활성화
+    const selectedTab = document.querySelector(`.status-tabs .bordered-tab-btn[data-value="${value}"]`);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
     }
-}
-
-// ─────────── 답변완료/미답변 필터 드롭다운 ───────────
-window.toggleStatusFilter = function() {
-    closeUrgencyDropdown();
-    const dropdown = document.getElementById('status-dropdown');
-    if (dropdown) {
-        dropdown.classList.toggle('hidden');
-    }
-};
-
-window.selectStatusFilter = function(value) {
+    
+    // 필터 상태 업데이트
     filterState.status = value;
-    updateStatusButtonState();
-    console.log(`✅ 상태 필터: ${filterState.status}`);
+    
+    // 필터 적용
     applyAllFiltersAndRender();
-    closeStatusDropdown();
 };
 
-function closeStatusDropdown() {
-    const dropdown = document.getElementById('status-dropdown');
-    if (dropdown) dropdown.classList.add('hidden');
-}
-
-function updateStatusButtonState() {
-    const toggleBtn = document.getElementById('status-toggle');
-    if (toggleBtn) {
-        // 기존 클래스 제거
-        toggleBtn.classList.remove('active', 'completed-active', 'pending-active');
-
-        switch(filterState.status) {
-            case 'completed':
-                toggleBtn.classList.add('active', 'completed-active');
-                break;
-            case 'pending':
-                toggleBtn.classList.add('active', 'pending-active');
-                break;
-            case 'all':
-            default:
-                // 기본 상태 (필터 없음)
-                break;
-        }
-    }
-}
-
-// ─────────── 정렬 설정 (아코디언 스타일) ───────────
+// ─────────── 정렬 설정 ───────────
 window.setSortOrder = function(sortType) {
-    const previousSort = filterState.sort;
-    filterState.sort = sortType;
-
+    const currentSortBtn = document.getElementById(`sort-${sortType}`);
+    if (!currentSortBtn) {
+        console.error(`❌ 정렬 버튼을 찾을 수 없습니다: sort-${sortType}`);
+        return;
+    }
+    
+    const direction = currentSortBtn.querySelector('.sort-direction');
+    const isCurrentlyActive = currentSortBtn.classList.contains('active');
+    
+    // 현재 방향 확인
+    const isCurrentlyAsc = direction && direction.classList.contains('asc');
+    
     // 모든 정렬 버튼 비활성화
     document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
         btn.classList.remove('active');
-        const direction = btn.querySelector('.sort-direction');
-        if (direction) {
-            direction.textContent = '▼';
-            direction.classList.remove('asc');
+        const btnDirection = btn.querySelector('.sort-direction');
+        if (btnDirection) {
+            btnDirection.textContent = '▼';
+            btnDirection.classList.remove('asc');
         }
     });
 
     // 선택된 정렬 버튼 활성화
-    const sortBtn = document.getElementById(`sort-${sortType}`);
-    if (sortBtn) {
-        sortBtn.classList.add('active');
-
-        // 정렬 방향 표시 (같은 정렬을 다시 클릭하면 방향 변경)
-        const direction = sortBtn.querySelector('.sort-direction');
-        if (direction) {
-            if (previousSort === sortType) {
-                // 같은 정렬을 다시 클릭한 경우 방향 토글
-                const isAsc = direction.classList.contains('asc');
-                direction.classList.toggle('asc', !isAsc);
-                direction.textContent = isAsc ? '▼' : '▲';
-                filterState.sort = isAsc ? sortType : sortType + '_asc';
-            } else {
-                // 다른 정렬로 변경한 경우 기본 내림차순
-                direction.classList.remove('asc');
-                direction.textContent = '▼';
-            }
+    currentSortBtn.classList.add('active');
+    
+    // 정렬 방향 결정
+    let finalSortType = sortType;
+    
+    if (isCurrentlyActive) {
+        // 같은 버튼을 다시 클릭한 경우 방향 토글
+        if (isCurrentlyAsc) {
+            // 현재 오름차순 → 내림차순으로 변경
+            direction.classList.remove('asc');
+            direction.textContent = '▼';
+            finalSortType = sortType; // 기본 (내림차순)
+        } else {
+            // 현재 내림차순 → 오름차순으로 변경
+            direction.classList.add('asc');
+            direction.textContent = '▲';
+            finalSortType = sortType + '_asc'; // 오름차순
         }
+    } else {
+        // 다른 버튼에서 새로 클릭한 경우 기본 내림차순
+        direction.classList.remove('asc');
+        direction.textContent = '▼';
+        finalSortType = sortType; // 기본 (내림차순)
     }
 
-    console.log(`📊 정렬 변경: ${filterState.sort}`);
+    // 필터 상태 업데이트
+    filterState.sort = finalSortType;
+    
+    console.log(`📊 정렬 변경: ${finalSortType}`);
 
     // 첫 페이지로 이동
     window.inquiryModalState.currentPage = 1;
@@ -275,17 +241,23 @@ function resetFilterUI() {
         clearBtn.style.display = 'none';
     }
 
-    // 토글 버튼 및 드롭다운 초기화
-    filterState.urgency = 'all';
-    filterState.status = 'all';
-    updateUrgencyButtonState();
-    updateStatusButtonState();
-    const urgencySelect = document.getElementById('urgency-filter-select');
-    if (urgencySelect) urgencySelect.value = 'all';
-    const statusSelect = document.getElementById('status-filter-select');
-    if (statusSelect) statusSelect.value = 'all';
-    closeUrgencyDropdown();
-    closeStatusDropdown();
+    // 긴급도 탭 초기화 (전체 선택)
+    document.querySelectorAll('.urgency-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const urgencyAllTab = document.querySelector('.urgency-tabs .bordered-tab-btn[data-value="all"]');
+    if (urgencyAllTab) {
+        urgencyAllTab.classList.add('active');
+    }
+
+    // 상태 탭 초기화 (전체 선택)
+    document.querySelectorAll('.status-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    const statusAllTab = document.querySelector('.status-tabs .bordered-tab-btn[data-value="all"]');
+    if (statusAllTab) {
+        statusAllTab.classList.add('active');
+    }
 
     // 정렬 버튼 초기화
     document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
@@ -305,12 +277,12 @@ function resetFilterUI() {
     console.log('✅ 필터 UI 초기화 완료');
 }
 
-// ─────────── 아코디언 스타일 필터 적용 및 렌더링 ───────────
+// ─────────── 3-Way 탭 스위치 필터 적용 및 렌더링 ───────────
 window.applyAllFiltersAndRender = function() {
-    console.log('🎯 아코디언 스타일 필터 적용 및 렌더링 시작');
+    console.log('🎯 3-Way 탭 스위치 필터 적용 및 렌더링 시작');
 
     try {
-        // 🔧 원본 데이터가 있는지 확인
+        // 원본 데이터가 있는지 확인
         if (!window.inquiryModalState.allInquiries || window.inquiryModalState.allInquiries.length === 0) {
             console.warn('⚠️ 원본 데이터가 없습니다.');
             showEmptyState();
@@ -318,7 +290,7 @@ window.applyAllFiltersAndRender = function() {
         }
 
         // 필터링 실행
-        const filteredInquiries = applyAccordionStyleFilters(window.inquiryModalState.allInquiries, filterState);
+        const filteredInquiries = applyTabSwitchFilters(window.inquiryModalState.allInquiries, filterState);
         console.log(`📊 필터링 결과: ${filteredInquiries.length}건 (원본: ${window.inquiryModalState.allInquiries.length}건)`);
 
         // 정렬 적용
@@ -331,7 +303,7 @@ window.applyAllFiltersAndRender = function() {
         // 페이지네이션 적용 및 렌더링
         updatePaginationAndRender();
 
-        console.log('✅ 아코디언 스타일 필터 적용 및 렌더링 완료');
+        console.log('✅ 3-Way 탭 스위치 필터 적용 및 렌더링 완료');
 
     } catch (error) {
         console.error('❌ 필터 적용 오류:', error);
@@ -340,8 +312,8 @@ window.applyAllFiltersAndRender = function() {
     }
 };
 
-// ─────────── 아코디언 스타일 필터링 로직 ───────────
-function applyAccordionStyleFilters(inquiries, filters) {
+// ─────────── 3-Way 탭 스위치 필터링 로직 ───────────
+function applyTabSwitchFilters(inquiries, filters) {
     if (!inquiries || inquiries.length === 0) return [];
 
     let filtered = [...inquiries];
@@ -413,8 +385,8 @@ window.clearAllInquiryFilters = function() {
 };
 
 // ─────────── 필터 디버깅 함수 ───────────
-window.debugAccordionFilters = function() {
-    console.log('🔍 아코디언 스타일 필터 디버깅 정보:');
+window.debugTabSwitchFilters = function() {
+    console.log('🔍 3-Way 탭 스위치 필터 디버깅 정보:');
 
     console.log('현재 필터 상태:', filterState);
     console.log('전체 문의:', window.inquiryModalState.allInquiries?.length || 0);
@@ -435,13 +407,47 @@ window.debugAccordionFilters = function() {
             ).length
         });
     }
+
+    // 현재 활성화된 탭 상태 확인
+    const activeUrgencyTab = document.querySelector('.urgency-tabs .bordered-tab-btn.active');
+    const activeStatusTab = document.querySelector('.status-tabs .bordered-tab-btn.active');
+    
+    console.log('📊 UI 상태:', {
+        activeUrgencyTab: activeUrgencyTab?.dataset?.value || 'none',
+        activeStatusTab: activeStatusTab?.dataset?.value || 'none'
+    });
 };
 
 // ─────────── 레거시 호환성 함수들 ───────────
 window.debugFilters = function() {
     console.log('🔍 레거시 호환성: debugFilters 호출됨');
-    debugAccordionFilters();
+    debugTabSwitchFilters();
 };
 
-console.log('✅ 아코디언 스타일 필터링 시스템 로딩 완료');
+// ─────────── 탭 상태 동기화 함수 ───────────
+function syncTabStates() {
+    // 긴급도 탭 동기화
+    document.querySelectorAll('.urgency-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.value === filterState.urgency) {
+            btn.classList.add('active');
+        }
+    });
+
+    // 상태 탭 동기화
+    document.querySelectorAll('.status-tabs .bordered-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.value === filterState.status) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+// ─────────── 초기화 시 탭 상태 설정 ───────────
+setTimeout(() => {
+    syncTabStates();
+    console.log('🎯 3-Way 탭 스위치 초기 상태 설정 완료');
+}, 100);
+
+console.log('✅ 3-Way 탭 스위치 필터링 시스템 로딩 완료');
 """

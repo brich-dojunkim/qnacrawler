@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/sorting.py
 """
-문의 모달 정렬 기능 스크립트
+문의 모달 정렬 기능 스크립트 - latest_asc 지원 추가
 """
 
 def get_sorting_scripts():
-    """정렬 관련 스크립트"""
+    """정렬 관련 스크립트 - latest_asc 지원 추가"""
     return """
 // ─────────── 정렬 시스템 ───────────
 console.log('📊 정렬 시스템 로딩 중...');
@@ -20,10 +20,14 @@ window.applySorting = function(inquiries, sortType) {
     switch (sortType) {
         case 'latest':
             return sortByLatest(sorted);
+        case 'latest_asc':
+            return sortByLatestAsc(sorted);
         case 'urgent':
             return sortByUrgency(sorted);
         case 'length_desc':
             return sortByLengthDesc(sorted);
+        case 'length_desc_asc':
+            return sortByLengthAsc(sorted);
         case 'length_asc':
             return sortByLengthAsc(sorted);
         case 'team':
@@ -34,12 +38,21 @@ window.applySorting = function(inquiries, sortType) {
     }
 };
 
-// ─────────── 최신순 정렬 ───────────
+// ─────────── 최신순 정렬 (내림차순) ───────────
 function sortByLatest(inquiries) {
     return inquiries.sort((a, b) => {
         const dateA = new Date(a.registration_date || 0);
         const dateB = new Date(b.registration_date || 0);
         return dateB - dateA; // 최신 순 (내림차순)
+    });
+}
+
+// ─────────── 최신순 정렬 (오름차순) ───────────
+function sortByLatestAsc(inquiries) {
+    return inquiries.sort((a, b) => {
+        const dateA = new Date(a.registration_date || 0);
+        const dateB = new Date(b.registration_date || 0);
+        return dateA - dateB; // 과거 순 (오름차순)
     });
 }
 
@@ -115,8 +128,10 @@ function sortByTeam(inquiries) {
 function updateSortingStatus(sortType, itemCount) {
     const sortNames = {
         'latest': '최신순',
+        'latest_asc': '과거순',
         'urgent': '긴급순',
         'length_desc': '긴 문의순',
+        'length_desc_asc': '짧은 문의순',
         'length_asc': '짧은 문의순',
         'team': '팀별순'
     };

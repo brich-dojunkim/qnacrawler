@@ -1,12 +1,12 @@
 # html_reporter/styles/components/inquiry_modal/filters.py
 """
-문의 상세보기 모달 필터 바 스타일 - 아코디언 스타일 적용
+문의 상세보기 모달 필터 바 스타일 - 3-Way 탭 스위치
 """
 
 def get_filters_styles():
-    """아코디언 스타일이 적용된 필터 바 스타일"""
+    """3-Way 탭 스위치가 적용된 필터 바 스타일"""
     return """
-/* === 아코디언 스타일 필터 바 === */
+/* === 필터 바 기본 === */
 .inquiry-modal-filters {
     background: white;
     border-bottom: 1px solid #e5e7eb;
@@ -22,45 +22,6 @@ def get_filters_styles():
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-/* === 드롭다운 필터 공통 === */
-.filter-dropdown-wrapper {
-    position: relative;
-    display: inline-flex;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 40px;
-    left: 0;
-    background: white;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    z-index: 1000;
-    min-width: 120px;
-    padding: 8px;
-}
-
-.dropdown-menu.hidden {
-    display: none;
-}
-
-.dropdown-filter-select {
-    width: 100%;
-    padding: 6px 8px;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    background: white;
-    font-size: 0.85rem;
-    cursor: pointer;
-    outline: none;
-}
-
-.dropdown-filter-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 
 /* === 검색 영역 === */
@@ -132,95 +93,69 @@ def get_filters_styles():
     transform: translateY(-50%) scale(1.1);
 }
 
-/* === 아코디언 스타일 토글 버튼 (긴급/일반, 답변완료/미답변) === */
-.accordion-filter-toggle {
+/* === 3-Way 탭 스위치 === */
+.bordered-tab-group {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
     border: 1px solid #d1d5db;
     border-radius: 6px;
+    overflow: hidden;
     background: white;
-    color: #6b7280;
+}
+
+.bordered-tab-btn {
+    flex: 1;
+    padding: 8px 16px;
+    background: white;
+    border: none;
+    border-right: 1px solid #d1d5db;
     font-size: 0.875rem;
     font-weight: 500;
+    color: #6b7280;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 60px;
+    text-align: center;
     white-space: nowrap;
 }
 
-.accordion-filter-toggle:hover {
-    border-color: #9ca3af;
-    color: #374151;
+.bordered-tab-btn:last-child {
+    border-right: none;
+}
+
+/* 호버 효과 */
+.bordered-tab-btn:hover:not(.active) {
     background: #f9fafb;
+    color: #374151;
 }
 
-/* 긴급도 토글 - 긴급 상태 */
-.accordion-filter-toggle.urgent-active {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    border-color: #dc2626;
+/* 활성화된 탭 기본 */
+.bordered-tab-btn.active {
+    font-weight: 700;
     color: white;
-    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
 }
 
-.accordion-filter-toggle.urgent-active:hover {
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(239, 68, 68, 0.4);
+/* 타입별 활성화 색상 */
+.bordered-tab-btn.active.all { 
+    background: #667eea; 
 }
 
-/* 긴급도 토글 - 일반 상태 */
-.accordion-filter-toggle.normal-active {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    border-color: #2563eb;
-    color: white;
-    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+.bordered-tab-btn.active.urgent { 
+    background: #ef4444; 
 }
 
-.accordion-filter-toggle.normal-active:hover {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(59, 130, 246, 0.4);
+.bordered-tab-btn.active.normal { 
+    background: #3b82f6; 
 }
 
-/* 상태 토글 - 답변완료 상태 */
-.accordion-filter-toggle.completed-active {
-    background: linear-gradient(135deg, #10b981, #059669);
-    border-color: #059669;
-    color: white;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+.bordered-tab-btn.active.completed { 
+    background: #10b981; 
 }
 
-.accordion-filter-toggle.completed-active:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(16, 185, 129, 0.4);
+.bordered-tab-btn.active.pending { 
+    background: #f59e0b; 
 }
 
-/* 상태 토글 - 미답변 상태 */
-.accordion-filter-toggle.pending-active {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    border-color: #d97706;
-    color: white;
-    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
-}
-
-.accordion-filter-toggle.pending-active:hover {
-    background: linear-gradient(135deg, #d97706, #b45309);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(245, 158, 11, 0.4);
-}
-
-/* === 아코디언 스타일 정렬 버튼 === */
-.sort-group {
-    display: flex;
-    gap: 4px;
-    background: none;
-    border-radius: 12px;
-    padding: 0;
-    border: none;
-}
-
+/* === 정렬 버튼 (기존 스타일 유지) === */
 .accordion-filter-sort {
     display: flex;
     align-items: center;
@@ -456,15 +391,11 @@ def get_filters_styles():
         justify-content: center;
     }
 
-    .accordion-filter-toggle {
+    .bordered-tab-btn {
         flex: 1;
         justify-content: center;
         min-height: 44px;
-    }
-
-    .sort-group {
-        width: 100%;
-        justify-content: center;
+        padding: 10px 12px;
     }
 
     .accordion-filter-sort {
@@ -525,11 +456,11 @@ def get_filters_styles():
         height: 20px;
     }
 
-    .accordion-filter-toggle {
-        padding: 6px 12px;
+    .bordered-tab-btn {
+        padding: 8px 10px;
         font-size: 0.8rem;
-        gap: 4px;
         min-height: 40px;
+        min-width: 50px;
     }
 
     .accordion-filter-sort {
@@ -537,10 +468,6 @@ def get_filters_styles():
         font-size: 0.8rem;
         gap: 4px;
         min-height: 36px;
-    }
-
-    .sort-group {
-        padding: 3px;
     }
 
     .filter-action-btn {
