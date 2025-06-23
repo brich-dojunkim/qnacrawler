@@ -1,10 +1,10 @@
 # html_reporter/scripts/inquiry_modal/filters.py
 """
-문의 모달 필터링 및 검색 스크립트 - 3-Way 탭 스위치 - 화살표 수정
+문의 모달 필터링 및 검색 스크립트 - 3-Way 탭 스위치 - 화살표 애니메이션 문제 해결
 """
 
 def get_filters_scripts():
-    """3-Way 탭 스위치가 적용된 필터링 및 검색 관련 스크립트 - 화살표 수정"""
+    """3-Way 탭 스위치가 적용된 필터링 및 검색 관련 스크립트 - 화살표 애니메이션 문제 해결"""
     return """
 // ─────────── 3-Way 탭 스위치 필터링 시스템 ───────────
 console.log('🔍 3-Way 탭 스위치 필터링 시스템 로딩 중...');
@@ -130,7 +130,7 @@ window.selectStatusTab = function(value) {
     applyAllFiltersAndRender();
 };
 
-// ─────────── 정렬 설정 (화살표 수정) ───────────
+// ─────────── 정렬 설정 (화살표 애니메이션 문제 해결) ───────────
 window.setSortOrder = function(sortType) {
     console.log(`📊 정렬 버튼 클릭: ${sortType}`);
     
@@ -146,56 +146,61 @@ window.setSortOrder = function(sortType) {
         return;
     }
     
+    // 🔧 핵심 수정: CSS transform 충돌 방지
+    direction.style.transform = 'none !important';
+    direction.style.transition = 'none';
+    
     const isCurrentlyActive = currentSortBtn.classList.contains('active');
     
-    // 현재 방향 확인 - asc 클래스가 있으면 오름차순
-    const isCurrentlyAsc = direction.classList.contains('asc');
-    
-    console.log(`현재 상태: active=${isCurrentlyActive}, asc=${isCurrentlyAsc}`);
-    
-    // 모든 정렬 버튼 비활성화
-    document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
-        btn.classList.remove('active');
-        const btnDirection = btn.querySelector('.sort-direction');
-        if (btnDirection) {
-            btnDirection.textContent = '▼';
-            btnDirection.classList.remove('asc');
-        }
-    });
-
-    // 선택된 정렬 버튼 활성화
-    currentSortBtn.classList.add('active');
-    
-    // 정렬 방향 결정
-    let finalSortType = sortType;
-    
     if (isCurrentlyActive) {
-        // 같은 버튼을 다시 클릭한 경우 방향 토글
+        // 같은 버튼 재클릭 - 방향만 토글
+        const isCurrentlyAsc = direction.classList.contains('asc');
+        
         if (isCurrentlyAsc) {
-            // 현재 오름차순 → 내림차순으로 변경
+            // 오름차순 → 내림차순
             direction.classList.remove('asc');
             direction.textContent = '▼';
-            finalSortType = sortType; // 기본 (내림차순)
-            console.log(`${sortType}: 오름차순 → 내림차순`);
+            filterState.sort = sortType;
+            console.log(`${sortType}: 오름차순 → 내림차순, 화살표: ▼`);
         } else {
-            // 현재 내림차순 → 오름차순으로 변경
+            // 내림차순 → 오름차순  
             direction.classList.add('asc');
             direction.textContent = '▲';
-            finalSortType = sortType + '_asc'; // 오름차순
-            console.log(`${sortType}: 내림차순 → 오름차순`);
+            filterState.sort = sortType + '_asc';
+            console.log(`${sortType}: 내림차순 → 오름차순, 화살표: ▲`);
         }
     } else {
-        // 다른 버튼에서 새로 클릭한 경우 기본 내림차순
+        // 다른 버튼 클릭 - 모든 버튼 초기화
+        document.querySelectorAll('.accordion-filter-sort').forEach(btn => {
+            btn.classList.remove('active');
+            const btnDirection = btn.querySelector('.sort-direction');
+            if (btnDirection) {
+                btnDirection.textContent = '▼';
+                btnDirection.classList.remove('asc');
+                // 🔧 추가: transform 스타일 제거
+                btnDirection.style.transform = 'none !important';
+                btnDirection.style.transition = 'none';
+            }
+        });
+        
+        // 클릭된 버튼만 활성화
+        currentSortBtn.classList.add('active');
         direction.classList.remove('asc');
         direction.textContent = '▼';
-        finalSortType = sortType; // 기본 (내림차순)
-        console.log(`${sortType}: 새 버튼 - 내림차순으로 시작`);
+        filterState.sort = sortType;
+        console.log(`${sortType}: 새 버튼 - 내림차순으로 시작, 화살표: ▼`);
     }
-
-    // 필터 상태 업데이트
-    filterState.sort = finalSortType;
     
-    console.log(`📊 최종 정렬: ${finalSortType}, 화살표: ${direction.textContent}`);
+    // 🔧 추가: 변경 후 다시 한번 확인
+    setTimeout(() => {
+        console.log(`🔍 변경 후 확인: ${direction.textContent}, asc클래스: ${direction.classList.contains('asc')}`);
+        
+        // transform이 다시 적용되었다면 강제 제거
+        if (direction.style.transform && direction.style.transform !== 'none') {
+            direction.style.transform = 'none !important';
+            console.log('⚠️ Transform 스타일이 다시 적용되어 제거했습니다');
+        }
+    }, 100);
 
     // 첫 페이지로 이동
     window.inquiryModalState.currentPage = 1;
@@ -278,6 +283,9 @@ function resetFilterUI() {
         if (direction) {
             direction.textContent = '▼';
             direction.classList.remove('asc');
+            // 🔧 추가: transform 스타일 제거
+            direction.style.transform = 'none !important';
+            direction.style.transition = 'none';
         }
     });
 
@@ -455,9 +463,70 @@ function syncTabStates() {
     });
 }
 
-// ─────────── 초기화 시 탭 상태 설정 ───────────
+// ─────────── 화살표 애니메이션 문제 해결 초기화 ───────────
+function fixArrowAnimationIssues() {
+    console.log('🔧 화살표 애니메이션 문제 해결 중...');
+    
+    // 모든 .sort-direction 요소에서 transform 관련 스타일 제거
+    document.querySelectorAll('.sort-direction').forEach(arrow => {
+        arrow.style.transform = 'none !important';
+        arrow.style.transition = 'none !important';
+        
+        // CSS 클래스 기반 transform도 제거
+        arrow.classList.remove('asc', 'desc');
+        
+        // 기본 화살표로 설정
+        if (!arrow.textContent || arrow.textContent.trim() === '') {
+            arrow.textContent = '▼';
+        }
+    });
+    
+    // CSS 스타일 동적 추가로 강제 덮어쓰기
+    const style = document.createElement('style');
+    style.id = 'arrow-fix-styles';
+    style.textContent = `
+        /* 화살표 애니메이션 문제 해결 */
+        .sort-direction {
+            transform: none !important;
+            transition: none !important;
+        }
+        
+        .sort-direction.asc {
+            transform: none !important;
+        }
+        
+        .sort-direction.desc {
+            transform: none !important;
+        }
+        
+        /* 호버 효과에서도 transform 제거 */
+        .accordion-filter-sort:hover .sort-direction {
+            transform: none !important;
+        }
+        
+        .accordion-filter-sort.active .sort-direction {
+            transform: none !important;
+        }
+    `;
+    
+    // 기존 스타일이 있으면 제거하고 새로 추가
+    const existingStyle = document.getElementById('arrow-fix-styles');
+    if (existingStyle) {
+        existingStyle.remove();
+    }
+    document.head.appendChild(style);
+    
+    console.log('✅ 화살표 애니메이션 문제 해결 완료');
+}
+
+// ─────────── 초기화 시 탭 상태 설정 및 화살표 문제 해결 ───────────
 setTimeout(() => {
+    // 기존 탭 상태 동기화
     syncTabStates();
+    
+    // 🔧 새로 추가: 화살표 문제 해결
+    fixArrowAnimationIssues();
+    
     console.log('🎯 3-Way 탭 스위치 초기 상태 설정 완료');
 }, 100);
 

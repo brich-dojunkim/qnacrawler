@@ -1,10 +1,10 @@
 # html_reporter/styles/components/inquiry_modal/filters.py
 """
-문의 상세보기 모달 필터 바 스타일 - 3-Way 탭 스위치
+문의 상세보기 모달 필터 바 스타일 - 3-Way 탭 스위치 - 화살표 애니메이션 문제 해결
 """
 
 def get_filters_styles():
-    """3-Way 탭 스위치가 적용된 필터 바 스타일"""
+    """3-Way 탭 스위치가 적용된 필터 바 스타일 - 화살표 애니메이션 문제 해결"""
     return """
 /* === 필터 바 기본 === */
 .inquiry-modal-filters {
@@ -201,20 +201,23 @@ def get_filters_styles():
     box-shadow: 0 3px 6px rgba(102, 126, 234, 0.4);
 }
 
-/* 정렬 방향 아이콘 */
+/* 정렬 방향 아이콘 (애니메이션 문제 해결) */
 .sort-direction {
     font-size: 0.7rem;
     font-weight: 700;
     margin-left: 2px;
-    transition: transform 0.2s ease;
+    /* 🔧 핵심 수정: transform 관련 속성 제거 */
+    transform: none !important;
+    transition: none !important;
 }
 
+/* 🔧 asc/desc 클래스의 transform 제거 */
 .sort-direction.asc {
-    transform: rotate(180deg);
+    /* transform 제거 - textContent로만 제어 */
 }
 
 .sort-direction.desc {
-    transform: rotate(0deg);
+    /* transform 제거 - textContent로만 제어 */
 }
 
 /* === 액션 버튼 === */

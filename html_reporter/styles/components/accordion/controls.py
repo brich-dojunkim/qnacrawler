@@ -14,7 +14,7 @@ def get_controls_bar_styles():
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 20px;
+    gap: 32px;  /* 20px -> 32px로 증가 */
 }
 
 /* 드로어 열릴 때 컨트롤 바 극한 여백 최소화 */
@@ -197,7 +197,7 @@ def get_view_toggle_styles():
 .view-toggle-group {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 32px;
 }
 
 .view-toggle-label {
@@ -218,27 +218,27 @@ def get_view_toggle_styles():
     display: none;
 }
 
-.toggle-btn {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #64748b;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    text-align: center;
+.view-toggle-controls .toggle-btn {
+   padding: 6px 12px;
+   font-size: 0.9rem;
+   font-weight: 600;
+   color: #64748b;
+   background: transparent;
+   border: none;
+   cursor: pointer;
+   transition: all 0.3s ease;
+   white-space: nowrap;
+   text-align: center;
 }
 
 .view-toggle-controls input[type="radio"]:checked + .toggle-btn {
-    color: white;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+   color: white;
+   background: linear-gradient(135deg, #667eea, #764ba2);
+   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
-.toggle-btn:hover:not(.view-toggle-controls input[type="radio"]:checked + .toggle-btn) {
-    background: rgba(102, 126, 234, 0.1);
-    color: #374151;
+.view-toggle-controls .toggle-btn:hover:not(.view-toggle-controls input[type="radio"]:checked + .toggle-btn) {
+   background: rgba(102, 126, 234, 0.1);
+   color: #374151;
 }
 """

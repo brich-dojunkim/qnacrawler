@@ -278,7 +278,7 @@ def generate_team_accordion_items(results: Dict) -> str:
                             <span class="metric-value">{answer_rate}%</span>
                         </div>
                         <div class="metric-item status">
-                            <span class="metric-label">주요 현황</span>
+                            <span class="metric-label">주요 여정</span>
                             <span class="metric-value">{top_journey}</span>
                         </div>
                     </div>
@@ -387,7 +387,7 @@ def generate_journey_accordion_items(results: Dict) -> str:
                             <span class="metric-value">{answer_rate}%</span>
                         </div>
                         <div class="metric-item status">
-                            <span class="metric-label">주요 현황</span>
+                            <span class="metric-label">주요 팀</span>
                             <span class="metric-value">{top_team}</span>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
-# voc_html_reporter.py (문의 모달 템플릿 import 방식)
+# voc_html_reporter.py (모듈화된 템플릿 지원)
 """
-카테고리 기반 VoC HTML 보고서 생성기 - 완료율 칼럼 지원 + 드로어 통합 + 데이터 변환 개선
+카테고리 기반 VoC HTML 보고서 생성기 - 완료율 칼럼 지원 + 드로어 통합 + 데이터 변환 개선 + 모듈화된 템플릿 지원
 """
 
 import pandas as pd
@@ -18,7 +18,16 @@ from html_reporter import (
     process_overview_data, process_category_data,
     generate_team_options  
 )
-from html_reporter.templates.category_table import get_category_table_row_template, get_team_filter_options
+
+# 🚨 모듈화된 템플릿들 import
+from html_reporter.templates.category_table import (
+    get_category_table_row_template, 
+    get_team_filter_options,
+    get_table_filter_header_template,
+    get_table_filter_status_template,
+    get_complete_category_table_template
+)
+from html_reporter.templates.controls import get_controls_bar_template
 
 # 🚨 직접 import 방식으로 변경
 try:
@@ -57,6 +66,18 @@ class CategoryVoCHTMLReporter:
         
         # 🔧 문의 모달 템플릿 가져오기 (이미 import에서 처리됨)
         inquiry_modal_template = get_inquiry_modal_template()
+        
+        # 🔧 모듈화된 템플릿들 생성
+        controls_bar_template = get_controls_bar_template()
+        
+        # 완전한 카테고리 테이블 템플릿 생성
+        complete_category_table_template = get_complete_category_table_template().format(
+            table_filter_status=get_table_filter_status_template(),
+            table_filter_header=get_table_filter_header_template().format(
+                team_filter_options=category_table_data['team_filter_options']
+            ),
+            category_table_rows=category_table_data['category_table_rows']
+        )
                 
         # 단일 페이지 HTML 구조 + 드로어 + 문의 모달
         html_content = get_base_template().format(
@@ -64,8 +85,8 @@ class CategoryVoCHTMLReporter:
             header=get_header_template().format(**overview_data),
             content=get_overview_template().format(
                 **overview_data,
-                team_filter_options=category_table_data['team_filter_options'],
-                category_table_rows=category_table_data['category_table_rows'],
+                controls_bar_template=controls_bar_template,  # 🚨 컨트롤 바 템플릿 추가
+                complete_category_table_template=complete_category_table_template,  # 🚨 완전한 카테고리 테이블 템플릿 추가
                 inquiry_modal_template=inquiry_modal_template  # 🚨 문의 모달 템플릿
             ) + category_table_data['modals_html'],
             footer=get_footer_template().format(generated_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
